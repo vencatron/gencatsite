@@ -16,7 +16,7 @@ const AboutPage = () => {
             designed to protect your legacy and secure your family's future.
           </p>
           <p className="text-neutral-700 mb-6">
-            Our experienced team of attorneys and financial advisors work closely with clients
+            Our experienced team of estate planning specialists and financial advisors work closely with clients
             to develop personalized estate plans that meet their unique needs and objectives.
           </p>
         </div>

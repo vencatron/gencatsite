@@ -53,11 +53,11 @@ const ResourcesPage = () => {
       faqs: [
         {
           question: 'What is probate and how long does it take?',
-          answer: 'Probate is the court-supervised process of validating a will, paying debts, and distributing assets. In Oregon and Washington, probate typically takes 9-18 months but can take longer for complex estates. The process involves filing paperwork, notifying creditors and beneficiaries, and obtaining court approval for distributions.'
+          answer: 'Probate is the court-supervised process of validating a will, paying debts, and distributing assets. In California, probate typically takes 9-18 months but can take longer for complex estates. The process involves filing paperwork, notifying creditors and beneficiaries, and obtaining court approval for distributions.'
         },
         {
           question: 'How can I avoid probate?',
-          answer: 'Common probate avoidance strategies include creating a revocable living trust, using joint ownership with rights of survivorship, designating beneficiaries on accounts and insurance policies, and using transfer-on-death (TOD) or payable-on-death (POD) designations. Each method has pros and cons that should be evaluated with an attorney.'
+          answer: 'Common probate avoidance strategies include creating a revocable living trust, using joint ownership with rights of survivorship, designating beneficiaries on accounts and insurance policies, and using transfer-on-death (TOD) or payable-on-death (POD) designations. Each method has pros and cons that should be evaluated with a specialist.'
         },
         {
           question: 'What are the costs associated with probate?',
@@ -74,7 +74,7 @@ const ResourcesPage = () => {
       faqs: [
         {
           question: 'Will my estate owe estate taxes?',
-          answer: 'For 2024, the federal estate tax exemption is $13.61 million per person. Oregon has no state estate tax, but Washington has a state estate tax with a $2.193 million exemption. Most estates won\'t owe federal estate tax, but larger estates should plan for potential tax liability through various strategies.'
+          answer: 'For 2024, the federal estate tax exemption is $13.61 million per person. California has no state estate tax, which is an advantage for estate planning. Most estates won\'t owe federal estate tax, but larger estates should plan for potential tax liability through various strategies.'
         },
         {
           question: 'What is the gift tax and how does it work?',
@@ -210,7 +210,7 @@ const ResourcesPage = () => {
               Frequently Asked <span className="text-gradient">Questions</span>
             </h2>
             <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
-              Get answers to the most common estate planning questions from our experienced attorneys.
+              Get answers to the most common estate planning questions from our experienced specialists.
             </p>
           </motion.div>
 
@@ -404,7 +404,7 @@ const ResourcesPage = () => {
               Still Have Questions?
             </h2>
             <p className="text-xl text-primary-100 mb-8">
-              Our experienced estate planning attorneys are here to provide personalized guidance 
+              Our experienced estate planning specialists are here to provide personalized guidance 
               for your unique situation. Schedule your free consultation today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
