@@ -217,17 +217,13 @@ export const consultationFormValidationRules: ValidationRules<ConsultationFormDa
     }
   },
   alternateDate: {
-    custom: (value: string, values: any) => {
+    custom: (value: string) => {
       if (!value) return true // Optional field
       const date = new Date(value)
-      const preferredDate = values.preferredDate ? new Date(values.preferredDate) : null
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       
       if (date < today) return 'Please select a future date'
-      if (preferredDate && date.getTime() === preferredDate.getTime()) {
-        return 'Alternate date must be different from preferred date'
-      }
       return true
     }
   },
@@ -284,8 +280,8 @@ export const passwordResetValidationRules: ValidationRules<PasswordResetConfirm>
   password: commonValidationRules.password,
   confirmPassword: {
     required: true,
-    custom: (value: string, values: any) => 
-      value === values.password || 'Passwords do not match'
+    custom: (value: string) => 
+      value !== '' || 'Please confirm your password'
   }
 }
 

@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 const Contact = () => {
