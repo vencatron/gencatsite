@@ -6,10 +6,10 @@ export const COMPANY_INFO = {
   phone: '(555) 123-4567',
   email: 'info@generationcatalyst.com',
   address: {
-    street: '123 Legal Street',
-    city: 'Estate City',
-    state: 'ST',
-    zip: '12345',
+    street: '123 Estate Planning Blvd',
+    city: 'Claremont',
+    state: 'CA',
+    zip: '91711',
   },
   hours: {
     weekdays: 'Mon - Fri: 9:00 AM - 5:00 PM',

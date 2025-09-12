@@ -28,7 +28,7 @@ const About = () => {
               just documents—it's about protecting your family's future and preserving your legacy.
             </p>
             <p className="text-neutral-600 mb-8">
-              Our experienced team combines legal expertise with personalized service to create 
+              Our experienced team combines estate planning expertise with personalized service to create 
               comprehensive estate plans that reflect your unique circumstances and goals. We guide 
               you through every step of the process with clarity and compassion.
             </p>

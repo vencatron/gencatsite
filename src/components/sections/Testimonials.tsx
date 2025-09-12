@@ -6,7 +6,7 @@ const Testimonials = () => {
       id: 1,
       name: 'Sarah & Michael Johnson',
       role: 'Business Owners',
-      location: 'Portland, OR',
+      location: 'Claremont, CA',
       content: 'Generation Catalyst made estate planning so easy and stress-free. They explained everything in plain English and helped us create a comprehensive plan that protects our business and our children\'s future. We now have complete peace of mind.',
       rating: 5,
       image: '👩‍💼',
@@ -16,7 +16,7 @@ const Testimonials = () => {
       id: 2,
       name: 'Robert Chen',
       role: 'Retiree',
-      location: 'Seattle, WA',
+      location: 'Pomona, CA',
       content: 'After my spouse passed away, I needed help updating my estate plan. The team was incredibly compassionate and professional. They handled everything efficiently and made sure my assets would be distributed exactly as I wanted.',
       rating: 5,
       image: '👨‍💼',
@@ -26,7 +26,7 @@ const Testimonials = () => {
       id: 3,
       name: 'Maria Rodriguez',
       role: 'Single Mother',
-      location: 'Eugene, OR',
+      location: 'La Verne, CA',
       content: 'As a single mom, I was worried about what would happen to my daughter if something happened to me. Generation Catalyst helped me set up guardianship documents and a trust that ensures she\'ll be taken care of. The process was affordable and thorough.',
       rating: 5,
       image: '👩',
@@ -36,7 +36,7 @@ const Testimonials = () => {
       id: 4,
       name: 'James & Linda Thompson',
       role: 'Grandparents',
-      location: 'Bend, OR',
+      location: 'Upland, CA',
       content: 'We wanted to leave a legacy for our grandchildren while minimizing estate taxes. The team created an excellent plan using generation-skipping trusts that will benefit our family for generations to come. Highly recommend their expertise!',
       rating: 5,
       image: '👴',
@@ -87,8 +87,8 @@ const Testimonials = () => {
             Client Success Stories
           </span>
           <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
-            Trusted by Families Across the{' '}
-            <span className="text-gradient">Pacific Northwest</span>
+            Trusted by Families Across{' '}
+            <span className="text-gradient">Southern California</span>
           </h2>
           <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
             See how we've helped thousands of families protect their legacies and secure their futures 

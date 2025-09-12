@@ -37,7 +37,7 @@ const Hero = () => {
             <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
-            <span className="font-medium">Board Certified Attorneys</span>
+            <span className="font-medium">Certified Estate Planners</span>
           </div>
           <div className="flex items-center text-sm text-neutral-600">
             <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ const Hero = () => {
               </h1>
             </div>
             <p className="text-xl text-neutral-600 mb-8 max-w-lg leading-relaxed">
-              Don't leave your family's future to chance. Our experienced estate planning attorneys 
+              Don't leave your family's future to chance. Our experienced estate planning specialists 
               create comprehensive strategies that protect your assets, minimize taxes, and ensure 
               your legacy lives on exactly as you intend.
             </p>

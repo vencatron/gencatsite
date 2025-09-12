@@ -21,15 +21,15 @@ const Footer = () => {
     ],
     company: [
       { name: 'About Generation Catalyst', href: '/about' },
-      { name: 'Our Attorneys', href: '/about/team' },
+      { name: 'Our Team', href: '/about/team' },
       { name: 'Client Testimonials', href: '/testimonials' },
       { name: 'Contact Us', href: '/contact' },
       { name: 'Client Portal', href: '/client-portal' },
     ],
-    legal: [
+    information: [
       { name: 'Privacy Policy', href: '/privacy' },
       { name: 'Terms of Service', href: '/terms' },
-      { name: 'Attorney Advertising', href: '/attorney-advertising' },
+      { name: 'Service Information', href: '/service-info' },
       { name: 'Professional Disclosures', href: '/disclosures' },
     ],
   }
@@ -43,11 +43,11 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="inline-block mb-4">
               <h3 className="text-2xl font-bold">Generation Catalyst</h3>
-              <p className="text-primary-400 text-sm font-medium">Estate Planning Attorneys</p>
+              <p className="text-primary-400 text-sm font-medium">Estate Planning Specialists</p>
             </Link>
             <p className="text-neutral-300 mb-6 leading-relaxed">
-              Protecting families and preserving legacies throughout the Pacific Northwest 
-              for over 25 years. Trust our board-certified attorneys to secure your family's future.
+              Protecting families and preserving legacies throughout Southern California 
+              for over 25 years. Trust our certified specialists to secure your family's future.
             </p>
             
             {/* Contact Info */}
@@ -74,7 +74,7 @@ const Footer = () => {
                 </svg>
                 <div className="text-neutral-300">
                   <p>123 Estate Planning Blvd, Suite 500</p>
-                  <p>Portland, OR 97205</p>
+                  <p>Claremont, CA 91711</p>
                 </div>
               </div>
             </div>
@@ -150,11 +150,11 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Information */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-white">Legal</h4>
+            <h4 className="text-lg font-semibold mb-6 text-white">Information</h4>
             <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
+              {footerLinks.information.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
@@ -168,28 +168,28 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Legal Disclaimers */}
+        {/* Service Disclaimers */}
         <div className="border-t border-neutral-700 pt-8 mb-8">
           <div className="bg-neutral-800 rounded-lg p-6">
-            <h5 className="font-semibold text-white mb-4">Important Legal Disclaimers</h5>
+            <h5 className="font-semibold text-white mb-4">Important Service Disclaimers</h5>
             <div className="grid md:grid-cols-2 gap-6 text-sm text-neutral-400 leading-relaxed">
               <div>
                 <p className="mb-3">
-                  <strong className="text-neutral-300">Attorney Advertising:</strong> This website constitutes attorney advertising. 
-                  Prior results do not guarantee a similar outcome. The choice of a lawyer is an important decision 
-                  that should not be based solely upon advertisements.
+                  <strong className="text-neutral-300">Service Information:</strong> This website provides information about our estate planning services. 
+                  Prior results do not guarantee a similar outcome. The choice of an estate planner is an important decision 
+                  and should not be based solely upon advertisements.
                 </p>
                 <p className="mb-3">
-                  <strong className="text-neutral-300">No Attorney-Client Relationship:</strong> The information on this website 
-                  is for general information purposes only and does not constitute legal advice. 
-                  Contacting us does not create an attorney-client relationship.
+                  <strong className="text-neutral-300">No Professional Relationship:</strong> The information on this website 
+                  is for general information purposes only and does not constitute professional advice. 
+                  Contacting us does not create a professional service relationship.
                 </p>
               </div>
               <div>
                 <p className="mb-3">
-                  <strong className="text-neutral-300">Professional Licenses:</strong> Our attorneys are licensed to practice 
-                  law in the states of Oregon and Washington. We may associate with local counsel 
-                  in other jurisdictions as needed.
+                  <strong className="text-neutral-300">Professional Certifications:</strong> Our specialists are certified estate planners 
+                  serving the Southern California region. We work with qualified professionals 
+                  for specialized matters outside our service areas.
                 </p>
                 <p>
                   <strong className="text-neutral-300">Tax Advice Disclaimer:</strong> Any tax advice contained in this website 
@@ -209,9 +209,9 @@ const Footer = () => {
                 © {currentYear} Generation Catalyst Estate Planning. All rights reserved.
               </p>
               <div className="flex items-center space-x-4 text-xs text-neutral-500">
-                <span>Licensed in OR & WA</span>
+                <span>Serving Southern CA</span>
                 <span>•</span>
-                <span>Bar No. 123456</span>
+                <span>Est. 1998</span>
                 <span>•</span>
                 <span>A+ BBB Rating</span>
               </div>
