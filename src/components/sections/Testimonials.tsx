@@ -45,10 +45,10 @@ const Testimonials = () => {
   ]
 
   const stats = [
-    { label: 'Client Satisfaction', value: '99%', icon: '😊' },
-    { label: 'Families Served', value: '1,500+', icon: '👨‍👩‍👧‍👦' },
+    { label: 'Client Satisfaction', value: '100%', icon: '😊' },
+    { label: 'Families Served', value: '150+', icon: '👨‍👩‍👧‍👦' },
     { label: 'Years Experience', value: '25+', icon: '⚖️' },
-    { label: 'Estate Plans Created', value: '3,200+', icon: '📋' },
+    { label: 'Estate Plans Created', value: '300+', icon: '📋' },
   ]
 
   const containerVariants = {
@@ -243,7 +243,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
         >
           <p className="text-lg text-neutral-600 mb-6">
-            Join thousands of families who've secured their future with Generation Catalyst
+            Join the families who've secured their future with Generation Catalyst
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a

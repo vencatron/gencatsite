@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 
 const About = () => {
   const stats = [
-    { number: '500+', label: 'Families Served' },
+    { number: '150+', label: 'Families Served' },
     { number: '25+', label: 'Years Experience' },
-    { number: '98%', label: 'Client Satisfaction' },
-    { number: '$50M+', label: 'Assets Protected' },
+    { number: '100%', label: 'Client Satisfaction' },
+    { number: '$5M+', label: 'Assets Protected' },
   ]
 
   return (
