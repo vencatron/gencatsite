@@ -23,7 +23,7 @@ const URL_REGEX = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?
 /**
  * Validate a single field against a validation rule
  */
-export const validateField = (value: any, rule: ValidationRule): string | null => {
+export const validateField = (value: any, rule: ValidationRule, values?: Record<string, any>): string | null => {
   // Required validation
   if (rule.required && !value) {
     return rule.message || 'This field is required'
@@ -54,7 +54,7 @@ export const validateField = (value: any, rule: ValidationRule): string | null =
 
   // Custom validation
   if (rule.custom) {
-    const result = rule.custom(value)
+    const result = rule.custom(value, values)
     if (typeof result === 'string') {
       return result
     }
@@ -80,7 +80,7 @@ export const validateForm = <T extends Record<string, any>>(
     const value = values[key]
     
     if (rule) {
-      const error = validateField(value, rule)
+      const error = validateField(value, rule, values)
       if (error) {
         errors[key] = error
       }

@@ -24,7 +24,7 @@ const ContactPage = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-neutral-800">Email</h3>
-                <p className="text-neutral-700">info@generationcatalyst.com</p>
+                <p className="text-neutral-700">info@iamatrust.com</p>
               </div>
             </div>
           </div>

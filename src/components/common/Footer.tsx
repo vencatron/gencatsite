@@ -47,7 +47,7 @@ const Footer = () => {
             </Link>
             <p className="text-neutral-300 mb-6 leading-relaxed">
               Protecting families and preserving legacies throughout the Pacific Northwest 
-              for over 25 years. Trust our board-certified attorneys to secure your family's future.
+              for over 25 years. Trust our experienced attorneys to secure your family's future.
             </p>
             
             {/* Contact Info */}

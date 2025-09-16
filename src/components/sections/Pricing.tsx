@@ -173,7 +173,7 @@ const Pricing = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {packages.map((pkg, index) => (
+          {packages.map((pkg, _index) => (
             <motion.div
               key={pkg.name}
               className={`relative bg-white rounded-2xl shadow-lg p-8 ${

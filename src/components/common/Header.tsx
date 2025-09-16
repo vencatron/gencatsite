@@ -27,7 +27,7 @@ const Header = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
             >
-              Generation Catalyst
+              Gencat
             </motion.div>
           </Link>
 

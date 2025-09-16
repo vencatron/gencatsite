@@ -8,6 +8,10 @@ import ResourcesPage from '@/pages/ResourcesPage'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import ClientPortal from '@/components/sections/ClientPortal'
+import EstatePlanningPage from '@/pages/EstatePlanningPage'
+import WillsTrustsPage from '@/pages/WillsTrustsPage'
+import ProbateServicesPage from '@/pages/ProbateServicesPage'
+import TaxPlanningPage from '@/pages/TaxPlanningPage'
 
 function App() {
   return (
@@ -23,6 +27,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/estate-planning" element={<EstatePlanningPage />} />
+          <Route path="/services/wills-trusts" element={<WillsTrustsPage />} />
+          <Route path="/services/probate" element={<ProbateServicesPage />} />
+          <Route path="/services/tax-planning" element={<TaxPlanningPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/client-portal" element={<ClientPortal />} />

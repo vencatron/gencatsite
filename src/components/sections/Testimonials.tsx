@@ -45,7 +45,7 @@ const Testimonials = () => {
   ]
 
   const stats = [
-    { label: 'Client Satisfaction', value: '99%', icon: '😊' },
+    { label: 'Client Satisfaction', value: '100%', icon: '😊' },
     { label: 'Families Served', value: '1,500+', icon: '👨‍👩‍👧‍👦' },
     { label: 'Years Experience', value: '25+', icon: '⚖️' },
     { label: 'Estate Plans Created', value: '3,200+', icon: '📋' },
@@ -204,15 +204,7 @@ const Testimonials = () => {
               <h3 className="font-semibold text-neutral-900 mb-2">BBB A+ Rating</h3>
               <p className="text-sm text-neutral-600">Accredited Business</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <h3 className="font-semibold text-neutral-900 mb-2">Board Certified</h3>
-              <p className="text-sm text-neutral-600">Estate Planning Specialists</p>
-            </div>
+            
             <div className="text-center">
               <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-secondary-600" fill="currentColor" viewBox="0 0 24 24">

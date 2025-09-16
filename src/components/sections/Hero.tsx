@@ -33,12 +33,7 @@ const Hero = () => {
             </svg>
             <span className="font-medium">1,500+ Families Served</span>
           </div>
-          <div className="flex items-center text-sm text-neutral-600">
-            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span className="font-medium">Board Certified Attorneys</span>
-          </div>
+          
           <div className="flex items-center text-sm text-neutral-600">
             <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -193,6 +188,53 @@ const Hero = () => {
             {/* Background decoration */}
             <div className="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-primary-200 to-accent-200 rounded-full opacity-20 -z-10"></div>
             <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-gradient-to-br from-secondary-200 to-primary-200 rounded-full opacity-15 -z-10"></div>
+          </motion.div>
+
+          {/* Visual */}
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            {/* Floating glow accents */}
+            <motion.div
+              className="absolute -top-8 -left-8 w-40 h-40 bg-gradient-to-br from-primary-200/50 to-accent-200/40 rounded-full blur-2xl"
+              animate={{ y: [0, -8, 0], opacity: [0.6, 0.9, 0.6] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="absolute -bottom-10 -right-12 w-48 h-48 bg-gradient-to-br from-secondary-200/40 to-primary-200/40 rounded-full blur-2xl"
+              animate={{ y: [0, 10, 0], opacity: [0.5, 0.8, 0.5] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+            />
+
+            {/* Hero image */}
+            <motion.img
+              src="/hero-illustration.svg"
+              alt="Family estate planning illustration"
+              className="relative z-10 w-full max-w-xl mx-auto drop-shadow-xl select-none"
+              loading="eager"
+              decoding="async"
+              initial={{ scale: 0.96, y: 12, opacity: 0 }}
+              animate={{ scale: 1, y: [12, 0, 12], opacity: 1 }}
+              transition={{
+                duration: 0.8,
+                opacity: { duration: 0.5 },
+                y: { duration: 8, repeat: Infinity, ease: 'easeInOut' },
+              }}
+              whileHover={{ scale: 1.02 }}
+            />
+
+            {/* Sub-caption */}
+            <div className="text-center mt-6 text-neutral-600">
+              <span className="inline-flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Secure, modern planning for every generation
+              </span>
+            </div>
           </motion.div>
         </div>
       </div>
