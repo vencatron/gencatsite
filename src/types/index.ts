@@ -528,7 +528,7 @@ export interface ValidationRule {
   minLength?: number
   maxLength?: number
   pattern?: RegExp
-  custom?: (value: any) => boolean | string
+  custom?: (value: any, values?: any) => boolean | string
   message?: string
 }
 

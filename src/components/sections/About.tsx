@@ -7,6 +7,9 @@ const About = () => {
     { number: '25+', label: 'Years Experience' },
     { number: '100%', label: 'Client Satisfaction' },
     { number: '$5M+', label: 'Assets Protected' },
+
+    { number: '$10M+', label: 'Assets Protected' },
+
   ]
 
   return (
