@@ -137,7 +137,7 @@ const AboutPage = () => {
                   </a>
                 </div>
                 <div className="pt-2">
-                  <a href="/contact" className="btn-primary w-full inline-flex justify-center">
+                  <a href="/schedule" className="btn-primary w-full inline-flex justify-center">
                     Schedule a Consultation
                   </a>
                 </div>

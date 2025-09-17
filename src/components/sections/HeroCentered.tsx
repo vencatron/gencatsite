@@ -35,7 +35,7 @@ const HeroCentered = () => {
             Comprehensive, compassionate planning to preserve your legacy and secure your family’s future.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
+            <Link to="/schedule" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
               Schedule a Consultation
             </Link>
             <Link to="/services" className="btn-outline">

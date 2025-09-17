@@ -8,9 +8,18 @@ import ResourcesPage from '@/pages/ResourcesPage'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import ClientPortal from '@/components/sections/ClientPortal'
+import PortalLayout from '@/pages/portal/PortalLayout'
+import PortalDashboard from '@/pages/portal/PortalDashboard'
+import PortalDocuments from '@/pages/portal/PortalDocuments'
+import PortalMessages from '@/pages/portal/PortalMessages'
+import PortalAppointments from '@/pages/portal/PortalAppointments'
+import PortalBilling from '@/pages/portal/PortalBilling'
+import PortalSettings from '@/pages/portal/PortalSettings'
+import RequirePortalAuth from '@/routes/RequirePortalAuth'
 import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
 import TaxPlanningPage from '@/pages/TaxPlanningPage'
+import SchedulePage from '@/pages/SchedulePage'
 
 function App() {
   return (
@@ -30,8 +39,19 @@ function App() {
           <Route path="/services/wills-trusts" element={<WillsTrustsPage />} />
           <Route path="/services/tax-planning" element={<TaxPlanningPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/client-portal" element={<ClientPortal />} />
+          <Route element={<RequirePortalAuth />}>
+            <Route path="/client-portal" element={<PortalLayout />}>
+              <Route path="dashboard" element={<PortalDashboard />} />
+              <Route path="documents" element={<PortalDocuments />} />
+              <Route path="messages" element={<PortalMessages />} />
+              <Route path="appointments" element={<PortalAppointments />} />
+              <Route path="billing" element={<PortalBilling />} />
+              <Route path="settings" element={<PortalSettings />} />
+            </Route>
+          </Route>
         </Routes>
       </motion.main>
       <Footer />

@@ -5,20 +5,12 @@ const Footer = () => {
 
   const footerLinks = {
     services: [
-<<<<<<< HEAD
-      { name: 'Estate Planning', href: '/services/estate-planning' },
-      { name: 'Wills & Trusts', href: '/services/wills-trusts' },
-      { name: 'Tax Planning', href: '/services/tax-planning' },
-      { name: 'Business Succession', href: '/services/business-succession' },
-      { name: 'Asset Protection', href: '/services/asset-protection' },
-=======
       { name: "Estate Planning", href: "/services/estate-planning" },
       { name: "Wills & Trusts", href: "/services/wills-trusts" },
       { name: "Probate Services", href: "/services/probate" },
       { name: "Tax Planning", href: "/services/tax-planning" },
       { name: "Business Succession", href: "/services/business-succession" },
       { name: "Asset Protection", href: "/services/asset-protection" },
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
     ],
     resources: [
       { name: "Estate Planning FAQ", href: "/resources/faq" },
@@ -30,7 +22,6 @@ const Footer = () => {
     company: [
       { name: "About Generation Catalyst", href: "/about" },
       { name: "Our Team", href: "/about/team" },
-      { name: "Client Testimonials", href: "/testimonials" },
       { name: "Contact Us", href: "/contact" },
       { name: "Client Portal", href: "/client-portal" },
     ],
@@ -56,16 +47,9 @@ const Footer = () => {
               </p>
             </Link>
             <p className="text-neutral-300 mb-6 leading-relaxed">
-<<<<<<< HEAD
-              Protecting families and preserving legacies throughout the Pacific Northwest.
-              Trust our experienced attorneys to secure your family's future.
-=======
               Protecting families and preserving legacies throughout Southern
               California for over 25 years. Trust our certified specialists to
-              secure your family's future. Protecting families and preserving
-              legacies throughout the Pacific Northwest for over 25 years. Trust
-              our experienced attorneys to secure your family's future.
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
+              secure your family's future.
             </p>
 
             {/* Contact Info */}
@@ -93,16 +77,11 @@ const Footer = () => {
                 >
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                 </svg>
-<<<<<<< HEAD
-                <a href="mailto:info@iamatrust.com" className="text-neutral-300 hover:text-primary-400 transition-colors">
-                  info@iamatrust.com
-=======
                 <a
-                  href="mailto:info@generationcatalyst.com"
+                  href="mailto:info@iamatrust.com"
                   className="text-neutral-300 hover:text-primary-400 transition-colors"
                 >
-                  info@generationcatalyst.com
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
+                  info@iamatrust.com
                 </a>
               </div>
               <div className="flex items-start space-x-3">

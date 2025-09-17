@@ -49,8 +49,6 @@ const ResourcesPage = () => {
       ]
     },
     {
-<<<<<<< HEAD
-=======
       title: 'Probate and Administration',
       faqs: [
         {
@@ -72,7 +70,6 @@ const ResourcesPage = () => {
       ]
     },
     {
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
       title: 'Taxes and Financial Planning',
       faqs: [
         {
@@ -406,17 +403,12 @@ const ResourcesPage = () => {
             <h2 className="text-4xl font-bold mb-6">
               Still Have Questions?
             </h2>
-            <p className="text-xl text-primary-100 mb-8">
-<<<<<<< HEAD
-              Our experienced estate planning attorneys are here to provide personalized guidance 
-              for your unique situation. Schedule a consultation today.
-=======
+          <p className="text-xl text-primary-100 mb-8">
               Our experienced estate planning specialists are here to provide personalized guidance 
               for your unique situation. Schedule your free consultation today.
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
-            </p>
+          </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact" className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-primary-50 transition-colors duration-200">
+              <Link to="/schedule" className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-primary-50 transition-colors duration-200">
                 Schedule a Consultation
               </Link>
               <a href="tel:(555)123-4567" className="border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-primary-600 transition-colors duration-200">

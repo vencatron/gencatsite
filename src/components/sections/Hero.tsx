@@ -14,8 +14,6 @@ const Hero = () => {
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<<<<<<< HEAD
-=======
         {/* Trust indicators bar */}
         <motion.div 
           className="flex flex-wrap justify-center items-center gap-8 mb-16 pb-8 border-b border-neutral-200/50"
@@ -50,7 +48,6 @@ const Hero = () => {
             <span className="font-medium">A+ Better Business Bureau</span>
           </div>
         </motion.div>
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
@@ -111,7 +108,7 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/contact" className="btn-primary text-center shadow-lg hover:shadow-xl transition-shadow">
+              <Link to="/schedule" className="btn-primary text-center shadow-lg hover:shadow-xl transition-shadow">
                 Schedule a Consultation
               </Link>
               <Link to="/services" className="btn-outline text-center">

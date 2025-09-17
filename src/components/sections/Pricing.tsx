@@ -243,7 +243,7 @@ const Pricing = () => {
               {/* CTA */}
               <div className="space-y-3">
                 <Link
-                  to="/contact"
+                  to="/schedule"
                   className={`w-full text-center py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
                     pkg.popular
                       ? 'bg-primary-600 hover:bg-primary-700 text-white'
@@ -289,42 +289,7 @@ const Pricing = () => {
           </div>
         </motion.div>
 
-        {/* FAQ Section */}
-        <motion.div
-          className="mt-16 bg-neutral-100 rounded-2xl p-8"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-2xl font-bold text-neutral-900 mb-8 text-center">
-            Frequently Asked Questions
-          </h3>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h4 className="font-semibold text-neutral-900 mb-3">Do you offer payment plans?</h4>
-              <p className="text-neutral-600 mb-6">
-                Yes! We offer flexible payment plans for all packages. Split your payment into 2, 3, or 6 monthly installments with no interest or fees.
-              </p>
-              
-              <h4 className="font-semibold text-neutral-900 mb-3">What if I need changes later?</h4>
-              <p className="text-neutral-600">
-                All packages include document updates. The Essential package includes 1 year of free updates, while Trust and Premium packages include lifetime updates.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-neutral-900 mb-3">How long does the process take?</h4>
-              <p className="text-neutral-600 mb-6">
-                Most estate plans are completed within 2-3 weeks from our initial meeting. Complex Premium plans may take 4-6 weeks depending on the structures involved.
-              </p>
-              
-              <h4 className="font-semibold text-neutral-900 mb-3">Do you charge for consultations?</h4>
-              <p className="text-neutral-600">We offer an initial consultation to understand your goals. We'll outline scope and pricing before any engagement; there is no obligation.</p>
-            </div>
-          </div>
-        </motion.div>
+        
 
         {/* Final CTA */}
         <motion.div
@@ -341,7 +306,7 @@ const Pricing = () => {
             Schedule a consultation today and discover which estate planning package is right for your family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
+            <Link to="/schedule" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
               Schedule a Consultation
             </Link>
             <a href="tel:(555)123-4567" className="btn-outline">

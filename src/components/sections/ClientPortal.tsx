@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { usePortalAuth } from '@/context/PortalAuthContext'
 
 const ClientPortal = () => {
   const [loginData, setLoginData] = useState({
@@ -9,15 +10,20 @@ const ClientPortal = () => {
   })
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const { login } = usePortalAuth()
+  const navigate = useNavigate()
+  const location = useLocation() as any
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoggingIn(true)
-    // Simulate login process
-    setTimeout(() => {
+    // Simulated login; create a session and redirect to dashboard
+    setTimeout(async () => {
+      await login(loginData.email, loginData.password)
       setIsLoggingIn(false)
-      // Handle login logic here
-    }, 2000)
+      const redirectTo = location?.state?.from || '/client-portal/dashboard'
+      navigate(redirectTo)
+    }, 800)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,7 +291,7 @@ const ClientPortal = () => {
               <div className="mt-6 p-4 bg-neutral-50 rounded-lg text-center">
                 <p className="text-sm text-neutral-700 mb-2">New client? Your portal access will be set up after your first consultation.</p>
                 <Link
-                  to="/contact"
+                  to="/schedule"
                   className="text-primary-600 hover:text-primary-500 text-sm font-medium"
                 >
                   Schedule a Consultation →
@@ -312,7 +318,7 @@ const ClientPortal = () => {
               Start with a consultation and get your secure client portal access.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact" className="btn-primary">
+              <Link to="/schedule" className="btn-primary">
                 Schedule a Consultation
               </Link>
               <Link to="/services" className="btn-outline">
