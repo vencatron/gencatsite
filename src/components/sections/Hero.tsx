@@ -14,6 +14,43 @@ const Hero = () => {
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<<<<<<< HEAD
+=======
+        {/* Trust indicators bar */}
+        <motion.div 
+          className="flex flex-wrap justify-center items-center gap-8 mb-16 pb-8 border-b border-neutral-200/50"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center text-sm text-neutral-600">
+            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span className="font-medium">25+ Years Experience</span>
+          </div>
+          <div className="flex items-center text-sm text-neutral-600">
+            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span className="font-medium">150+ Families Served</span>
+          </div>
+
+          <div className="flex items-center text-sm text-neutral-600">
+            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span className="font-medium">Certified Estate Planners</span>
+          </div>
+
+          <div className="flex items-center text-sm text-neutral-600">
+            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span className="font-medium">A+ Better Business Bureau</span>
+          </div>
+        </motion.div>
+>>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
@@ -32,7 +69,7 @@ const Hero = () => {
               </h1>
             </div>
             <p className="text-xl text-neutral-600 mb-8 max-w-lg leading-relaxed">
-              Don't leave your family's future to chance. Our experienced estate planning attorneys 
+              Don't leave your family's future to chance. Our experienced estate planning specialists 
               create comprehensive strategies that protect your assets, minimize taxes, and ensure 
               your legacy lives on exactly as you intend.
             </p>

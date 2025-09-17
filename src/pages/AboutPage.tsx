@@ -69,7 +69,7 @@ const AboutPage = () => {
               <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
                 <h3 className="font-semibold text-neutral-900 mb-2">Family-First Guidance</h3>
                 <p className="text-neutral-600 text-sm">
-                  We start with your family’s needs and build plans that support long-term
+                  We start with your family's needs and build plans that support long-term
                   stability and harmony across generations.
                 </p>
               </div>
@@ -90,8 +90,8 @@ const AboutPage = () => {
               <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
                 <h3 className="font-semibold text-neutral-900 mb-2">Long-Term Stewardship</h3>
                 <p className="text-neutral-600 text-sm">
-                  We’re here beyond the paperwork—supporting trustees and families through
-                  administration and life’s transitions.
+                  We're here beyond the paperwork—supporting trustees and families through
+                  administration and life's transitions.
                 </p>
               </div>
             </div>
