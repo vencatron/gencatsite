@@ -2,12 +2,6 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 const About = () => {
-  const stats = [
-    { number: '500+', label: 'Families Served' },
-    { number: '25+', label: 'Years Experience' },
-    { number: '100%', label: 'Client Satisfaction' },
-    { number: '$10M+', label: 'Assets Protected' },
-  ]
 
   return (
     <section className="py-20 bg-gradient-to-br from-neutral-50 to-primary-50">
@@ -33,25 +27,6 @@ const About = () => {
               you through every step of the process with clarity and compassion.
             </p>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  className="text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="text-3xl font-bold text-primary-600 mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm text-neutral-600 font-medium">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
 
             <Link to="/about" className="btn-primary">
               Learn More About Us
@@ -80,16 +55,9 @@ const About = () => {
                   </div>
                 </div>
                 <p className="text-neutral-700 text-sm">
-                  "Generation Catalyst helped us create a comprehensive estate plan that 
-                  gives us peace of mind knowing our family is protected."
+                  Our experienced team combines legal expertise with personalized service
+                  to create comprehensive estate plans that protect your family's future.
                 </p>
-                <div className="flex items-center mt-4">
-                  <div className="w-10 h-10 bg-accent-100 rounded-full mr-3"></div>
-                  <div>
-                    <div className="font-medium text-sm text-neutral-900">Sarah Johnson</div>
-                    <div className="text-xs text-neutral-600">Client since 2019</div>
-                  </div>
-                </div>
               </div>
 
               <div className="bg-white rounded-2xl shadow-xl p-6">

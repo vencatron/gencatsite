@@ -46,14 +46,14 @@ const Contact = () => {
           viewport={{ once: true }}
         >
           <span className="inline-block bg-primary-600 text-white text-sm font-medium px-3 py-1 rounded-full mb-4">
-            Free Consultation
+            Consultation
           </span>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Ready to Secure Your <span className="text-primary-400">Legacy?</span>
           </h2>
           <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
             Take the first step toward protecting your family's future. 
-            Schedule a free consultation with our expert estate planning attorneys today.
+            Schedule a consultation with our expert estate planning attorneys today.
           </p>
         </motion.div>
 
@@ -75,7 +75,7 @@ const Contact = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-green-100 mb-4">Consultation Request Received!</h3>
                 <p className="text-green-200 mb-6">
-                  Thank you for your interest in our estate planning services. We'll contact you within 24 hours to schedule your free consultation.
+                  Thank you for your interest in our estate planning services. We'll contact you within 24 hours to schedule your consultation.
                 </p>
                 <p className="text-green-300 text-sm">
                   For urgent matters, please call us at <a href="tel:(555)123-4567" className="underline">(555) 123-4567</a>
@@ -84,9 +84,7 @@ const Contact = () => {
             ) : (
               <div className="bg-white rounded-2xl p-8 shadow-2xl">
                 <div className="mb-8">
-                  <h3 className="text-2xl font-bold text-neutral-900 mb-4">
-                    Schedule Your Free Consultation
-                  </h3>
+                  <h3 className="text-2xl font-bold text-neutral-900 mb-4">Schedule Your Consultation</h3>
                   <p className="text-neutral-600">
                     Fill out the form below and we'll contact you within 24 hours to schedule your consultation.
                   </p>
@@ -140,7 +138,7 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-neutral-900"
-                        placeholder="john.smith@email.com"
+                        placeholder="john.smith@iamatrust.com"
                       />
                     </div>
                     <div>
@@ -177,7 +175,6 @@ const Contact = () => {
                         <option value="estate-planning">Comprehensive Estate Planning</option>
                         <option value="will-only">Simple Will</option>
                         <option value="trust">Living Trust</option>
-                        <option value="probate">Probate Services</option>
                         <option value="business">Business Succession</option>
                         <option value="tax-planning">Tax Planning</option>
                         <option value="update">Update Existing Plan</option>
@@ -284,7 +281,7 @@ const Contact = () => {
                       </>
                     ) : (
                       <>
-                        Schedule My Free Consultation
+                        Schedule My Consultation
                         <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M5 13l4 4L19 7"/>
                         </svg>
@@ -323,8 +320,8 @@ const Contact = () => {
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                   </svg>
                   <div>
-                    <a href="mailto:info@generationcatalyst.com" className="text-white hover:text-primary-200 transition-colors">
-                      info@generationcatalyst.com
+                    <a href="mailto:info@iamatrust.com" className="text-white hover:text-primary-200 transition-colors">
+                      info@iamatrust.com
                     </a>
                   </div>
                 </div>
@@ -365,8 +362,8 @@ const Contact = () => {
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                   <div>
-                    <h4 className="font-semibold text-neutral-900">Free 60-Minute Consultation</h4>
-                    <p className="text-sm text-neutral-600">No cost, no obligation discussion of your needs</p>
+                    <h4 className="font-semibold text-neutral-900">Consultation</h4>
+                    <p className="text-sm text-neutral-600">No obligation discussion of your needs</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -407,19 +404,19 @@ const Contact = () => {
                   <svg className="w-4 h-4 text-accent-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
-                  <span className="text-neutral-700">25+ years of experience</span>
+                  <span className="text-neutral-700">Professional estate planning attorneys</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg className="w-4 h-4 text-accent-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
-                  <span className="text-neutral-700">1,500+ families served</span>
+                  <span className="text-neutral-700">Personalized legal solutions</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg className="w-4 h-4 text-accent-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
-                  <span className="text-neutral-700">A+ Better Business Bureau rating</span>
+                  <span className="text-neutral-700">Comprehensive estate planning services</span>
                 </div>
                 
               </div>

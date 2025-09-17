@@ -10,7 +10,6 @@ import Footer from '@/components/common/Footer'
 import ClientPortal from '@/components/sections/ClientPortal'
 import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
-import ProbateServicesPage from '@/pages/ProbateServicesPage'
 import TaxPlanningPage from '@/pages/TaxPlanningPage'
 
 function App() {
@@ -29,7 +28,6 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/estate-planning" element={<EstatePlanningPage />} />
           <Route path="/services/wills-trusts" element={<WillsTrustsPage />} />
-          <Route path="/services/probate" element={<ProbateServicesPage />} />
           <Route path="/services/tax-planning" element={<TaxPlanningPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/resources" element={<ResourcesPage />} />

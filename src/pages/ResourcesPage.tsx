@@ -32,40 +32,19 @@ const ResourcesPage = () => {
       faqs: [
         {
           question: 'What\'s the difference between a will and a trust?',
-          answer: 'A will is a legal document that directs how your assets are distributed after death and goes through probate court. A trust is a legal entity that can hold assets during your lifetime and after death, often avoiding probate. Trusts can provide more privacy, faster distribution, and better control over asset distribution than wills alone.'
+          answer: 'A will is a legal document that directs how your assets are distributed after death and must go through the court system. A trust is a legal entity that can hold assets during your lifetime and after death, often avoiding court involvement. Trusts can provide more privacy, faster distribution, and better control over asset distribution than wills alone.'
         },
         {
           question: 'Do I need a trust if I already have a will?',
-          answer: 'It depends on your specific situation. While a will is essential for everyone, a trust might be beneficial if you have significant assets, minor children, want to avoid probate, have privacy concerns, or need specific control over asset distribution. Many comprehensive estate plans include both a will and one or more trusts.'
+          answer: 'It depends on your specific situation. While a will is essential for everyone, a trust might be beneficial if you have significant assets, minor children, want to avoid court proceedings, have privacy concerns, or need specific control over asset distribution. Many comprehensive estate plans include both a will and one or more trusts.'
         },
         {
           question: 'What is a living trust vs. a testamentary trust?',
-          answer: 'A living trust (or revocable trust) is created and funded during your lifetime, allowing you to manage assets while alive and distribute them after death without probate. A testamentary trust is created through your will and only comes into effect after death. Living trusts offer more flexibility and immediate benefits.'
+          answer: 'A living trust (or revocable trust) is created and funded during your lifetime, allowing you to manage assets while alive and distribute them after death without court involvement. A testamentary trust is created through your will and only comes into effect after death. Living trusts offer more flexibility and immediate benefits.'
         },
         {
           question: 'Can I change my will or trust after it\'s created?',
           answer: 'Yes, wills can be changed through amendments (codicils) or by creating a new will. Revocable trusts can be modified or revoked entirely during your lifetime as long as you\'re mentally competent. Irrevocable trusts are generally more difficult to change and may require court approval or beneficiary consent.'
-        }
-      ]
-    },
-    {
-      title: 'Probate and Administration',
-      faqs: [
-        {
-          question: 'What is probate and how long does it take?',
-          answer: 'Probate is the court-supervised process of validating a will, paying debts, and distributing assets. In Oregon and Washington, probate typically takes 9-18 months but can take longer for complex estates. The process involves filing paperwork, notifying creditors and beneficiaries, and obtaining court approval for distributions.'
-        },
-        {
-          question: 'How can I avoid probate?',
-          answer: 'Common probate avoidance strategies include creating a revocable living trust, using joint ownership with rights of survivorship, designating beneficiaries on accounts and insurance policies, and using transfer-on-death (TOD) or payable-on-death (POD) designations. Each method has pros and cons that should be evaluated with an attorney.'
-        },
-        {
-          question: 'What are the costs associated with probate?',
-          answer: 'Probate costs typically include court fees, attorney fees, executor fees, appraisal costs, and accounting fees. Total costs usually range from 3-7% of the estate value. These costs vary by state and estate complexity. Creating a trust can often reduce or eliminate these costs.'
-        },
-        {
-          question: 'Who can serve as executor of my estate?',
-          answer: 'An executor should be someone you trust who is organized, responsible, and capable of handling financial matters. This can be a spouse, adult child, other family member, friend, or professional fiduciary. The person should be willing to serve and preferably live in the same state as you. You can also name co-executors or successor executors.'
         }
       ]
     },
@@ -405,11 +384,11 @@ const ResourcesPage = () => {
             </h2>
             <p className="text-xl text-primary-100 mb-8">
               Our experienced estate planning attorneys are here to provide personalized guidance 
-              for your unique situation. Schedule your free consultation today.
+              for your unique situation. Schedule a consultation today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contact" className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-primary-50 transition-colors duration-200">
-                Schedule Free Consultation
+                Schedule a Consultation
               </Link>
               <a href="tel:(555)123-4567" className="border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-primary-600 transition-colors duration-200">
                 Call (555) 123-4567

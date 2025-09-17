@@ -4,7 +4,7 @@ export const COMPANY_INFO = {
   name: 'Generation Catalyst',
   tagline: 'Professional Estate Planning Services',
   phone: '(555) 123-4567',
-  email: 'info@generationcatalyst.com',
+  email: 'info@iamatrust.com',
   address: {
     street: '123 Legal Street',
     city: 'Estate City',
@@ -33,7 +33,6 @@ export const NAVIGATION_ITEMS = [
 export const SERVICE_CATEGORIES = [
   'Estate Planning',
   'Wills & Trusts',
-  'Probate Services',
   'Tax Planning',
   'Asset Protection',
   'Business Succession',

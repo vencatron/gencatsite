@@ -24,16 +24,6 @@ const Services = () => {
       features: ['Living Wills', 'Revocable Trusts', 'Irrevocable Trusts'],
     },
     {
-      title: 'Probate Services',
-      description: 'Expert guidance through the probate process to minimize stress and complications.',
-      icon: (
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-        </svg>
-      ),
-      features: ['Court Representation', 'Asset Distribution', 'Dispute Resolution'],
-    },
-    {
       title: 'Tax Planning',
       description: 'Strategic tax planning to minimize estate tax burden and maximize wealth transfer.',
       icon: (
@@ -86,7 +76,7 @@ const Services = () => {
         </motion.div>
 
         <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"

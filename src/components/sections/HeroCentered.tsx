@@ -36,7 +36,7 @@ const HeroCentered = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/contact" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
-              Start Your Free Consultation
+              Schedule a Consultation
             </Link>
             <Link to="/services" className="btn-outline">
               Explore Our Services
@@ -83,21 +83,6 @@ const HeroCentered = () => {
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-900/20 via-transparent to-transparent" />
           </motion.figure>
 
-          {/* trust chips */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-neutral-600">
-            <div className="inline-flex items-center gap-2 text-sm bg-white/70 backdrop-blur px-3 py-1.5 rounded-full border border-neutral-200">
-              <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              25+ Years Experience
-            </div>
-            <div className="inline-flex items-center gap-2 text-sm bg-white/70 backdrop-blur px-3 py-1.5 rounded-full border border-neutral-200">
-              <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              1,500+ Families Served
-            </div>
-            <div className="inline-flex items-center gap-2 text-sm bg-white/70 backdrop-blur px-3 py-1.5 rounded-full border border-neutral-200">
-              <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              A+ BBB Rating
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>
@@ -105,4 +90,3 @@ const HeroCentered = () => {
 }
 
 export default HeroCentered
-

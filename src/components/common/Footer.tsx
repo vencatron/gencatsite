@@ -7,7 +7,6 @@ const Footer = () => {
     services: [
       { name: 'Estate Planning', href: '/services/estate-planning' },
       { name: 'Wills & Trusts', href: '/services/wills-trusts' },
-      { name: 'Probate Services', href: '/services/probate' },
       { name: 'Tax Planning', href: '/services/tax-planning' },
       { name: 'Business Succession', href: '/services/business-succession' },
       { name: 'Asset Protection', href: '/services/asset-protection' },
@@ -46,8 +45,8 @@ const Footer = () => {
               <p className="text-primary-400 text-sm font-medium">Estate Planning Attorneys</p>
             </Link>
             <p className="text-neutral-300 mb-6 leading-relaxed">
-              Protecting families and preserving legacies throughout the Pacific Northwest 
-              for over 25 years. Trust our experienced attorneys to secure your family's future.
+              Protecting families and preserving legacies throughout the Pacific Northwest.
+              Trust our experienced attorneys to secure your family's future.
             </p>
             
             {/* Contact Info */}
@@ -64,8 +63,8 @@ const Footer = () => {
                 <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
-                <a href="mailto:info@generationcatalyst.com" className="text-neutral-300 hover:text-primary-400 transition-colors">
-                  info@generationcatalyst.com
+                <a href="mailto:info@iamatrust.com" className="text-neutral-300 hover:text-primary-400 transition-colors">
+                  info@iamatrust.com
                 </a>
               </div>
               <div className="flex items-start space-x-3">

@@ -248,9 +248,7 @@ const Pricing = () => {
                 >
                   Get Started Today
                 </Link>
-                <p className="text-xs text-neutral-500 text-center">
-                  Free consultation • No obligation
-                </p>
+                <p className="text-xs text-neutral-500 text-center">No obligation consultation</p>
               </div>
             </motion.div>
           ))}
@@ -318,10 +316,8 @@ const Pricing = () => {
                 Most estate plans are completed within 2-3 weeks from our initial meeting. Complex Premium plans may take 4-6 weeks depending on the structures involved.
               </p>
               
-              <h4 className="font-semibold text-neutral-900 mb-3">Is the consultation really free?</h4>
-              <p className="text-neutral-600">
-                Absolutely! Your initial consultation is completely free with no obligation. We'll assess your needs and recommend the right package for your situation.
-              </p>
+              <h4 className="font-semibold text-neutral-900 mb-3">Do you charge for consultations?</h4>
+              <p className="text-neutral-600">We offer an initial consultation to understand your goals. We'll outline scope and pricing before any engagement; there is no obligation.</p>
             </div>
           </div>
         </motion.div>
@@ -338,11 +334,11 @@ const Pricing = () => {
             Ready to Protect Your Family's Future?
           </h3>
           <p className="text-neutral-600 mb-8 max-w-2xl mx-auto">
-            Schedule your free consultation today and discover which estate planning package is right for your family.
+            Schedule a consultation today and discover which estate planning package is right for your family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/contact" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
-              Schedule Free Consultation
+              Schedule a Consultation
             </Link>
             <a href="tel:(555)123-4567" className="btn-outline">
               Call (555) 123-4567

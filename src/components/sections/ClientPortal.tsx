@@ -177,7 +177,7 @@ const ClientPortal = () => {
                       value={loginData.email}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="your.email@example.com"
+                      placeholder="your.email@iamatrust.com"
                     />
                   </div>
 
@@ -242,7 +242,7 @@ const ClientPortal = () => {
                       type="email"
                       id="reset-email"
                       className="input-field"
-                      placeholder="your.email@example.com"
+                      placeholder="your.email@iamatrust.com"
                     />
                   </div>
                   <button className="w-full btn-primary">
@@ -260,7 +260,7 @@ const ClientPortal = () => {
 
               {/* Divider */}
               <div className="mt-8 pt-6 border-t border-neutral-200">
-                <div className="text-center space-y-4">
+                  <div className="text-center space-y-4">
                   <p className="text-sm text-neutral-600">
                     Need help accessing your portal?
                   </p>
@@ -283,14 +283,12 @@ const ClientPortal = () => {
 
               {/* New Client */}
               <div className="mt-6 p-4 bg-neutral-50 rounded-lg text-center">
-                <p className="text-sm text-neutral-700 mb-2">
-                  New client? Your portal access will be set up after your first consultation.
-                </p>
+                <p className="text-sm text-neutral-700 mb-2">New client? Your portal access will be set up after your first consultation.</p>
                 <Link
                   to="/contact"
                   className="text-primary-600 hover:text-primary-500 text-sm font-medium"
                 >
-                  Schedule Your Free Consultation →
+                  Schedule a Consultation →
                 </Link>
               </div>
             </div>
@@ -310,12 +308,12 @@ const ClientPortal = () => {
               Don't Have an Estate Plan Yet?
             </h3>
             <p className="text-neutral-600 mb-6">
-              Join thousands of families who trust Generation Catalyst to protect their legacy. 
-              Start with a free consultation and get your secure client portal access.
+              Trust Generation Catalyst to protect your legacy.
+              Start with a consultation and get your secure client portal access.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contact" className="btn-primary">
-                Schedule Free Consultation
+                Schedule a Consultation
               </Link>
               <Link to="/services" className="btn-outline">
                 View Our Services

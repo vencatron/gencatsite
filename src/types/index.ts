@@ -53,12 +53,11 @@ export interface ProcessStep {
   duration?: string
 }
 
-export type ServiceCategory = 
-  | 'estate-planning' 
-  | 'trusts' 
-  | 'probate' 
-  | 'business' 
-  | 'tax-planning' 
+export type ServiceCategory =
+  | 'estate-planning'
+  | 'trusts'
+  | 'business'
+  | 'tax-planning'
   | 'elder-law'
 
 // Team and Organization
@@ -235,11 +234,10 @@ export interface ConsultationFormData {
   allowMarketing?: boolean
 }
 
-export type ConsultationType = 
+export type ConsultationType =
   | 'estate-planning'
   | 'will-only'
   | 'trust'
-  | 'probate'
   | 'business'
   | 'tax-planning'
   | 'update'

@@ -14,33 +14,6 @@ const Hero = () => {
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Trust indicators bar */}
-        <motion.div 
-          className="flex flex-wrap justify-center items-center gap-8 mb-16 pb-8 border-b border-neutral-200/50"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center text-sm text-neutral-600">
-            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span className="font-medium">25+ Years Experience</span>
-          </div>
-          <div className="flex items-center text-sm text-neutral-600">
-            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span className="font-medium">1,500+ Families Served</span>
-          </div>
-          
-          <div className="flex items-center text-sm text-neutral-600">
-            <svg className="w-5 h-5 text-accent-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span className="font-medium">A+ Better Business Bureau</span>
-          </div>
-        </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
@@ -72,7 +45,7 @@ const Hero = () => {
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <span className="text-neutral-700 font-medium">Free Initial Consultation</span>
+                <span className="text-neutral-700 font-medium">Consultation</span>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mt-0.5">
@@ -102,7 +75,7 @@ const Hero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/contact" className="btn-primary text-center shadow-lg hover:shadow-xl transition-shadow">
-                Start Your Free Consultation
+                Schedule a Consultation
               </Link>
               <Link to="/services" className="btn-outline text-center">
                 Explore Our Services
@@ -130,38 +103,6 @@ const Hero = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {/* Main testimonial card */}
-            <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 mb-8">
-              <div className="flex items-start space-x-4 mb-6">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1 9 7V9C9 10.1 9.9 11 11 11V21C11 22.1 11.9 23 13 23H15C16.1 23 17 22.1 17 21V11C18.1 11 19 10.1 19 9H21Z"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="flex space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-4 h-4 text-accent-400 fill-current" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-sm text-neutral-500">5.0</span>
-                  </div>
-                  <p className="text-neutral-700 italic mb-4">
-                    "Generation Catalyst made estate planning so easy. They explained everything clearly 
-                    and our family now has complete peace of mind."
-                  </p>
-                  <div className="text-sm">
-                    <p className="font-semibold text-neutral-900">Sarah & Michael Johnson</p>
-                    <p className="text-neutral-600">Estate Planning Clients</p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Service highlights */}
             <div className="grid grid-cols-2 gap-4">
