@@ -53,11 +53,7 @@ const Contact = () => {
           </h2>
           <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
             Take the first step toward protecting your family's future. 
-<<<<<<< HEAD
-            Schedule a consultation with our expert estate planning attorneys today.
-=======
             Schedule a free consultation with our expert estate planning specialists today.
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
           </p>
         </motion.div>
 

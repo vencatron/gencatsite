@@ -2,18 +2,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 const About = () => {
-<<<<<<< HEAD
-=======
-  const stats = [
-    { number: '150+', label: 'Families Served' },
-    { number: '25+', label: 'Years Experience' },
-    { number: '100%', label: 'Client Satisfaction' },
-    { number: '$5M+', label: 'Assets Protected' },
-
-    { number: '$10M+', label: 'Assets Protected' },
-
-  ]
->>>>>>> 4b76437f2f3dfade3787f677a6ca857a4fbe4eee
+  
 
   return (
     <section className="py-20 bg-gradient-to-br from-neutral-50 to-primary-50">
@@ -95,6 +84,28 @@ const About = () => {
                     <span className="text-primary-600 font-medium">In Progress</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Human imagery collage */}
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <img
+                  src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
+                  alt="Family at the beach"
+                  loading="lazy"
+                  className="w-full h-36 object-cover rounded-xl"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=900&q=80"
+                  alt="Parents with child"
+                  loading="lazy"
+                  className="w-full h-36 object-cover rounded-xl"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80"
+                  alt="Grandparents together"
+                  loading="lazy"
+                  className="w-full h-36 object-cover rounded-xl col-span-2"
+                />
               </div>
             </div>
 

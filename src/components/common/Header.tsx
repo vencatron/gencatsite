@@ -56,7 +56,7 @@ const Header = () => {
             >
               Client Portal
             </Link>
-            <Link to="/contact" className="btn-primary">
+            <Link to="/schedule" className="btn-primary">
               Schedule Consultation
             </Link>
           </div>
@@ -123,7 +123,7 @@ const Header = () => {
                 Client Portal
               </Link>
               <Link
-                to="/contact"
+                to="/schedule"
                 className="btn-primary mx-4"
                 onClick={() => setIsMenuOpen(false)}
               >
