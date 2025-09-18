@@ -37,13 +37,22 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       name: email.split('@')[0] || 'Client',
     }
     setUser(u)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+    } catch (error) {
+      // Some browsers (e.g. Safari private mode) block localStorage writes
+      console.warn('PortalAuthContext: unable to persist session to localStorage', error)
+    }
     return u
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem(STORAGE_KEY)
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch (error) {
+      console.warn('PortalAuthContext: unable to clear session from localStorage', error)
+    }
   }
 
   const value = useMemo(() => ({ user, isAuthenticated: !!user, login, logout }), [user])
@@ -56,4 +65,3 @@ export const usePortalAuth = () => {
   if (!ctx) throw new Error('usePortalAuth must be used within PortalAuthProvider')
   return ctx
 }
-

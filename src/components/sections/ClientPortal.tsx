@@ -9,6 +9,7 @@ const ClientPortal = () => {
     password: '',
   })
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const { login } = usePortalAuth()
   const navigate = useNavigate()
@@ -17,12 +18,19 @@ const ClientPortal = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoggingIn(true)
+    setError(null)
     // Simulated login; create a session and redirect to dashboard
     setTimeout(async () => {
-      await login(loginData.email, loginData.password)
-      setIsLoggingIn(false)
-      const redirectTo = location?.state?.from || '/client-portal/dashboard'
-      navigate(redirectTo)
+      try {
+        await login(loginData.email, loginData.password)
+        const redirectTo = location?.state?.from || '/client-portal/dashboard'
+        navigate(redirectTo)
+      } catch (err) {
+        console.error('Portal login failed', err)
+        setError('We were unable to start your demo session. Please enable cookies or try again in a standard browsing window.')
+      } finally {
+        setIsLoggingIn(false)
+      }
     }, 800)
   }
 
@@ -237,6 +245,11 @@ const ClientPortal = () => {
                       'Sign In to Portal'
                     )}
                   </button>
+                  {error && (
+                    <p className="text-sm text-red-600" role="alert" aria-live="polite">
+                      {error}
+                    </p>
+                  )}
                 </form>
               ) : (
                 <div className="space-y-6">
