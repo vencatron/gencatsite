@@ -8,29 +8,91 @@ const ClientPortal = () => {
     email: '',
     password: '',
   })
+  const [registerData, setRegisterData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+  })
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
-  const { login } = usePortalAuth()
+  const [error, setError] = useState<string | null>(null)
+  const { login, register } = usePortalAuth()
   const navigate = useNavigate()
   const location = useLocation() as any
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoggingIn(true)
-    // Simulated login; create a session and redirect to dashboard
-    setTimeout(async () => {
+    setError(null)
+    try {
       await login(loginData.email, loginData.password)
-      setIsLoggingIn(false)
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    }, 800)
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.')
+    } finally {
+      setIsLoggingIn(false)
+    }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsRegistering(true)
+    setError(null)
+    
+    // Validate passwords match
+    if (registerData.password !== registerData.confirmPassword) {
+      setError('Passwords do not match')
+      setIsRegistering(false)
+      return
+    }
+    
+    // Validate password strength (min 8 chars)
+    if (registerData.password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      setIsRegistering(false)
+      return
+    }
+    
+    try {
+      await register(
+        registerData.username,
+        registerData.email,
+        registerData.password,
+        registerData.confirmPassword,
+        registerData.firstName,
+        registerData.lastName,
+        registerData.phoneNumber
+      )
+      const redirectTo = '/client-portal/dashboard'
+      navigate(redirectTo)
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setIsRegistering(false)
+    }
+  }
+
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({
       ...loginData,
       [e.target.name]: e.target.value
     })
+    setError(null)
+  }
+
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRegisterData({
+      ...registerData,
+      [e.target.name]: e.target.value
+    })
+    setError(null)
   }
 
   const portalFeatures = [
@@ -169,7 +231,13 @@ const ClientPortal = () => {
                 </p>
               </div>
 
-              {!showForgotPassword ? (
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  {error}
+                </div>
+              )}
+
+              {!showForgotPassword && !showRegister ? (
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div>
                     <label htmlFor="email" className="label-field">
@@ -181,7 +249,7 @@ const ClientPortal = () => {
                       name="email"
                       required
                       value={loginData.email}
-                      onChange={handleChange}
+                      onChange={handleLoginChange}
                       className="input-field"
                       placeholder="your.email@iamatrust.com"
                     />
@@ -197,7 +265,7 @@ const ClientPortal = () => {
                       name="password"
                       required
                       value={loginData.password}
-                      onChange={handleChange}
+                      onChange={handleLoginChange}
                       className="input-field"
                       placeholder="Enter your password"
                     />
@@ -237,6 +305,161 @@ const ClientPortal = () => {
                       'Sign In to Portal'
                     )}
                   </button>
+
+                  <div className="text-center mt-4">
+                    <span className="text-sm text-neutral-600">Don't have an account? </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowRegister(true)
+                        setError(null)
+                      }}
+                      className="text-sm text-primary-600 hover:text-primary-500 font-medium"
+                    >
+                      Register here
+                    </button>
+                  </div>
+                </form>
+              ) : showRegister ? (
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="firstName" className="label-field text-sm">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        value={registerData.firstName}
+                        onChange={handleRegisterChange}
+                        className="input-field"
+                        placeholder="John"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="lastName" className="label-field text-sm">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        value={registerData.lastName}
+                        onChange={handleRegisterChange}
+                        className="input-field"
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="username" className="label-field text-sm">
+                      Username *
+                    </label>
+                    <input
+                      type="text"
+                      id="username"
+                      name="username"
+                      required
+                      value={registerData.username}
+                      onChange={handleRegisterChange}
+                      className="input-field"
+                      placeholder="johndoe"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="reg-email" className="label-field text-sm">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="reg-email"
+                      name="email"
+                      required
+                      value={registerData.email}
+                      onChange={handleRegisterChange}
+                      className="input-field"
+                      placeholder="john.doe@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="phoneNumber" className="label-field text-sm">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={registerData.phoneNumber}
+                      onChange={handleRegisterChange}
+                      className="input-field"
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="reg-password" className="label-field text-sm">
+                      Password * (min 8 characters)
+                    </label>
+                    <input
+                      type="password"
+                      id="reg-password"
+                      name="password"
+                      required
+                      value={registerData.password}
+                      onChange={handleRegisterChange}
+                      className="input-field"
+                      placeholder="Enter a strong password"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmPassword" className="label-field text-sm">
+                      Confirm Password *
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      required
+                      value={registerData.confirmPassword}
+                      onChange={handleRegisterChange}
+                      className="input-field"
+                      placeholder="Re-enter your password"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isRegistering}
+                    className="w-full btn-primary"
+                  >
+                    {isRegistering ? (
+                      <div className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating Account...
+                      </div>
+                    ) : (
+                      'Create Account'
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRegister(false)
+                      setError(null)
+                    }}
+                    className="w-full btn-ghost"
+                  >
+                    Back to Login
+                  </button>
                 </form>
               ) : (
                 <div className="space-y-6">
@@ -256,7 +479,10 @@ const ClientPortal = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowForgotPassword(false)}
+                    onClick={() => {
+                      setShowForgotPassword(false)
+                      setError(null)
+                    }}
                     className="w-full btn-ghost"
                   >
                     Back to Login

@@ -32,10 +32,29 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const BCRYPT_ROUNDS = 10;
 
-// Middleware
+// Middleware - Configure CORS for Replit environment
 app.use(cors({
-  origin: ['http://localhost:5000', 'http://localhost:5173', process.env.FRONTEND_URL || 'http://localhost:5000'],
-  credentials: true,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.startsWith('http://localhost:') || 
+        origin.startsWith('https://localhost:')) {
+      return callback(null, true);
+    }
+    
+    // Allow Replit domains
+    if (origin.includes('.replit.dev') || 
+        origin.includes('.replit.app') ||
+        origin.includes('.repl.co')) {
+      return callback(null, true);
+    }
+    
+    // Otherwise reject
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
