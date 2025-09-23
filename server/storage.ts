@@ -118,7 +118,7 @@ export class DatabaseStorage implements IStorage {
       .update(documents)
       .set({ status: 'deleted', updatedAt: new Date() })
       .where(eq(documents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Message methods
@@ -159,7 +159,7 @@ export class DatabaseStorage implements IStorage {
       .update(messages)
       .set({ isRead: true, readAt: new Date(), updatedAt: new Date() })
       .where(eq(messages.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Invoice methods

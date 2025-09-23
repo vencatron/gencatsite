@@ -18,6 +18,10 @@ author = "agent"
 task = "workflow.run"
 args = "Frontend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend Server"
+
 [[workflows.workflow]]
 name = "Frontend"
 author = "agent"
@@ -30,6 +34,22 @@ task = "shell.exec"
 args = "npm run dev -- --host 0.0.0.0 --port 5000"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Backend Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server/index.cjs"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
 [[ports]]
 localPort = 5000
 externalPort = 80
@@ -41,10 +61,6 @@ externalPort = 3001
 [[ports]]
 localPort = 40767
 externalPort = 3000
-
-[[ports]]
-localPort = 45997
-externalPort = 3002
 
 [deployment]
 deploymentTarget = "autoscale"
