@@ -35,6 +35,44 @@ Preferred communication style: Simple, everyday language.
 - **Development Server**: Hot module replacement with Vite dev server
 - **Code Quality**: Strict TypeScript settings with unused variable detection and comprehensive type checking
 
+# Database Architecture
+
+## PostgreSQL Database (Neon)
+The application now uses a PostgreSQL database hosted on Neon for secure data persistence:
+
+### Database Schema
+- **users**: Stores user accounts with bcrypt-hashed passwords, profile information, roles (client/admin), and authentication metadata
+- **documents**: Manages document metadata (name, type, size, category, status) - actual files stored separately in object storage
+- **messages**: Handles secure communication between users and support staff with threading, read status, and priority levels
+- **invoices**: Tracks billing information with invoice numbers, amounts, tax calculations, due dates, and payment status
+- **appointments**: Manages scheduled appointments linked to users
+
+### Security Features
+- **Password Hashing**: Using bcrypt with 10 rounds for secure password storage
+- **JWT Authentication**: Access tokens (15-minute expiry) and refresh tokens (7-day expiry) for secure session management
+- **Role-Based Access Control**: Client and admin roles with appropriate permissions
+- **Input Validation**: All API inputs sanitized to prevent SQL injection
+- **CORS Protection**: Properly configured for Replit environment and production deployment
+
+### Backend API Server
+- **Express.js Server**: Running on port 3001 with comprehensive REST API
+- **Authentication Endpoints**: Register, login, logout, token refresh, user verification
+- **Protected Routes**: Documents, messages, invoices, and user profile management
+- **Database ORM**: Using Drizzle ORM for type-safe database operations
+- **Storage Layer**: Abstracted storage interface for future scalability
+
+### Client Portal Features
+- **User Registration/Login**: Secure authentication with JWT tokens stored appropriately
+- **Document Management**: Upload, view, rename, and delete documents (metadata in database)
+- **Messaging System**: Send and receive messages with support team
+- **Invoice Management**: View invoices and payment history
+- **Profile Management**: Update personal information and change passwords
+- **Dashboard**: Overview of recent documents, messages, and billing information
+
+### Database Management Commands
+- `npm run db:push`: Apply schema changes to database
+- `npm run db:studio`: Open Drizzle Studio for visual database management
+
 # External Dependencies
 
 ## Core Framework Dependencies
