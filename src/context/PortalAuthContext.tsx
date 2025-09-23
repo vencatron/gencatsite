@@ -33,18 +33,24 @@ type AuthContextShape = {
 const AuthContext = createContext<AuthContextShape | undefined>(undefined)
 
 // Convert API User to Portal User
-const convertToPortalUser = (apiUser: ApiUser): PortalUser => ({
-  id: apiUser.id.toString(),
-  email: apiUser.email,
-  name: apiUser.firstName && apiUser.lastName 
-    ? `${apiUser.firstName} ${apiUser.lastName}`
-    : apiUser.firstName || apiUser.lastName || apiUser.username,
-  username: apiUser.username,
-  firstName: apiUser.firstName || undefined,
-  lastName: apiUser.lastName || undefined,
-  phoneNumber: apiUser.phoneNumber || undefined,
-  role: apiUser.role
-})
+const convertToPortalUser = (apiUser: ApiUser): PortalUser => {
+  const portalUser: PortalUser = {
+    id: apiUser.id.toString(),
+    email: apiUser.email,
+    name: apiUser.firstName && apiUser.lastName 
+      ? `${apiUser.firstName} ${apiUser.lastName}`
+      : apiUser.firstName || apiUser.lastName || apiUser.username
+  }
+
+  // Only add optional properties if they have values
+  if (apiUser.username) portalUser.username = apiUser.username
+  if (apiUser.firstName) portalUser.firstName = apiUser.firstName
+  if (apiUser.lastName) portalUser.lastName = apiUser.lastName
+  if (apiUser.phoneNumber) portalUser.phoneNumber = apiUser.phoneNumber
+  if (apiUser.role) portalUser.role = apiUser.role
+
+  return portalUser
+}
 
 export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<PortalUser | null>(null)

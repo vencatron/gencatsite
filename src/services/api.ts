@@ -97,9 +97,9 @@ class ApiService {
     url: string,
     options: RequestInit = {}
   ): Promise<Response> {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(options.headers || {}),
+      ...(options.headers as Record<string, string> || {}),
     };
 
     // Add authorization header if we have a token
@@ -109,7 +109,7 @@ class ApiService {
 
     const response = await fetch(`${API_URL}${url}`, {
       ...options,
-      headers,
+      headers: headers as HeadersInit,
       credentials: 'include', // Always include cookies for refresh tokens
     });
 
@@ -121,7 +121,7 @@ class ApiService {
         headers['Authorization'] = `Bearer ${this.accessToken}`;
         return fetch(`${API_URL}${url}`, {
           ...options,
-          headers,
+          headers: headers as HeadersInit,
           credentials: 'include',
         });
       }
