@@ -31,6 +31,7 @@ export interface IStorage {
   getMessagesByUserId(userId: number): Promise<Message[]>;
   getMessageThread(threadId: number): Promise<Message[]>;
   createMessage(insertMessage: InsertMessage): Promise<Message>;
+  updateMessage(id: number, data: Partial<InsertMessage>): Promise<Message | undefined>;
   markMessageAsRead(id: number): Promise<boolean>;
   
   // Invoice methods
@@ -152,6 +153,15 @@ export class DatabaseStorage implements IStorage {
       .values(insertMessage)
       .returning();
     return message;
+  }
+
+  async updateMessage(id: number, data: Partial<InsertMessage>): Promise<Message | undefined> {
+    const [updated] = await db
+      .update(messages)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(messages.id, id))
+      .returning();
+    return updated || undefined;
   }
 
   async markMessageAsRead(id: number): Promise<boolean> {

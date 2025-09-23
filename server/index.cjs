@@ -12,6 +12,11 @@ const storage_1 = require("./storage.cjs");
 const jwt_1 = require("./utils/jwt.cjs");
 const validation_1 = require("./utils/validation.cjs");
 const auth_1 = require("./middleware/auth.cjs");
+// Import route modules
+const documents_1 = __importDefault(require("./routes/documents.cjs"));
+const messages_1 = __importDefault(require("./routes/messages.cjs"));
+const invoices_1 = __importDefault(require("./routes/invoices.cjs"));
+const users_1 = __importDefault(require("./routes/users.cjs"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -34,6 +39,11 @@ app.use((req, _res, next) => {
 app.get('/health', (_req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
+// Mount API routes
+app.use('/api/documents', documents_1.default);
+app.use('/api/messages', messages_1.default);
+app.use('/api/invoices', invoices_1.default);
+app.use('/api/users', users_1.default);
 // Authentication Routes
 // POST /api/auth/register - User registration with password hashing
 app.post('/api/auth/register', async (req, res) => {
@@ -247,20 +257,6 @@ app.post('/api/auth/refresh', async (req, res) => {
         res.status(500).json({ error: 'Internal server error during token refresh' });
     }
 });
-// Protected route example - Get all users (admin only)
-app.get('/api/users', auth_1.authenticateToken, async (req, res) => {
-    try {
-        if (!req.user || req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Admin access required' });
-        }
-        // This is an example protected route
-        res.json({ message: 'Admin route accessed successfully', userId: req.user.userId });
-    }
-    catch (error) {
-        console.error('Error in protected route:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
 // Error handling middleware
 app.use((err, _req, res, _next) => {
     console.error('Unhandled error:', err);
@@ -268,8 +264,14 @@ app.use((err, _req, res, _next) => {
 });
 // Start server
 app.listen(PORT, () => {
-    console.log(`Authentication server running on port ${PORT}`);
+    console.log(`Backend server with API endpoints running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log('Available API endpoints:');
+    console.log('  - Authentication: /api/auth/*');
+    console.log('  - Documents: /api/documents/*');
+    console.log('  - Messages: /api/messages/*');
+    console.log('  - Invoices: /api/invoices/*');
+    console.log('  - User Profile: /api/users/*');
     // Check for JWT secrets
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
         console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');

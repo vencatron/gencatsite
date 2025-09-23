@@ -95,6 +95,14 @@ class DatabaseStorage {
             .returning();
         return message;
     }
+    async updateMessage(id, data) {
+        const [updated] = await db_1.db
+            .update(schema_1.messages)
+            .set({ ...data, updatedAt: new Date() })
+            .where((0, drizzle_orm_1.eq)(schema_1.messages.id, id))
+            .returning();
+        return updated || undefined;
+    }
     async markMessageAsRead(id) {
         const result = await db_1.db
             .update(schema_1.messages)

@@ -19,6 +19,12 @@ import {
 } from './utils/validation';
 import { authenticateToken, AuthRequest } from './middleware/auth';
 
+// Import route modules
+import documentsRouter from './routes/documents';
+import messagesRouter from './routes/messages';
+import invoicesRouter from './routes/invoices';
+import usersRouter from './routes/users';
+
 // Load environment variables
 dotenv.config();
 
@@ -45,6 +51,12 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
+
+// Mount API routes
+app.use('/api/documents', documentsRouter);
+app.use('/api/messages', messagesRouter);
+app.use('/api/invoices', invoicesRouter);
+app.use('/api/users', usersRouter);
 
 // Authentication Routes
 
@@ -293,20 +305,6 @@ app.post('/api/auth/refresh', async (req: Request, res: Response) => {
   }
 });
 
-// Protected route example - Get all users (admin only)
-app.get('/api/users', authenticateToken, async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user || req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
-
-    // This is an example protected route
-    res.json({ message: 'Admin route accessed successfully', userId: req.user.userId });
-  } catch (error) {
-    console.error('Error in protected route:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -316,8 +314,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Authentication server running on port ${PORT}`);
+  console.log(`Backend server with API endpoints running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('Available API endpoints:');
+  console.log('  - Authentication: /api/auth/*');
+  console.log('  - Documents: /api/documents/*');
+  console.log('  - Messages: /api/messages/*');
+  console.log('  - Invoices: /api/invoices/*');
+  console.log('  - User Profile: /api/users/*');
   
   // Check for JWT secrets
   if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
