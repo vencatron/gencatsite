@@ -1,0 +1,25 @@
+[vite] connecting...
+[vite] connected.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+Not authenticated: 
+TypeError {}
+Failed to fetch
+Not authenticated: 
+TypeError {}
+message: "Failed to fetch"
+stack: "TypeError: Failed to fetch↵ at window.fetch (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)↵ at Object.apply (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/__replco/static/devtools/injected.js:278:39)↵ at ApiService.fetchWithAuth (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/services/api.ts:29:28)↵ at ApiService.getMe (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/services/api.ts:137:33)↵ at https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/context/PortalAuthContext.tsx:45:40↵ at https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/context/PortalAuthContext.tsx:58:5↵ at commitHookEffectListMount (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:16934:34)↵ at invokePassiveEffectMountInDEV (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:18350:19)↵ at invokeEffectsInDev (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:19727:19)↵ at commitDoubleInvokeEffectsInDEV (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:19712:15)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+Failed to fetch
+at window.fetch (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at Object.apply (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/__replco/static/devtools/injected.js:278:39)
+at ApiService.fetchWithAuth (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/services/api.ts:29:28)
+at ApiService.getMe (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/services/api.ts:137:33)
+at https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/context/PortalAuthContext.tsx:45:40
+at https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/src/context/PortalAuthContext.tsx:58:5
+at commitHookEffectListMount (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:16934:34)
+at invokePassiveEffectMountInDEV (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:18350:19)
+at invokeEffectsInDev (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:19727:19)
+at commitDoubleInvokeEffectsInDEV (https://6ef6f468-96ed-4b51-87db-ba63cdff0bef-00-12zva5wzok9fq.riker.replit.dev/node_modules/.vite/deps/chunk-OK4P3QOP.js?v=59443ad5:19712:15)

@@ -3,12 +3,13 @@
 
 // API Configuration
 const getApiUrl = () => {
-  // In Replit environment, construct the proper backend URL
-  // The backend runs on port 3001
+  // For Replit environment, both frontend and backend should be accessible
+  // Let's try using the environment variable for the backend URL
   if (typeof window !== 'undefined' && window.location.hostname.includes('replit')) {
-    // Use the same domain but with port 3001 for the backend
+    // Try to use the environment's backend URL
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
+    // In Replit, try connecting to port 3001 directly
     return `${protocol}//${hostname}:3001`;
   }
   // For local development
