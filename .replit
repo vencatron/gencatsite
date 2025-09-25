@@ -59,10 +59,6 @@ localPort = 5001
 externalPort = 3001
 
 [[ports]]
-localPort = 35623
-externalPort = 3003
-
-[[ports]]
 localPort = 39035
 externalPort = 3002
 
@@ -72,5 +68,5 @@ externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["vite", "preview", "--host", "0.0.0.0", "--port", "5000"]
+run = ["sh", "-c", "node server/index.cjs & vite preview --host 0.0.0.0 --port 5000"]
 build = ["npm", "run", "build"]
