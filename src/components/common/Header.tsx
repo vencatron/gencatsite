@@ -22,13 +22,13 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <motion.div 
-              className="text-2xl font-bold text-gradient"
+            <motion.img
+              src="/logo-GC.png"
+              alt="Generation Catalyst"
+              className="h-12 w-auto"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
-            >
-              Gencat
-            </motion.div>
+            />
           </Link>
 
           {/* Desktop Navigation */}

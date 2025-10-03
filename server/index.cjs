@@ -25,7 +25,6 @@ const BCRYPT_ROUNDS = 10;
 // Middleware - Configure CORS for Replit environment
 app.use((0, cors_1.default)({
     origin: function (origin, callback) {
-        console.log('CORS origin check:', origin);
         // Allow requests with no origin (like mobile apps or Postman)
         if (!origin)
             return callback(null, true);
@@ -34,19 +33,14 @@ app.use((0, cors_1.default)({
             origin.startsWith('https://localhost:')) {
             return callback(null, true);
         }
-        // Allow Replit domains - be more permissive
+        // Allow Replit domains
         if (origin.includes('.replit.dev') ||
             origin.includes('.replit.app') ||
-            origin.includes('.repl.co') ||
-            origin.includes('riker.replit.dev')) {
+            origin.includes('.repl.co')) {
             return callback(null, true);
         }
-        // For debugging - allow all origins temporarily
-        console.log('Allowing origin for debugging:', origin);
-        return callback(null, true);
-        
-        // // Otherwise reject
-        // callback(new Error('Not allowed by CORS'));
+        // Otherwise reject
+        callback(new Error('Not allowed by CORS'));
     },
     credentials: true
 }));

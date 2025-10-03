@@ -4,76 +4,158 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project: Generation Catalyst - Estate Planning Website
 
-A React-based professional estate planning website built with TypeScript, Vite, and Tailwind CSS. The application provides a modern, responsive interface for legal estate planning services.
+A full-stack professional estate planning website built with React 18, TypeScript, Express.js, and PostgreSQL. The application provides a modern, responsive interface for legal estate planning services with a secure client portal featuring authentication, document management, messaging, and billing.
 
 ## Key Development Commands
 
 ```bash
-# Development server (port 3000, auto-opens browser)
-npm run dev
+# Frontend Development
+npm run dev                  # Start frontend dev server (port 5000)
+npm run build                # Production build (TypeScript + Vite)
+npm run preview              # Preview production build
+npm run lint                 # Run ESLint checks
+npm run lint:fix             # Auto-fix linting issues
 
-# Production build (TypeScript compilation + Vite build)
-npm run build
+# Backend Development
+npm run server:dev           # Start backend API server (port 3001)
+npm run build:server         # Build server (transpile TS to CommonJS .cjs)
 
-# Preview production build
-npm run preview
-
-# Run ESLint checks (strict TypeScript rules)
-npm run lint
-
-# Auto-fix linting issues
-npm run lint:fix
+# Database Management
+npm run db:push              # Apply schema changes to PostgreSQL
+npm run db:studio            # Open Drizzle Studio (visual DB manager)
 ```
 
 ## Architecture Overview
 
-### Routing Structure
-The application uses React Router with a hierarchical page structure in `src/App.tsx`:
-- Main routes: Home, About, Services, Contact, Resources
-- Service sub-routes: Estate Planning, Wills & Trusts, Probate Services, Tax Planning
-- All routes wrapped in Framer Motion animations for smooth transitions
+### Full-Stack Structure
+This is a **dual-codebase monorepo**:
+- **Frontend**: React 18 + TypeScript + Vite (port 5000)
+- **Backend**: Express.js REST API (port 3001)
+- **Database**: PostgreSQL on Neon with Drizzle ORM
+- **Shared**: Type definitions and database schema in `shared/`
 
-### Component Organization
-- **Pages** (`src/pages/`): Route-level components with full page layouts
-- **Common Components** (`src/components/common/`): Shared UI elements (Header, Footer)
-- **Section Components** (`src/components/sections/`): Reusable page sections (Hero, Services, Testimonials, etc.)
-- **Hooks** (`src/hooks/`): Custom React hooks for form handling and scroll animations
-- **Utils** (`src/utils/`): Helper functions, constants, and validation logic
+The Vite dev server proxies `/api` requests to the backend server (configured in `vite.config.ts`).
 
-### TypeScript Configuration
-Strict mode enabled with comprehensive type checking:
+### Frontend Architecture
+
+#### Routing Structure (`src/App.tsx`)
+- **Public Routes**: Home, About, Services, Contact, Resources, Schedule
+- **Service Sub-routes**: Estate Planning, Wills & Trusts, Tax Planning
+- **Client Portal Routes** (protected by JWT auth):
+  - `/client-portal`: Login/registration page
+  - `/client-portal/dashboard`: Overview of documents, messages, invoices
+  - `/client-portal/documents`: Document upload/management
+  - `/client-portal/messages`: Secure messaging with support
+  - `/client-portal/appointments`: Schedule management
+  - `/client-portal/billing`: Invoice viewing
+  - `/client-portal/settings`: Profile and password management
+
+#### Component Organization
+- **Pages** (`src/pages/`): Route-level components
+  - `src/pages/portal/`: Client portal pages with `PortalLayout` wrapper
+- **Common Components** (`src/components/common/`): Header, Footer, Scheduler
+- **Section Components** (`src/components/sections/`): Reusable sections (Hero, Services, etc.)
+- **Hooks** (`src/hooks/`): Form handling (`useForm`), scroll animations (`useScrollAnimation`)
+- **Utils** (`src/utils/`): Validation, email, helpers, constants, `portalDb.ts` for API calls
+- **Routes** (`src/routes/`): `RequirePortalAuth` - route protection wrapper
+
+#### TypeScript Configuration
+Strict mode with comprehensive type checking:
 - `noUnusedLocals`, `noUnusedParameters`: Enforce clean code
-- `exactOptionalPropertyTypes`: Strict optional property handling
+- `exactOptionalPropertyTypes`, `noImplicitReturns`: Strict optional/return handling
 - `noUncheckedIndexedAccess`: Safe array/object access
-- Path aliases configured (`@/` prefix) for clean imports
+- Path aliases: `@/*`, `@/components/*`, `@/pages/*`, `@/hooks/*`, `@/utils/*`, `@/types/*`
 
-### Styling System
-Tailwind CSS with custom warm, family-friendly palette:
-- **Primary Colors**: Warm nude/sand tones (#b19373 base)
-- **Secondary Colors**: Neutral taupe/beige (#a89f94 base)
-- **Accent Colors**: Soft blush/terracotta (#e68c73 base)
-- **Typography**: Freight Serif primary, Inter for sans, custom animation keyframes
-- Custom spacing and animation utilities defined in `tailwind.config.js`
+### Backend Architecture
 
-### Build Configuration (Vite)
-- Path aliases matching TypeScript configuration
-- Source maps enabled for debugging
-- Development server on port 3000
-- Output directory: `dist/`
+#### API Server (`server/index.cjs`)
+Express.js server with:
+- **Authentication Routes** (`/api/auth/*`):
+  - `POST /api/auth/register`: User registration with bcrypt password hashing
+  - `POST /api/auth/login`: Login with JWT token generation
+  - `POST /api/auth/logout`: Clear refresh token cookie
+  - `GET /api/auth/me`: Get current user from JWT
+  - `POST /api/auth/refresh`: Refresh access token using refresh token
 
-### Dependency Management
-- **Core**: React 18, React Router DOM, Framer Motion
-- **Development**: TypeScript, ESLint with TypeScript support, Tailwind CSS, Vite
-- **Styling**: PostCSS with Autoprefixer for cross-browser compatibility
+- **Protected Routes** (require JWT authentication):
+  - `/api/documents/*`: Document metadata management (routes in `server/routes/documents.ts`)
+  - `/api/messages/*`: Secure messaging (routes in `server/routes/messages.ts`)
+  - `/api/invoices/*`: Billing information (routes in `server/routes/invoices.ts`)
+  - `/api/users/*`: User profile management (routes in `server/routes/users.ts`)
 
-## Important Considerations
+#### Security Implementation
+- **Password Hashing**: bcrypt with 10 rounds (`server/middleware/auth.ts`)
+- **JWT Tokens**:
+  - Access tokens: 15-minute expiry
+  - Refresh tokens: 7-day expiry in httpOnly cookies
+- **Input Validation**: `server/utils/validation.ts` sanitizes all inputs
+- **Role-Based Access**: Users have roles (client/admin) for authorization
+- **CORS**: Configured for Replit domains and localhost (`server/index.cjs`)
 
-1. **Path Imports**: Always use path aliases (e.g., `@/components/common/Header`) for consistency
-2. **TypeScript Strictness**: The project enforces strict typing - avoid `any` types
-3. **Component Naming**: Use PascalCase for components, camelCase for hooks/utils
-4. **ESLint Compliance**: Always run `npm run lint` before finalizing changes
-5. **Responsive Design**: The design system supports mobile (320px+), tablet (768px+), and desktop (1200px+)
-6. **No Blue Colors**: The design system deliberately avoids blue tones in favor of warm, earthy colors
+#### Database Layer
+- **ORM**: Drizzle ORM with type-safe queries
+- **Schema**: `shared/schema.ts` defines tables:
+  - `users`: Authentication, profile, roles
+  - `documents`: File metadata (actual files in object storage)
+  - `messages`: Secure messaging with threading
+  - `invoices`: Billing with line items
+  - `appointments`: Scheduling
+- **Storage Interface**: `server/storage.ts` abstracts database operations
+- **Database Config**: `drizzle.config.ts` for migrations and schema management
+
+#### Build Process
+The server build is unique: TypeScript compiles to CommonJS with `.cjs` extension to avoid ESM/CommonJS conflicts. The build script:
+1. Compiles TypeScript using `tsconfig.server.json`
+2. Copies `.js` files to `.cjs` (since Express requires CommonJS)
+3. Applies to both `server/` and `shared/` directories
+
+### Design System
+
+#### Color Palette (Tailwind CSS)
+**No blue colors** - warm, neutral, professional tones:
+- **Primary**: Warm nude/sand (#b19373 base with 50-900 scale)
+- **Secondary**: Neutral taupe/beige (#a89f94 base)
+- **Accent**: Soft blush/terracotta (#e68c73 base)
+- **Neutral**: Warm grays (#988c84 base)
+
+#### Typography
+- **Serif**: Freight Serif Pro, Playfair Display, Georgia (primary)
+- **Sans**: Inter for UI elements
+- **Mono**: JetBrains Mono for code
+
+#### Animation System
+- Framer Motion for page transitions
+- Custom Tailwind animations: `fade-in`, `slide-up`, `slide-down`, `scale-in`
+- Custom keyframes in `tailwind.config.js`
+
+### Important Considerations
+
+#### Frontend Development
+1. **Path Imports**: Always use aliases (`@/components/common/Header`) for consistency
+2. **TypeScript Strictness**: Avoid `any` types - project enforces strict mode
+3. **Component Naming**: PascalCase for components, camelCase for hooks/utils
+4. **Responsive Design**: Mobile-first (320px+), tablet (768px+), desktop (1200px+)
+5. **API Integration**: Use `src/utils/portalDb.ts` functions for backend calls
+6. **Authentication**: Portal routes wrapped in `RequirePortalAuth` component
+
+#### Backend Development
+1. **Build Before Run**: Always `npm run build:server` before starting server
+2. **File Extensions**: Server files compile to `.cjs` (CommonJS) due to Express requirements
+3. **Environment Variables**: JWT secrets (`JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`) and `DATABASE_URL` required
+4. **CORS Configuration**: Update `server/index.cjs` for new deployment domains
+5. **Database Changes**: Run `npm run db:push` after modifying `shared/schema.ts`
+
+#### Security
+1. **Never Commit**: `.env` files, JWT secrets, database credentials
+2. **Password Validation**: Minimum 8 characters, enforced in `server/utils/validation.ts`
+3. **JWT Storage**: Access tokens in memory/state, refresh tokens in httpOnly cookies only
+4. **Input Sanitization**: All API inputs pass through `sanitizeInput()` function
+
+#### Development Workflow
+1. Start backend: `npm run server:dev` (port 3001)
+2. Start frontend: `npm run dev` (port 5000, proxies API requests to 3001)
+3. Frontend accesses API via `/api/*` routes (proxied by Vite)
+4. Run linting before commits: `npm run lint:fix`
 
 When asked to design UI & frontend interface
 When asked to design UI & frontend interface
