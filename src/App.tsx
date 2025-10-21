@@ -15,6 +15,7 @@ import PortalMessages from '@/pages/portal/PortalMessages'
 import PortalAppointments from '@/pages/portal/PortalAppointments'
 import PortalBilling from '@/pages/portal/PortalBilling'
 import PortalSettings from '@/pages/portal/PortalSettings'
+import AdminPage from '@/pages/portal/AdminPage'
 import RequirePortalAuth from '@/routes/RequirePortalAuth'
 import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
@@ -50,6 +51,7 @@ function App() {
               <Route path="appointments" element={<PortalAppointments />} />
               <Route path="billing" element={<PortalBilling />} />
               <Route path="settings" element={<PortalSettings />} />
+              <Route path="admin" element={<AdminPage />} />
             </Route>
           </Route>
         </Routes>

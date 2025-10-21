@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { usePortalAuth } from '@/context/PortalAuthContext'
+import { apiService } from '@/services/api'
+import TwoFactorVerification from '@/components/portal/TwoFactorVerification'
 
 const ClientPortal = () => {
   const [loginData, setLoginData] = useState({
@@ -22,7 +24,10 @@ const ClientPortal = () => {
   const [showRegister, setShowRegister] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { login, register } = usePortalAuth()
+  const [requires2FA, setRequires2FA] = useState(false)
+  const [twoFAUserId, setTwoFAUserId] = useState<number | null>(null)
+  const [isVerifying2FA, setIsVerifying2FA] = useState(false)
+  const { register } = usePortalAuth()
   const navigate = useNavigate()
   const location = useLocation() as any
 
@@ -31,14 +36,50 @@ const ClientPortal = () => {
     setIsLoggingIn(true)
     setError(null)
     try {
-      await login(loginData.email, loginData.password)
+      const response = await apiService.login(loginData.email, loginData.password)
+
+      // Check if 2FA is required
+      if ((response as any).requires2FA) {
+        setRequires2FA(true)
+        setTwoFAUserId((response as any).userId)
+        setIsLoggingIn(false)
+        return
+      }
+
+      // Regular login without 2FA
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
+      window.location.reload() // Reload to update auth context
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
     } finally {
       setIsLoggingIn(false)
     }
+  }
+
+  const handle2FAVerification = async (token: string, isBackupCode: boolean) => {
+    if (!twoFAUserId) return
+
+    setIsVerifying2FA(true)
+    setError(null)
+
+    try {
+      await apiService.verify2FALogin(twoFAUserId, token, isBackupCode)
+      const redirectTo = location?.state?.from || '/client-portal/dashboard'
+      navigate(redirectTo)
+      window.location.reload() // Reload to update auth context
+    } catch (err: any) {
+      throw new Error(err.message || '2FA verification failed')
+    } finally {
+      setIsVerifying2FA(false)
+    }
+  }
+
+  const handle2FACancel = () => {
+    setRequires2FA(false)
+    setTwoFAUserId(null)
+    setLoginData({ email: '', password: '' })
+    setError(null)
   }
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -72,6 +113,7 @@ const ClientPortal = () => {
       )
       const redirectTo = '/client-portal/dashboard'
       navigate(redirectTo)
+      window.location.reload() // Reload to update auth context
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {
@@ -237,7 +279,14 @@ const ClientPortal = () => {
                 </div>
               )}
 
-              {!showForgotPassword && !showRegister ? (
+              {requires2FA ? (
+                <TwoFactorVerification
+                  userId={twoFAUserId!}
+                  onVerify={handle2FAVerification}
+                  onCancel={handle2FACancel}
+                  isLoading={isVerifying2FA}
+                />
+              ) : !showForgotPassword && !showRegister ? (
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div>
                     <label htmlFor="email" className="label-field">

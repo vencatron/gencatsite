@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticateToken = authenticateToken;
 exports.authorizeRole = authorizeRole;
+exports.requireAdmin = requireAdmin;
 const jwt_1 = require("../utils/jwt");
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -31,5 +32,15 @@ function authorizeRole(allowedRoles) {
         }
         next();
     };
+}
+// Middleware specifically for admin routes
+function requireAdmin(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
 }
 //# sourceMappingURL=auth.js.map

@@ -17,6 +17,17 @@ export const users = pgTable('users', {
   role: text('role').default('client'), // client, admin, support
   isActive: boolean('is_active').default(true),
   lastLoginAt: timestamp('last_login_at'),
+  // 2FA fields
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
+  twoFactorSecret: text('two_factor_secret'), // Encrypted TOTP secret
+  twoFactorBackupCodes: text('two_factor_backup_codes'), // JSON array of backup codes
+  // Email verification
+  emailVerified: boolean('email_verified').default(false),
+  emailVerificationToken: text('email_verification_token'),
+  emailVerificationExpires: timestamp('email_verification_expires'),
+  // Password reset
+  passwordResetToken: text('password_reset_token'),
+  passwordResetExpires: timestamp('password_reset_expires'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({

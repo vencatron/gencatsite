@@ -24,6 +24,8 @@ import documentsRouter from './routes/documents';
 import messagesRouter from './routes/messages';
 import invoicesRouter from './routes/invoices';
 import usersRouter from './routes/users';
+import twoFactorRouter from './routes/twoFactor';
+import adminRouter from './routes/admin';
 
 // Load environment variables
 dotenv.config();
@@ -76,6 +78,8 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/2fa', twoFactorRouter);
+app.use('/api/admin', adminRouter);
 
 // Authentication Routes
 
@@ -151,7 +155,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin support
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -207,6 +211,20 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Check if 2FA is enabled
+    if (user.twoFactorEnabled) {
+      // Don't return full auth tokens yet - require 2FA verification first
+      // Generate a temporary token that only allows 2FA verification
+      const tempToken = generateAccessToken({ ...user, role: '2fa-pending' });
+
+      return res.json({
+        message: '2FA required',
+        requires2FA: true,
+        tempToken, // Temporary token for 2FA verification endpoint
+        userId: user.id,
+      });
+    }
+
     // Update last login time
     await storage.updateUser(user.id, { lastLoginAt: new Date() });
 
@@ -218,7 +236,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin support
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -228,10 +246,79 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       message: 'Login successful',
       user: userWithoutPassword,
       accessToken,
+      requires2FA: false,
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error during login' });
+  }
+});
+
+// POST /api/auth/verify-2fa - Complete login after 2FA verification
+app.post('/api/auth/verify-2fa', async (req: Request, res: Response) => {
+  try {
+    const { userId, token, isBackupCode } = req.body;
+
+    if (!userId || !token) {
+      return res.status(400).json({ error: 'User ID and 2FA token are required' });
+    }
+
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!user.twoFactorEnabled || !user.twoFactorSecret) {
+      return res.status(400).json({ error: '2FA is not enabled for this user' });
+    }
+
+    // Verify 2FA token
+    const { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } = require('./utils/twoFactor');
+    let isValid = false;
+
+    if (isBackupCode) {
+      if (!user.twoFactorBackupCodes) {
+        return res.status(400).json({ error: 'No backup codes available' });
+      }
+      const hashedCodes = JSON.parse(user.twoFactorBackupCodes);
+      isValid = verifyBackupCode(sanitizeInput(token), hashedCodes);
+
+      if (isValid) {
+        const updatedCodes = removeUsedBackupCode(sanitizeInput(token), hashedCodes);
+        await storage.updateUser(user.id, {
+          twoFactorBackupCodes: JSON.stringify(updatedCodes),
+        });
+      }
+    } else {
+      isValid = verifyTwoFactorToken(user.twoFactorSecret, sanitizeInput(token));
+    }
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid 2FA token' });
+    }
+
+    // 2FA verified - update last login and generate full auth tokens
+    await storage.updateUser(user.id, { lastLoginAt: new Date() });
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin support
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    const { passwordHash: _, ...userWithoutPassword } = user;
+    res.json({
+      message: '2FA verification successful',
+      user: userWithoutPassword,
+      accessToken,
+    });
+  } catch (error) {
+    console.error('2FA verification error:', error);
+    res.status(500).json({ error: 'Internal server error during 2FA verification' });
   }
 });
 
@@ -310,7 +397,7 @@ app.post('/api/auth/refresh', async (req: Request, res: Response) => {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin support
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -337,10 +424,12 @@ app.listen(PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('Available API endpoints:');
   console.log('  - Authentication: /api/auth/*');
+  console.log('  - Two-Factor Auth: /api/2fa/*');
   console.log('  - Documents: /api/documents/*');
   console.log('  - Messages: /api/messages/*');
   console.log('  - Invoices: /api/invoices/*');
   console.log('  - User Profile: /api/users/*');
+  console.log('  - Admin: /api/admin/*');
   
   // Check for JWT secrets
   if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {

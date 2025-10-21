@@ -19,6 +19,17 @@ exports.users = (0, pg_core_1.pgTable)('users', {
     role: (0, pg_core_1.text)('role').default('client'), // client, admin, support
     isActive: (0, pg_core_1.boolean)('is_active').default(true),
     lastLoginAt: (0, pg_core_1.timestamp)('last_login_at'),
+    // 2FA fields
+    twoFactorEnabled: (0, pg_core_1.boolean)('two_factor_enabled').default(false),
+    twoFactorSecret: (0, pg_core_1.text)('two_factor_secret'), // Encrypted TOTP secret
+    twoFactorBackupCodes: (0, pg_core_1.text)('two_factor_backup_codes'), // JSON array of backup codes
+    // Email verification
+    emailVerified: (0, pg_core_1.boolean)('email_verified').default(false),
+    emailVerificationToken: (0, pg_core_1.text)('email_verification_token'),
+    emailVerificationExpires: (0, pg_core_1.timestamp)('email_verification_expires'),
+    // Password reset
+    passwordResetToken: (0, pg_core_1.text)('password_reset_token'),
+    passwordResetExpires: (0, pg_core_1.timestamp)('password_reset_expires'),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow(),
 }, (table) => ({

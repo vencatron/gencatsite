@@ -17,6 +17,8 @@ const documents_1 = __importDefault(require("./routes/documents"));
 const messages_1 = __importDefault(require("./routes/messages"));
 const invoices_1 = __importDefault(require("./routes/invoices"));
 const users_1 = __importDefault(require("./routes/users"));
+const twoFactor_1 = __importDefault(require("./routes/twoFactor"));
+const admin_1 = __importDefault(require("./routes/admin"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -61,6 +63,8 @@ app.use('/api/documents', documents_1.default);
 app.use('/api/messages', messages_1.default);
 app.use('/api/invoices', invoices_1.default);
 app.use('/api/users', users_1.default);
+app.use('/api/2fa', twoFactor_1.default);
+app.use('/api/admin', admin_1.default);
 // Authentication Routes
 // POST /api/auth/register - User registration with password hashing
 app.post('/api/auth/register', async (req, res) => {
@@ -122,7 +126,7 @@ app.post('/api/auth/register', async (req, res) => {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax', // Changed from 'strict' for better cross-origin support
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         // Return user info and access token
@@ -171,6 +175,18 @@ app.post('/api/auth/login', async (req, res) => {
         if (!passwordMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
+        // Check if 2FA is enabled
+        if (user.twoFactorEnabled) {
+            // Don't return full auth tokens yet - require 2FA verification first
+            // Generate a temporary token that only allows 2FA verification
+            const tempToken = (0, jwt_1.generateAccessToken)({ ...user, role: '2fa-pending' });
+            return res.json({
+                message: '2FA required',
+                requires2FA: true,
+                tempToken, // Temporary token for 2FA verification endpoint
+                userId: user.id,
+            });
+        }
         // Update last login time
         await storage_1.storage.updateUser(user.id, { lastLoginAt: new Date() });
         // Generate tokens
@@ -180,7 +196,7 @@ app.post('/api/auth/login', async (req, res) => {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax', // Changed from 'strict' for better cross-origin support
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         // Return user info and access token
@@ -189,11 +205,70 @@ app.post('/api/auth/login', async (req, res) => {
             message: 'Login successful',
             user: userWithoutPassword,
             accessToken,
+            requires2FA: false,
         });
     }
     catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Internal server error during login' });
+    }
+});
+// POST /api/auth/verify-2fa - Complete login after 2FA verification
+app.post('/api/auth/verify-2fa', async (req, res) => {
+    try {
+        const { userId, token, isBackupCode } = req.body;
+        if (!userId || !token) {
+            return res.status(400).json({ error: 'User ID and 2FA token are required' });
+        }
+        const user = await storage_1.storage.getUser(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (!user.twoFactorEnabled || !user.twoFactorSecret) {
+            return res.status(400).json({ error: '2FA is not enabled for this user' });
+        }
+        // Verify 2FA token
+        const { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } = require('./utils/twoFactor');
+        let isValid = false;
+        if (isBackupCode) {
+            if (!user.twoFactorBackupCodes) {
+                return res.status(400).json({ error: 'No backup codes available' });
+            }
+            const hashedCodes = JSON.parse(user.twoFactorBackupCodes);
+            isValid = verifyBackupCode((0, validation_1.sanitizeInput)(token), hashedCodes);
+            if (isValid) {
+                const updatedCodes = removeUsedBackupCode((0, validation_1.sanitizeInput)(token), hashedCodes);
+                await storage_1.storage.updateUser(user.id, {
+                    twoFactorBackupCodes: JSON.stringify(updatedCodes),
+                });
+            }
+        }
+        else {
+            isValid = verifyTwoFactorToken(user.twoFactorSecret, (0, validation_1.sanitizeInput)(token));
+        }
+        if (!isValid) {
+            return res.status(401).json({ error: 'Invalid 2FA token' });
+        }
+        // 2FA verified - update last login and generate full auth tokens
+        await storage_1.storage.updateUser(user.id, { lastLoginAt: new Date() });
+        const accessToken = (0, jwt_1.generateAccessToken)(user);
+        const refreshToken = (0, jwt_1.generateRefreshToken)(user);
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax', // Changed from 'strict' for better cross-origin support
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        const { passwordHash: _, ...userWithoutPassword } = user;
+        res.json({
+            message: '2FA verification successful',
+            user: userWithoutPassword,
+            accessToken,
+        });
+    }
+    catch (error) {
+        console.error('2FA verification error:', error);
+        res.status(500).json({ error: 'Internal server error during 2FA verification' });
     }
 });
 // POST /api/auth/logout - User logout
@@ -261,7 +336,7 @@ app.post('/api/auth/refresh', async (req, res) => {
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax', // Changed from 'strict' for better cross-origin support
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         res.json({
@@ -280,15 +355,17 @@ app.use((err, _req, res, _next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`Backend server with API endpoints running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log('Available API endpoints:');
     console.log('  - Authentication: /api/auth/*');
+    console.log('  - Two-Factor Auth: /api/2fa/*');
     console.log('  - Documents: /api/documents/*');
     console.log('  - Messages: /api/messages/*');
     console.log('  - Invoices: /api/invoices/*');
     console.log('  - User Profile: /api/users/*');
+    console.log('  - Admin: /api/admin/*');
     // Check for JWT secrets
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
         console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');

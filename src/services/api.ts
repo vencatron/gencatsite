@@ -405,6 +405,109 @@ class ApiService {
       user: user.profile,
     };
   }
+
+  // Two-Factor Authentication APIs
+  async get2FAStatus(): Promise<{ enabled: boolean; hasBackupCodes: boolean }> {
+    const response = await this.fetchWithAuth('/api/2fa/status');
+    return this.handleResponse(response);
+  }
+
+  async setup2FA(): Promise<{
+    qrCodeUrl: string;
+    secret: string;
+    backupCodes: string[];
+  }> {
+    const response = await this.fetchWithAuth('/api/2fa/setup', {
+      method: 'POST',
+    });
+    return this.handleResponse(response);
+  }
+
+  async verify2FASetup(
+    token: string,
+    backupCodes: string[]
+  ): Promise<{ message: string; enabled: boolean }> {
+    const response = await this.fetchWithAuth('/api/2fa/verify', {
+      method: 'POST',
+      body: JSON.stringify({ token, backupCodes }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async disable2FA(
+    password: string,
+    token: string
+  ): Promise<{ message: string; enabled: boolean }> {
+    const response = await this.fetchWithAuth('/api/2fa/disable', {
+      method: 'POST',
+      body: JSON.stringify({ password, token }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async verify2FALogin(
+    userId: number,
+    token: string,
+    isBackupCode: boolean = false
+  ): Promise<AuthResponse> {
+    const response = await fetch(`${API_URL}/api/auth/verify-2fa`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId, token, isBackupCode }),
+    });
+
+    const data = await this.handleResponse<AuthResponse>(response);
+
+    // Store the access token
+    if (data.accessToken) {
+      this.setAccessToken(data.accessToken);
+    }
+
+    return data;
+  }
+
+  async regenerateBackupCodes(token: string): Promise<{
+    message: string;
+    backupCodes: string[];
+  }> {
+    const response = await this.fetchWithAuth('/api/2fa/regenerate-backup-codes', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin APIs
+  async getAllUsers(): Promise<User[]> {
+    const response = await this.fetchWithAuth('/api/admin/users');
+    const data = await this.handleResponse<{ users: User[] }>(response);
+    return data.users;
+  }
+
+  async resetUserPassword(userId: number, newPassword: string): Promise<{ message: string; userId: number }> {
+    const response = await this.fetchWithAuth(`/api/admin/users/${userId}/reset-password`, {
+      method: 'PUT',
+      body: JSON.stringify({ newPassword }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteUser(userId: number): Promise<{ message: string; userId: number }> {
+    const response = await this.fetchWithAuth(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+    return this.handleResponse(response);
+  }
+
+  async activateUser(userId: number): Promise<{ message: string; userId: number }> {
+    const response = await this.fetchWithAuth(`/api/admin/users/${userId}/activate`, {
+      method: 'PUT',
+    });
+    return this.handleResponse(response);
+  }
 }
 
 // Export a singleton instance
