@@ -184,7 +184,7 @@ const AdminPage = () => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
                           <span className="text-primary-600 font-semibold">
-                            {user.firstName?.[0] || user.username[0].toUpperCase()}
+                            {(user.firstName?.[0] ?? user.username?.[0] ?? '?').toUpperCase()}
                           </span>
                         </div>
                         <div className="ml-4">
@@ -222,7 +222,7 @@ const AdminPage = () => {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      {user.id !== currentUser?.id && user.role !== 'admin' && (
+                      {String(user.id) !== String(currentUser?.id) && user.role !== 'admin' && (
                         <>
                           <button
                             onClick={() => {
@@ -253,10 +253,10 @@ const AdminPage = () => {
                           )}
                         </>
                       )}
-                      {user.id === currentUser?.id && (
+                      {String(user.id) === String(currentUser?.id) && (
                         <span className="text-neutral-400">Current User</span>
                       )}
-                      {user.role === 'admin' && user.id !== currentUser?.id && (
+                      {user.role === 'admin' && String(user.id) !== String(currentUser?.id) && (
                         <span className="text-neutral-400">Admin</span>
                       )}
                     </td>
