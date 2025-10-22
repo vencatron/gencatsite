@@ -8,7 +8,7 @@ import {
   type Appointment, type InsertAppointment
 } from "../shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, asc } from "drizzle-orm";
+import { eq, or, desc, asc } from "drizzle-orm";
 
 // Storage interface for user management
 export interface IStorage {
@@ -75,12 +75,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: number, data: Partial<InsertUser>): Promise<User | undefined> {
-    const [updated] = await db
+    const result = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
-    return updated || undefined;
+    return result[0];
   }
 
   // Document methods
@@ -106,12 +106,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDocument(id: number, data: Partial<InsertDocument>): Promise<Document | undefined> {
-    const [updated] = await db
+    const result = await db
       .update(documents)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(documents.id, id))
       .returning();
-    return updated || undefined;
+    return result[0];
   }
 
   async deleteDocument(id: number): Promise<boolean> {
@@ -156,12 +156,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMessage(id: number, data: Partial<InsertMessage>): Promise<Message | undefined> {
-    const [updated] = await db
+    const result = await db
       .update(messages)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(messages.id, id))
       .returning();
-    return updated || undefined;
+    return result[0];
   }
 
   async markMessageAsRead(id: number): Promise<boolean> {
@@ -203,12 +203,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateInvoice(id: number, data: Partial<InsertInvoice>): Promise<Invoice | undefined> {
-    const [updated] = await db
+    const result = await db
       .update(invoices)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(invoices.id, id))
       .returning();
-    return updated || undefined;
+    return result[0];
   }
 
   // Appointment methods
@@ -234,12 +234,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAppointment(id: number, data: Partial<InsertAppointment>): Promise<Appointment | undefined> {
-    const [updated] = await db
+    const result = await db
       .update(appointments)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(appointments.id, id))
       .returning();
-    return updated || undefined;
+    return result[0];
   }
 }
 
