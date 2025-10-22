@@ -7,7 +7,8 @@ import {
   type Invoice, type InsertInvoice,
   type Appointment, type InsertAppointment
 } from "../shared/schema";
-import { db } from "./db";
+// Use Vercel-specific DB connection
+import { db } from "./db.vercel";
 import { eq, or, desc, asc } from "drizzle-orm";
 
 // Storage interface for user management
@@ -80,7 +81,7 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
-    return result[0];
+    return result[0] || undefined;
   }
 
   // Document methods
@@ -111,7 +112,7 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(documents.id, id))
       .returning();
-    return result[0];
+    return result[0] || undefined;
   }
 
   async deleteDocument(id: number): Promise<boolean> {
@@ -161,7 +162,7 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(messages.id, id))
       .returning();
-    return result[0];
+    return result[0] || undefined;
   }
 
   async markMessageAsRead(id: number): Promise<boolean> {
@@ -208,7 +209,7 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(invoices.id, id))
       .returning();
-    return result[0];
+    return result[0] || undefined;
   }
 
   // Appointment methods
@@ -239,7 +240,7 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(appointments.id, id))
       .returning();
-    return result[0];
+    return result[0] || undefined;
   }
 }
 
