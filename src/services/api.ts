@@ -3,13 +3,24 @@
 
 // API Configuration
 const getApiUrl = () => {
-  // For Replit environment, backend is accessed via the backend port
-  if (typeof window !== 'undefined' && window.location.hostname.includes('replit')) {
-    // In Replit, construct the backend URL with port 3001
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
+  if (typeof window === 'undefined') {
+    // Server-side rendering
+    return '';
+  }
+  
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  
+  // For Vercel deployment (uses serverless functions at /api)
+  if (hostname.includes('vercel.app') || hostname.includes('iamatrust.com')) {
+    return ''; // Use relative URLs for Vercel serverless functions
+  }
+  
+  // For Replit environment
+  if (hostname.includes('replit')) {
     return `${protocol}//${hostname}:3001`;
   }
+  
   // For local development
   return 'http://localhost:3001';
 };
