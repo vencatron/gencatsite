@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
+import { storage } from '../_lib/storage';
 import { 
   generateAccessToken, 
   generateRefreshToken,
   verifyRefreshToken,
-} from '../../server/utils/jwt';
+} from '../_lib/jwt';
 import cookie from 'cookie';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get user
-    const user = await storage.getUser(payload.userId);
+    const user = await storage.getUser(payload.id);
     if (!user) {
       res.setHeader('Set-Cookie', [
         `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${

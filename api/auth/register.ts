@@ -1,17 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
-import { storage } from '../../server/storage';
-import { InsertUser } from '../../shared/schema';
+import { storage, type InsertUser } from '../_lib/storage';
 import { 
   generateAccessToken, 
   generateRefreshToken,
-} from '../../server/utils/jwt';
+} from '../_lib/jwt';
 import { 
   validateEmail, 
   validatePassword, 
   validateUsername,
   sanitizeInput 
-} from '../../server/utils/validation';
+} from '../_lib/validation';
 
 const BCRYPT_ROUNDS = 10;
 

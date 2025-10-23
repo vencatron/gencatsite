@@ -6,17 +6,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    // Clear refresh token cookie
-    res.setHeader('Set-Cookie', [
-      `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${
-        process.env.NODE_ENV === 'production' ? '; Secure' : ''
-      }`,
-    ]);
+  // Clear the refresh token cookie
+  res.setHeader('Set-Cookie', [
+    `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${
+      process.env.NODE_ENV === 'production' ? '; Secure' : ''
+    }`,
+  ]);
 
-    return res.json({ message: 'Logout successful' });
-  } catch (error) {
-    console.error('Logout error:', error);
-    return res.status(500).json({ error: 'Internal server error during logout' });
-  }
+  return res.json({ message: 'Logged out successfully' });
 }

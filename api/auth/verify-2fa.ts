@@ -1,10 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
+import { storage } from '../_lib/storage';
 import { 
   generateAccessToken, 
   generateRefreshToken,
-} from '../../server/utils/jwt';
-import { sanitizeInput } from '../../server/utils/validation';
+} from '../_lib/jwt';
+import { sanitizeInput } from '../_lib/validation';
+import { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } from '../_lib/twoFactor';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
@@ -29,7 +30,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Verify 2FA token
-    const { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } = require('../../server/utils/twoFactor');
     let isValid = false;
 
     if (isBackupCode) {
@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2FA verified - update last login
-    await storage.updateUser(user.id, { lastLoginAt: new Date() });
+    await storage.updateUser(user.id, { lastLogin: new Date() });
 
     // Generate tokens
     const accessToken = generateAccessToken(user);

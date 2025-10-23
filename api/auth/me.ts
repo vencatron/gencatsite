@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
-import { verifyAccessToken } from '../../server/utils/jwt';
+import { storage } from '../_lib/storage';
+import { verifyAccessToken } from '../_lib/jwt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow GET requests
@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get user
-    const user = await storage.getUser(payload.userId);
+    const user = await storage.getUser(payload.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
