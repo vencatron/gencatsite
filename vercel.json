@@ -1,15 +1,10 @@
 {
-  "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/" }
-  ],
   "functions": {
     "api/**/*.ts": {
+      "runtime": "nodejs20.x",
       "memory": 1024,
       "maxDuration": 10
     }
