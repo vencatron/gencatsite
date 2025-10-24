@@ -103,6 +103,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    return res.status(500).json({ error: 'Internal server error during registration' });
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    return res.status(500).json({
+      error: 'Internal server error during registration',
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+    });
   }
 }
