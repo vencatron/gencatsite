@@ -20,6 +20,7 @@ export interface User {
   city: string | null;
   state: string | null;
   zipCode: string | null;
+  dateOfBirth: Date | null;
   role: string | null;
   isActive: boolean | null;
   emailVerified: boolean | null;
@@ -45,6 +46,7 @@ export interface InsertUser {
   city?: string | null;
   state?: string | null;
   zipCode?: string | null;
+  dateOfBirth?: Date | null;
   role?: string | null;
   isActive?: boolean | null;
   emailVerified?: boolean | null;
@@ -87,7 +89,7 @@ export const storage = {
       INSERT INTO users (
         username, email, password_hash, first_name, last_name,
         phone_number, address, city, state, zip_code,
-        role, is_active, email_verified,
+        date_of_birth, role, is_active, email_verified,
         email_verification_token, password_reset_token,
         password_reset_expires, two_factor_secret,
         two_factor_enabled, two_factor_backup_codes,
@@ -103,6 +105,7 @@ export const storage = {
         ${userData.city || null},
         ${userData.state || null},
         ${userData.zipCode || null},
+        ${userData.dateOfBirth || null},
         ${userData.role || 'client'},
         ${userData.isActive ?? true},
         ${userData.emailVerified ?? false},
@@ -132,6 +135,7 @@ export const storage = {
       city: user.city,
       state: user.state,
       zipCode: user.zip_code,
+      dateOfBirth: user.date_of_birth,
       role: user.role,
       isActive: user.is_active,
       emailVerified: user.email_verified,
@@ -164,6 +168,7 @@ export const storage = {
       city: data.city !== undefined ? data.city : currentUser.city,
       state: data.state !== undefined ? data.state : currentUser.state,
       zipCode: data.zipCode !== undefined ? data.zipCode : currentUser.zipCode,
+      dateOfBirth: data.dateOfBirth !== undefined ? data.dateOfBirth : currentUser.dateOfBirth,
       role: data.role !== undefined ? data.role : currentUser.role,
       isActive: data.isActive !== undefined ? data.isActive : currentUser.isActive,
       emailVerified: data.emailVerified !== undefined ? data.emailVerified : currentUser.emailVerified,
@@ -190,6 +195,7 @@ export const storage = {
         city = ${updateData.city},
         state = ${updateData.state},
         zip_code = ${updateData.zipCode},
+        date_of_birth = ${updateData.dateOfBirth},
         role = ${updateData.role},
         is_active = ${updateData.isActive},
         email_verified = ${updateData.emailVerified},
@@ -221,6 +227,7 @@ export const storage = {
       city: user.city,
       state: user.state,
       zipCode: user.zip_code,
+      dateOfBirth: user.date_of_birth,
       role: user.role,
       isActive: user.is_active,
       emailVerified: user.email_verified,
