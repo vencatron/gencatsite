@@ -1,8 +1,14 @@
-# Vercel Deployment Issue - API Functions Not Deploying
+# Vercel Deployment Issue - PARTIALLY RESOLVED ✅
 
-## Issue Summary
+## Current Status: API Functions ARE Deploying! 🎉
 
-The gencatsite project's API endpoints are not being deployed by Vercel. All `/api/*` requests return the frontend HTML instead of executing serverless functions.
+**Update**: Configuration fixes have been applied and API functions are now being deployed and invoked by Vercel.
+
+**Evidence of Progress**:
+- `/api/auth/register` → Returns `FUNCTION_INVOCATION_FAILED` (function is running, but failing at runtime due to missing env vars)
+- Previously: All endpoints returned HTML (functions not detected)
+
+**Remaining Issue**: Environment variables not configured in Vercel dashboard
 
 ## Evidence
 
@@ -148,23 +154,79 @@ curl -X POST https://iamatrust.com/api/auth/register \
 **Expected**: Success or validation error (JSON)
 **Actual**: HTML page (frontend)
 
-## Next Steps
+## Next Steps - CRITICAL: Set Environment Variables
 
-**Immediate Priority**: Access Vercel dashboard or get Vercel API token to:
-1. Inspect why functions aren't being deployed
-2. Check deployment logs for build errors
-3. Verify project configuration
-4. Force redeploy with cache clear
+**Immediate Action Required**: Configure environment variables in Vercel dashboard:
 
-**Once API Functions Deploy**: The registration endpoint should work immediately, as all code-level issues have been resolved.
+### Step-by-Step Instructions:
+
+1. **Go to Vercel Dashboard**: https://vercel.com/dashboard
+2. **Select Project**: iamatrust.com (gencatsite)
+3. **Navigate to**: Settings → Environment Variables
+4. **Add the following variables** (for Production, Preview, and Development):
+
+```env
+DATABASE_URL=postgresql://neondb_owner:npg_sf6PBCxKMt1F@ep-flat-hall-afc4091w-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require
+
+JWT_ACCESS_SECRET=258bec5dba798fcf0ea2ba25bb2b315f32bb5f6bfac8593a3c0b3a3b5cfa42b9d3efada6ddf657f827e4be56f6bf97919088f4d7c6c1ba492d0b33ec6bb87988
+
+JWT_REFRESH_SECRET=2527965aa3d44c1a007e0e4a6ad6a8f41716cbb1c645499051a6b73a26b06dd8c0284f475016c022c5e40b5ee239da4b07b3ce9fa036414054a6f3d661e65f97
+
+JWT_ACCESS_EXPIRATION=15m
+
+JWT_REFRESH_EXPIRATION=7d
+
+NODE_ENV=production
+```
+
+5. **Save all variables**
+6. **Redeploy**: Go to Deployments → Click "..." → Redeploy (without cache)
+
+**After setting these variables**: All API endpoints should work immediately.
 
 ## Code Commits Made
 
+### Configuration Fixes (October 24, 2024):
+- `3ce8cf6` - Add @vercel/mcp-adapter dependency for MCP endpoint
+- `8f7a3aa` - **FIX: Remove 'framework: vite' from vercel.json** (this was preventing API detection)
+- `8f7a3aa` - Add tsconfig.api.json for proper API TypeScript compilation
+- `8f7a3aa` - Add MCP endpoint at /api/mcp for deployment diagnostics
+
+### Previous Attempts:
 - `55b1381` - Add database test endpoint for debugging
 - `6bcb5c6` - Fix critical routing issue: exclude /api routes from frontend rewrites
 - `c26c4da` - Fix API routing: use explicit routes instead of rewrites
 - `f63bf6a` - Simplify vercel.json: remove custom routing, let Vercel auto-handle
 - `5a12bd0` - Add minimal test API endpoint
+
+## Root Cause Identified ✅
+
+The issue was in `vercel.json`:
+
+**Problem**:
+```json
+{
+  "framework": "vite",  // ← This told Vercel to treat as pure frontend
+  "functions": {...}    // ← This was being ignored
+}
+```
+
+**Solution**:
+```json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
+```
+
+Removing `"framework": "vite"` allows Vercel to recognize this as a **hybrid project** (Vite frontend + serverless functions).
 
 ## Environment Variables Required (In Vercel)
 
