@@ -1,18 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
 import { storage, type InsertUser } from '../_lib/storage';
-import { 
-  generateAccessToken, 
+import {
+  generateAccessToken,
   generateRefreshToken,
 } from '../_lib/jwt';
-import { 
-  validateEmail, 
-  validatePassword, 
+import {
+  validateEmail,
+  validatePassword,
   validateUsername,
-  sanitizeInput 
+  sanitizeInput
 } from '../_lib/validation';
 
 const BCRYPT_ROUNDS = 10;
+// Fixed: Removed non-existent dateOfBirth field from storage interface
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
