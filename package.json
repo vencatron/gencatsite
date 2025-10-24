@@ -4,7 +4,7 @@
   "description": "Generation Catalyst - Professional Estate Planning Website",
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "vite",
