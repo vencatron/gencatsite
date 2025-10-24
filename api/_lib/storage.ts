@@ -20,7 +20,6 @@ export interface User {
   city: string | null;
   state: string | null;
   zipCode: string | null;
-  dateOfBirth: Date | null;
   role: string | null;
   isActive: boolean | null;
   emailVerified: boolean | null;
@@ -30,7 +29,7 @@ export interface User {
   twoFactorSecret: string | null;
   twoFactorEnabled: boolean | null;
   twoFactorBackupCodes: string | null;
-  lastLogin: Date | null;
+  lastLoginAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -46,7 +45,6 @@ export interface InsertUser {
   city?: string | null;
   state?: string | null;
   zipCode?: string | null;
-  dateOfBirth?: Date | null;
   role?: string | null;
   isActive?: boolean | null;
   emailVerified?: boolean | null;
@@ -56,7 +54,7 @@ export interface InsertUser {
   twoFactorSecret?: string | null;
   twoFactorEnabled?: boolean | null;
   twoFactorBackupCodes?: string | null;
-  lastLogin?: Date | null;
+  lastLoginAt?: Date | null;
   createdAt?: Date | null;
   updatedAt?: Date | null;
 }
@@ -89,11 +87,11 @@ export const storage = {
       INSERT INTO users (
         username, email, password_hash, first_name, last_name,
         phone_number, address, city, state, zip_code,
-        date_of_birth, role, is_active, email_verified,
+        role, is_active, email_verified,
         email_verification_token, password_reset_token,
         password_reset_expires, two_factor_secret,
         two_factor_enabled, two_factor_backup_codes,
-        last_login, created_at, updated_at
+        last_login_at, created_at, updated_at
       ) VALUES (
         ${userData.username},
         ${userData.email},
@@ -105,7 +103,6 @@ export const storage = {
         ${userData.city || null},
         ${userData.state || null},
         ${userData.zipCode || null},
-        ${userData.dateOfBirth || null},
         ${userData.role || 'client'},
         ${userData.isActive ?? true},
         ${userData.emailVerified ?? false},
@@ -115,7 +112,7 @@ export const storage = {
         ${userData.twoFactorSecret || null},
         ${userData.twoFactorEnabled ?? false},
         ${userData.twoFactorBackupCodes || null},
-        ${userData.lastLogin || null},
+        ${userData.lastLoginAt || null},
         ${userData.createdAt || new Date()},
         ${userData.updatedAt || new Date()}
       ) RETURNING *
@@ -135,7 +132,6 @@ export const storage = {
       city: user.city,
       state: user.state,
       zipCode: user.zip_code,
-      dateOfBirth: user.date_of_birth,
       role: user.role,
       isActive: user.is_active,
       emailVerified: user.email_verified,
@@ -145,72 +141,67 @@ export const storage = {
       twoFactorSecret: user.two_factor_secret,
       twoFactorEnabled: user.two_factor_enabled,
       twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLogin: user.last_login,
+      lastLoginAt: user.last_login_at,
       createdAt: user.created_at,
       updatedAt: user.updated_at
     } as User;
   },
 
   async updateUser(id: number, data: Partial<InsertUser>): Promise<User | undefined> {
-    const updates: string[] = [];
-    const values: any[] = [];
-    let paramIndex = 1;
+    // Get current user first
+    const currentUser = await this.getUser(id);
+    if (!currentUser) return undefined;
 
-    // Build dynamic UPDATE query
-    if (data.username !== undefined) {
-      updates.push(`username = $${paramIndex++}`);
-      values.push(data.username);
-    }
-    if (data.email !== undefined) {
-      updates.push(`email = $${paramIndex++}`);
-      values.push(data.email);
-    }
-    if (data.passwordHash !== undefined) {
-      updates.push(`password_hash = $${paramIndex++}`);
-      values.push(data.passwordHash);
-    }
-    if (data.firstName !== undefined) {
-      updates.push(`first_name = $${paramIndex++}`);
-      values.push(data.firstName);
-    }
-    if (data.lastName !== undefined) {
-      updates.push(`last_name = $${paramIndex++}`);
-      values.push(data.lastName);
-    }
-    if (data.phoneNumber !== undefined) {
-      updates.push(`phone_number = $${paramIndex++}`);
-      values.push(data.phoneNumber);
-    }
-    if (data.twoFactorSecret !== undefined) {
-      updates.push(`two_factor_secret = $${paramIndex++}`);
-      values.push(data.twoFactorSecret);
-    }
-    if (data.twoFactorEnabled !== undefined) {
-      updates.push(`two_factor_enabled = $${paramIndex++}`);
-      values.push(data.twoFactorEnabled);
-    }
-    if (data.twoFactorBackupCodes !== undefined) {
-      updates.push(`two_factor_backup_codes = $${paramIndex++}`);
-      values.push(data.twoFactorBackupCodes);
-    }
-    if (data.lastLogin !== undefined) {
-      updates.push(`last_login = $${paramIndex++}`);
-      values.push(data.lastLogin);
-    }
-
-    // Always update updated_at
-    updates.push(`updated_at = $${paramIndex++}`);
-    values.push(new Date());
-
-    // Add the id as the last parameter
-    values.push(id);
-
-    if (updates.length === 1) return undefined; // Only updated_at
+    // Prepare update data with current values as fallback
+    const updateData = {
+      username: data.username !== undefined ? data.username : currentUser.username,
+      email: data.email !== undefined ? data.email : currentUser.email,
+      passwordHash: data.passwordHash !== undefined ? data.passwordHash : currentUser.passwordHash,
+      firstName: data.firstName !== undefined ? data.firstName : currentUser.firstName,
+      lastName: data.lastName !== undefined ? data.lastName : currentUser.lastName,
+      phoneNumber: data.phoneNumber !== undefined ? data.phoneNumber : currentUser.phoneNumber,
+      address: data.address !== undefined ? data.address : currentUser.address,
+      city: data.city !== undefined ? data.city : currentUser.city,
+      state: data.state !== undefined ? data.state : currentUser.state,
+      zipCode: data.zipCode !== undefined ? data.zipCode : currentUser.zipCode,
+      role: data.role !== undefined ? data.role : currentUser.role,
+      isActive: data.isActive !== undefined ? data.isActive : currentUser.isActive,
+      emailVerified: data.emailVerified !== undefined ? data.emailVerified : currentUser.emailVerified,
+      emailVerificationToken: data.emailVerificationToken !== undefined ? data.emailVerificationToken : currentUser.emailVerificationToken,
+      passwordResetToken: data.passwordResetToken !== undefined ? data.passwordResetToken : currentUser.passwordResetToken,
+      passwordResetExpires: data.passwordResetExpires !== undefined ? data.passwordResetExpires : currentUser.passwordResetExpires,
+      twoFactorSecret: data.twoFactorSecret !== undefined ? data.twoFactorSecret : currentUser.twoFactorSecret,
+      twoFactorEnabled: data.twoFactorEnabled !== undefined ? data.twoFactorEnabled : currentUser.twoFactorEnabled,
+      twoFactorBackupCodes: data.twoFactorBackupCodes !== undefined ? data.twoFactorBackupCodes : currentUser.twoFactorBackupCodes,
+      lastLoginAt: data.lastLoginAt !== undefined ? data.lastLoginAt : currentUser.lastLoginAt,
+      updatedAt: new Date()
+    };
 
     const result = await sql`
-      UPDATE users 
-      SET ${updates.join(', ')}
-      WHERE id = $${paramIndex}
+      UPDATE users
+      SET
+        username = ${updateData.username},
+        email = ${updateData.email},
+        password_hash = ${updateData.passwordHash},
+        first_name = ${updateData.firstName},
+        last_name = ${updateData.lastName},
+        phone_number = ${updateData.phoneNumber},
+        address = ${updateData.address},
+        city = ${updateData.city},
+        state = ${updateData.state},
+        zip_code = ${updateData.zipCode},
+        role = ${updateData.role},
+        is_active = ${updateData.isActive},
+        email_verified = ${updateData.emailVerified},
+        email_verification_token = ${updateData.emailVerificationToken},
+        password_reset_token = ${updateData.passwordResetToken},
+        password_reset_expires = ${updateData.passwordResetExpires},
+        two_factor_secret = ${updateData.twoFactorSecret},
+        two_factor_enabled = ${updateData.twoFactorEnabled},
+        two_factor_backup_codes = ${updateData.twoFactorBackupCodes},
+        last_login_at = ${updateData.lastLoginAt},
+        updated_at = ${updateData.updatedAt}
+      WHERE id = ${id}
       RETURNING *
     `;
 
@@ -230,7 +221,6 @@ export const storage = {
       city: user.city,
       state: user.state,
       zipCode: user.zip_code,
-      dateOfBirth: user.date_of_birth,
       role: user.role,
       isActive: user.is_active,
       emailVerified: user.email_verified,
@@ -240,7 +230,7 @@ export const storage = {
       twoFactorSecret: user.two_factor_secret,
       twoFactorEnabled: user.two_factor_enabled,
       twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLogin: user.last_login,
+      lastLoginAt: user.last_login_at,
       createdAt: user.created_at,
       updatedAt: user.updated_at
     } as User;
