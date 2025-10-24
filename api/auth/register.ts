@@ -1,16 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
-import { storage, type InsertUser } from '../_lib/storage';
+import { storage, type InsertUser } from '../storage';
 import {
   generateAccessToken,
   generateRefreshToken,
-} from '../_lib/jwt';
+} from '../jwt';
 import {
   validateEmail,
   validatePassword,
   validateUsername,
   sanitizeInput
-} from '../_lib/validation';
+} from '../validation';
 
 const BCRYPT_ROUNDS = 10;
 // Fixed: Removed non-existent dateOfBirth field from storage interface

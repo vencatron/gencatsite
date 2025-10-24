@@ -33,12 +33,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         is_active BOOLEAN DEFAULT true,
         email_verified BOOLEAN DEFAULT false,
         email_verification_token VARCHAR(255),
+        email_verification_expires TIMESTAMP,
         password_reset_token VARCHAR(255),
         password_reset_expires TIMESTAMP,
         two_factor_secret VARCHAR(255),
         two_factor_enabled BOOLEAN DEFAULT false,
         two_factor_backup_codes TEXT,
-        last_login TIMESTAMP,
+        last_login_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )

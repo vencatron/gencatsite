@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../_lib/storage';
-import { 
-  generateAccessToken, 
+import { storage } from '../storage';
+import {
+  generateAccessToken,
   generateRefreshToken,
-} from '../_lib/jwt';
-import { sanitizeInput } from '../_lib/validation';
-import { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } from '../_lib/twoFactor';
+} from '../jwt';
+import { sanitizeInput } from '../validation';
+import { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } from '../twoFactor';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
