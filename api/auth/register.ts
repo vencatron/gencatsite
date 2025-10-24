@@ -173,7 +173,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     return res.status(500).json({
       error: 'Internal server error during registration',
-      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+      details: error instanceof Error ? error.message : String(error)
     });
   }
 }
