@@ -1,10 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
-import { storage, type InsertUser } from '../storage';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../jwt';
+import type { InsertUser } from '../storage';
 import {
   validateEmail,
   validatePassword,
@@ -126,6 +122,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Check for existing users
+    const [{ storage }, { generateAccessToken, generateRefreshToken }] = await Promise.all([
+      import('../storage.js'),
+      import('../jwt.js'),
+    ]);
+    debugStages.push('loaded-dependencies');
+
     const existingUserByUsername = await storage.getUserByUsername(sanitizedUsername);
     if (existingUserByUsername) {
       return res.status(409).json({ error: 'Username already exists' });
