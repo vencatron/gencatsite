@@ -117,7 +117,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Validate password
-    const passwordValidation = validatePassword(password);
+    const passwordValidation = validatePassword(rawPassword);
     if (!passwordValidation.valid) {
       return res.status(400).json({ 
         error: 'Password does not meet requirements',
