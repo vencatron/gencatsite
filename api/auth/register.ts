@@ -139,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     debugStages.push('checked-email');
 
     // Hash password
-    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const passwordHash = await bcrypt.hash(rawPassword, BCRYPT_ROUNDS);
     debugStages.push('hashed-password');
 
     // Create user
