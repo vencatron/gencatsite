@@ -75,6 +75,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const debugStages: string[] = [];
+  const requestUrl = req.url ? new URL(req.url, `https://${req.headers.host ?? 'localhost'}`) : null;
+  const debugMode = requestUrl?.searchParams.get('debug') === '1';
+
   try {
     let body: Record<string, unknown>;
     try {
@@ -82,6 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (error) {
       return res.status(400).json({ error: 'Invalid JSON payload' });
     }
+    debugStages.push('parsed-body');
 
     const username = typeof body.username === 'string' ? body.username : '';
     const email = typeof body.email === 'string' ? body.email : '';
@@ -94,6 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Username, email, and password are required' });
     }
+    debugStages.push('validated-required');
 
     // Sanitize inputs
     const sanitizedUsername = sanitizeInput(username);
@@ -124,14 +130,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (existingUserByUsername) {
       return res.status(409).json({ error: 'Username already exists' });
     }
+    debugStages.push('checked-username');
 
     const existingUserByEmail = await storage.getUserByEmail(sanitizedEmail);
     if (existingUserByEmail) {
       return res.status(409).json({ error: 'Email already registered' });
     }
+    debugStages.push('checked-email');
 
     // Hash password
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    debugStages.push('hashed-password');
 
     // Create user
     const newUser: InsertUser = {
@@ -148,10 +157,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const user = await storage.createUser(newUser);
+    debugStages.push('created-user');
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
+    debugStages.push('generated-tokens');
 
     // Set refresh token cookie
     res.setHeader('Set-Cookie', [
@@ -159,6 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         process.env.NODE_ENV === 'production' ? '; Secure' : ''
       }`,
     ]);
+    debugStages.push('set-cookie');
 
     // Return user without password
     const { passwordHash: _, ...userWithoutPassword } = user;
@@ -166,6 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: 'User registered successfully',
       user: userWithoutPassword,
       accessToken,
+      ...(debugMode ? { debugStages } : {}),
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -173,7 +186,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     return res.status(500).json({
       error: 'Internal server error during registration',
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
+      ...(debugMode ? { debugStages } : {}),
     });
   }
 }
