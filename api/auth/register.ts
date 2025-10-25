@@ -1,13 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
 import type { InsertUser } from '../storage';
-import {
-  validateEmail,
-  validatePassword,
-  validateUsername,
-  sanitizeInput
-} from '../validation';
-
 async function parseRequestBody(req: VercelRequest): Promise<Record<string, unknown>> {
   const { body } = req;
 
@@ -84,22 +77,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     debugStages.push('parsed-body');
 
-    const username = typeof body.username === 'string' ? body.username : '';
-    const email = typeof body.email === 'string' ? body.email : '';
-    const password = typeof body.password === 'string' ? body.password : '';
-    const firstName = typeof body.firstName === 'string' ? body.firstName : null;
-    const lastName = typeof body.lastName === 'string' ? body.lastName : null;
-    const phoneNumber = typeof body.phoneNumber === 'string' ? body.phoneNumber : null;
+    const rawUsername = typeof body.username === 'string' ? body.username : '';
+    const rawEmail = typeof body.email === 'string' ? body.email : '';
+    const rawPassword = typeof body.password === 'string' ? body.password : '';
+    const rawFirstName = typeof body.firstName === 'string' ? body.firstName : null;
+    const rawLastName = typeof body.lastName === 'string' ? body.lastName : null;
+    const rawPhoneNumber = typeof body.phoneNumber === 'string' ? body.phoneNumber : null;
 
     // Validate required fields
-    if (!username || !email || !password) {
+    if (!rawUsername || !rawEmail || !rawPassword) {
       return res.status(400).json({ error: 'Username, email, and password are required' });
     }
     debugStages.push('validated-required');
 
+    const [{ storage }, { generateAccessToken, generateRefreshToken }, validationModule] = await Promise.all([
+      import('../storage.js'),
+      import('../jwt.js'),
+      import('../validation.js'),
+    ]);
+    const { sanitizeInput, validateEmail, validatePassword, validateUsername } = validationModule;
+    debugStages.push('loaded-dependencies');
+
     // Sanitize inputs
-    const sanitizedUsername = sanitizeInput(username);
-    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    const sanitizedUsername = sanitizeInput(rawUsername);
+    const sanitizedEmail = sanitizeInput(rawEmail).toLowerCase();
+    const firstName = rawFirstName ? sanitizeInput(rawFirstName) : null;
+    const lastName = rawLastName ? sanitizeInput(rawLastName) : null;
+    const phoneNumber = rawPhoneNumber ? sanitizeInput(rawPhoneNumber) : null;
 
     // Validate username
     const usernameValidation = validateUsername(sanitizedUsername);
@@ -122,12 +126,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Check for existing users
-    const [{ storage }, { generateAccessToken, generateRefreshToken }] = await Promise.all([
-      import('../storage.js'),
-      import('../jwt.js'),
-    ]);
-    debugStages.push('loaded-dependencies');
-
     const existingUserByUsername = await storage.getUserByUsername(sanitizedUsername);
     if (existingUserByUsername) {
       return res.status(409).json({ error: 'Username already exists' });
@@ -149,9 +147,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       username: sanitizedUsername,
       email: sanitizedEmail,
       passwordHash,
-      firstName: firstName ? sanitizeInput(firstName) : null,
-      lastName: lastName ? sanitizeInput(lastName) : null,
-      phoneNumber: phoneNumber ? sanitizeInput(phoneNumber) : null,
+      firstName,
+      lastName,
+      phoneNumber,
       role: 'client',
       isActive: true,
       createdAt: new Date(),
