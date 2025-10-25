@@ -8,5 +8,11 @@
       "runtime": "@vercel/node@5.5.0",
       "maxDuration": 10
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api|_next|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
