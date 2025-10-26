@@ -49,6 +49,7 @@ export interface AuthResponse {
   message: string;
   user: User;
   accessToken: string;
+  emailVerificationRequired?: boolean;
 }
 
 export interface Document {
