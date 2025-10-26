@@ -27,6 +27,9 @@ const ClientPortal = () => {
   const [requires2FA, setRequires2FA] = useState(false)
   const [twoFAUserId, setTwoFAUserId] = useState<number | null>(null)
   const [isVerifying2FA, setIsVerifying2FA] = useState(false)
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
+  const [resendingVerification, setResendingVerification] = useState(false)
   const { register } = usePortalAuth()
   const navigate = useNavigate()
   const location = useLocation() as any
@@ -51,7 +54,13 @@ const ClientPortal = () => {
       navigate(redirectTo)
       window.location.reload() // Reload to update auth context
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.')
+      // Check if the error is due to unverified email
+      if (err.response?.data?.emailNotVerified) {
+        setUnverifiedEmail(err.response.data.email || loginData.email)
+        setError('Please verify your email address before logging in. Check your inbox for the verification email.')
+      } else {
+        setError(err.message || 'Login failed. Please check your credentials.')
+      }
     } finally {
       setIsLoggingIn(false)
     }
@@ -102,7 +111,7 @@ const ClientPortal = () => {
     }
     
     try {
-      await register(
+      const response = await register(
         registerData.username,
         registerData.email,
         registerData.password,
@@ -111,9 +120,18 @@ const ClientPortal = () => {
         registerData.lastName,
         registerData.phoneNumber
       )
-      const redirectTo = '/client-portal/dashboard'
-      navigate(redirectTo)
-      window.location.reload() // Reload to update auth context
+
+      // Check if email verification is required
+      if (response?.emailVerificationRequired) {
+        setRegistrationSuccess(true)
+        setShowRegister(false)
+        setError(null)
+      } else {
+        // For backward compatibility, if no email verification required
+        const redirectTo = '/client-portal/dashboard'
+        navigate(redirectTo)
+        window.location.reload() // Reload to update auth context
+      }
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {
@@ -135,6 +153,38 @@ const ClientPortal = () => {
       [e.target.name]: e.target.value
     })
     setError(null)
+  }
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return
+
+    setResendingVerification(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setError(null)
+        setUnverifiedEmail(null)
+        setRegistrationSuccess(true)
+      } else {
+        setError(data.error || 'Failed to resend verification email')
+      }
+    } catch (err) {
+      console.error('Resend verification error:', err)
+      setError('An error occurred while resending verification email')
+    } finally {
+      setResendingVerification(false)
+    }
   }
 
   const portalFeatures = [
@@ -275,7 +325,38 @@ const ClientPortal = () => {
 
               {error && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                  {error}
+                  <p>{error}</p>
+                  {unverifiedEmail && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendingVerification}
+                      className="mt-2 text-sm underline hover:text-red-900"
+                    >
+                      {resendingVerification ? 'Resending...' : 'Resend verification email'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {registrationSuccess && (
+                <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-800 rounded">
+                  <h4 className="font-semibold mb-2">Registration Successful!</h4>
+                  <p className="mb-3">
+                    Thank you for registering. We've sent a verification email to your email address.
+                    Please check your inbox and click the verification link to activate your account.
+                  </p>
+                  <p className="text-sm">
+                    Didn't receive the email? Check your spam folder or{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowRegister(true)}
+                      className="text-green-700 underline hover:text-green-900"
+                    >
+                      try registering again
+                    </button>
+                    .
+                  </p>
                 </div>
               )}
 
@@ -286,6 +367,15 @@ const ClientPortal = () => {
                   onCancel={handle2FACancel}
                   isLoading={isVerifying2FA}
                 />
+              ) : registrationSuccess ? (
+                <div className="text-center mt-6">
+                  <Link
+                    to="/"
+                    className="text-primary-600 hover:text-primary-700 underline"
+                  >
+                    Return to Home
+                  </Link>
+                </div>
               ) : !showForgotPassword && !showRegister ? (
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div>

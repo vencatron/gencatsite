@@ -21,6 +21,7 @@ import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
 import TaxPlanningPage from '@/pages/TaxPlanningPage'
 import SchedulePage from '@/pages/SchedulePage'
+import VerifyEmail from '@/pages/VerifyEmail'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/client-portal" element={<ClientPortal />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route element={<RequirePortalAuth />}>
             <Route path="/client-portal" element={<PortalLayout />}>
               <Route path="dashboard" element={<PortalDashboard />} />

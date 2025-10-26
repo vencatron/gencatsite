@@ -25,7 +25,7 @@ type AuthContextShape = {
     firstName?: string,
     lastName?: string,
     phoneNumber?: string
-  ) => Promise<PortalUser>
+  ) => Promise<any>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -98,7 +98,7 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     firstName?: string,
     lastName?: string,
     phoneNumber?: string
-  ): Promise<PortalUser> => {
+  ): Promise<any> => {
     try {
       const response = await apiService.register(
         username,
@@ -109,9 +109,14 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         lastName,
         phoneNumber
       )
-      const portalUser = convertToPortalUser(response.user)
-      setUser(portalUser)
-      return portalUser
+
+      // If email verification is not required, set the user
+      if (!response.emailVerificationRequired) {
+        const portalUser = convertToPortalUser(response.user)
+        setUser(portalUser)
+      }
+
+      return response
     } catch (error) {
       console.error('Registration failed:', error)
       throw error

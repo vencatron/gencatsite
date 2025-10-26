@@ -5,19 +5,20 @@ import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import { storage } from './storage';
 import { User, InsertUser } from '../shared/schema';
-import { 
-  generateAccessToken, 
-  generateRefreshToken, 
+import {
+  generateAccessToken,
+  generateRefreshToken,
   verifyRefreshToken,
-  TokenPayload 
+  TokenPayload
 } from './utils/jwt';
-import { 
-  validateEmail, 
-  validatePassword, 
+import {
+  validateEmail,
+  validatePassword,
   validateUsername,
-  sanitizeInput 
+  sanitizeInput
 } from './utils/validation';
 import { authenticateToken, AuthRequest } from './middleware/auth';
+import { emailService } from './services/email';
 
 // Import route modules
 import documentsRouter from './routes/documents';
@@ -131,7 +132,12 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-    // Create user
+    // Generate email verification token
+    const verificationToken = emailService.generateVerificationToken();
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24); // Token expires in 24 hours
+
+    // Create user with email verification fields
     const newUser: InsertUser = {
       username: sanitizedUsername,
       email: sanitizedEmail,
@@ -141,11 +147,17 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
       phoneNumber: phoneNumber ? sanitizeInput(phoneNumber) : null,
       role: 'client',
       isActive: true,
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const user = await storage.createUser(newUser);
+
+    // Send verification email
+    await emailService.sendVerificationEmail(sanitizedEmail, sanitizedUsername, verificationToken);
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
@@ -162,9 +174,10 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     // Return user info and access token
     const { passwordHash: _, ...userWithoutPassword } = user;
     res.status(201).json({
-      message: 'User registered successfully',
+      message: 'User registered successfully. Please check your email to verify your account.',
       user: userWithoutPassword,
       accessToken,
+      emailVerificationRequired: true,
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -209,6 +222,15 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        error: 'Please verify your email address before logging in',
+        emailNotVerified: true,
+        email: user.email
+      });
     }
 
     // Check if 2FA is enabled
@@ -408,6 +430,115 @@ app.post('/api/auth/refresh', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Token refresh error:', error);
     res.status(500).json({ error: 'Internal server error during token refresh' });
+  }
+});
+
+// GET /api/auth/verify-email - Verify email with token
+app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'Verification token is required' });
+    }
+
+    // Find user by verification token
+    const user = await storage.getUserByEmailVerificationToken(token);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Invalid or expired verification token' });
+    }
+
+    // Check if token has expired
+    if (user.emailVerificationExpires && new Date() > user.emailVerificationExpires) {
+      return res.status(400).json({ error: 'Verification token has expired' });
+    }
+
+    // Mark email as verified
+    await storage.updateUser(user.id, {
+      emailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+      lastLoginAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // Auto-login: Generate tokens for the user
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Set refresh token in httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Return user info and access token for auto-login
+    const { passwordHash: _, ...userWithoutPassword } = user;
+    res.json({
+      message: 'Email verified successfully',
+      emailVerified: true,
+      user: userWithoutPassword,
+      accessToken,
+      autoLogin: true,
+    });
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Internal server error during email verification' });
+  }
+});
+
+// POST /api/auth/resend-verification - Resend verification email
+app.post('/api/auth/resend-verification', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Sanitize and validate email
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    if (!validateEmail(sanitizedEmail)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Find user by email
+    const user = await storage.getUserByEmail(sanitizedEmail);
+
+    if (!user) {
+      // Don't reveal if email exists for security
+      return res.json({ message: 'If the email exists, a verification email has been sent' });
+    }
+
+    // Check if already verified
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email is already verified' });
+    }
+
+    // Generate new verification token
+    const verificationToken = emailService.generateVerificationToken();
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24); // Token expires in 24 hours
+
+    // Update user with new token
+    await storage.updateUser(user.id, {
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
+      updatedAt: new Date(),
+    });
+
+    // Send verification email
+    await emailService.sendVerificationEmail(sanitizedEmail, user.username, verificationToken);
+
+    res.json({
+      message: 'Verification email has been sent',
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
