@@ -33,7 +33,7 @@ const ClientPortal = () => {
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
   const [resendingVerification, setResendingVerification] = useState(false)
-  const { register } = usePortalAuth()
+  const { register, refreshUser } = usePortalAuth()
   const navigate = useNavigate()
   const location = useLocation() as any
 
@@ -52,10 +52,11 @@ const ClientPortal = () => {
         return
       }
 
-      // Regular login without 2FA
+      // Regular login without 2FA - update auth context
+      await refreshUser()
+
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-      window.location.reload() // Reload to update auth context
     } catch (err: any) {
       // Check if the error is due to unverified email
       if (err.response?.data?.emailNotVerified) {
@@ -77,9 +78,9 @@ const ClientPortal = () => {
 
     try {
       await apiService.verify2FALogin(twoFAUserId, token, isBackupCode)
+      await refreshUser() // Update auth context
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-      window.location.reload() // Reload to update auth context
     } catch (err: any) {
       throw new Error(err.message || '2FA verification failed')
     } finally {
@@ -131,9 +132,9 @@ const ClientPortal = () => {
         setError(null)
       } else {
         // For backward compatibility, if no email verification required
+        await refreshUser() // Update auth context
         const redirectTo = '/client-portal/dashboard'
         navigate(redirectTo)
-        window.location.reload() // Reload to update auth context
       }
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.')
