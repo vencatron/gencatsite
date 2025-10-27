@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from '../jwt';
+} from '../jwt.js';
 import cookie from 'cookie';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

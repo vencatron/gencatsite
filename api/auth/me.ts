@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../storage';
-import { verifyAccessToken } from '../jwt';
+import { storage } from '../storage.js';
+import { verifyAccessToken } from '../jwt.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow GET requests
