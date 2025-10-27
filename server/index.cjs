@@ -465,6 +465,112 @@ app.use((err, _req, res, _next) => {
     console.error('Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error' });
 });
+// POST /api/auth/forgot-password - Request password reset
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        const sanitizedEmail = (0, validation_1.sanitizeInput)(email).toLowerCase();
+        // Validate email format
+        const isValidEmail = (0, validation_1.validateEmail)(sanitizedEmail);
+        if (!isValidEmail) {
+            return res.status(400).json({
+                error: 'Invalid email format'
+            });
+        }
+        // Find user by email
+        const user = await storage_1.storage.getUserByEmail(sanitizedEmail);
+        // Always return success even if user doesn't exist (security best practice)
+        if (!user) {
+            return res.json({
+                message: 'If an account exists with this email, a password reset link has been sent.'
+            });
+        }
+        // Check if user is active
+        if (!user.isActive) {
+            return res.json({
+                message: 'If an account exists with this email, a password reset link has been sent.'
+            });
+        }
+        // Generate password reset token
+        const resetToken = email_1.emailService.generateVerificationToken();
+        const resetExpires = new Date();
+        resetExpires.setHours(resetExpires.getHours() + 1); // Token expires in 1 hour
+        // Update user with reset token
+        await storage_1.storage.updateUser(user.id, {
+            passwordResetToken: resetToken,
+            passwordResetExpires: resetExpires,
+            updatedAt: new Date(),
+        });
+        // Send password reset email
+        await email_1.emailService.sendPasswordResetEmail(sanitizedEmail, user.username, resetToken);
+        res.json({
+            message: 'If an account exists with this email, a password reset link has been sent.'
+        });
+    }
+    catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ error: 'Internal server error processing password reset request' });
+    }
+});
+// POST /api/auth/reset-password - Reset password with token
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token and new password are required' });
+        }
+        // Validate password
+        const passwordValidation = (0, validation_1.validatePassword)(newPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({
+                error: 'Password does not meet requirements',
+                details: passwordValidation.errors
+            });
+        }
+        // Find user by reset token
+        const user = await storage_1.storage.getUserByPasswordResetToken(token);
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid or expired reset token' });
+        }
+        // Check if token is expired
+        if (user.passwordResetExpires && new Date() > user.passwordResetExpires) {
+            return res.status(400).json({ error: 'Password reset token has expired' });
+        }
+        // Hash new password
+        const hashedPassword = await bcrypt_1.default.hash(newPassword, BCRYPT_ROUNDS);
+        // Update user password and clear reset token
+        await storage_1.storage.updateUser(user.id, {
+            passwordHash: hashedPassword,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            updatedAt: new Date(),
+        });
+        // Generate new tokens for auto-login
+        const accessToken = (0, jwt_1.generateAccessToken)(user);
+        const refreshToken = (0, jwt_1.generateRefreshToken)(user);
+        // Set refresh token in httpOnly cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        // Return success with tokens for auto-login
+        const { passwordHash: _, ...userWithoutPassword } = user;
+        res.json({
+            message: 'Password has been reset successfully',
+            user: userWithoutPassword,
+            accessToken,
+        });
+    }
+    catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ error: 'Internal server error resetting password' });
+    }
+});
 // Start server
 app.listen(PORT, () => {
     console.log(`Backend server with API endpoints running on port ${PORT}`);

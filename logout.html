@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logout - Clear Session</title>
+</head>
+<body>
+    <h1>Clearing session...</h1>
+    <script>
+        // Clear localStorage
+        localStorage.clear();
+
+        // Clear all cookies
+        document.cookie.split(";").forEach(function(c) {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+
+        // Redirect to login
+        setTimeout(() => {
+            window.location.href = '/client-portal';
+        }, 1000);
+
+        document.body.innerHTML = '<h1>Session cleared! Redirecting to login...</h1>';
+    </script>
+</body>
+</html>

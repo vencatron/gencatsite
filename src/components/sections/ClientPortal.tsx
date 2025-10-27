@@ -23,6 +23,9 @@ const ClientPortal = () => {
   const [isRegistering, setIsRegistering] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [isSendingReset, setIsSendingReset] = useState(false)
+  const [resetEmailSent, setResetEmailSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [requires2FA, setRequires2FA] = useState(false)
   const [twoFAUserId, setTwoFAUserId] = useState<number | null>(null)
@@ -184,6 +187,46 @@ const ClientPortal = () => {
       setError('An error occurred while resending verification email')
     } finally {
       setResendingVerification(false)
+    }
+  }
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSendingReset(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: forgotPasswordEmail }),
+      })
+
+      // Check if response has content before trying to parse JSON
+      const contentType = response.headers.get('content-type')
+      let data = null
+
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json()
+        } catch (jsonError) {
+          console.error('Error parsing JSON response:', jsonError)
+        }
+      }
+
+      if (response.ok) {
+        setResetEmailSent(true)
+        setError(null)
+      } else {
+        setError(data?.error || 'Failed to send password reset email. Please try again.')
+      }
+    } catch (err) {
+      console.error('Forgot password error:', err)
+      setError('Unable to connect to the server. Please ensure you are connected to the internet and try again.')
+    } finally {
+      setIsSendingReset(false)
     }
   }
 
@@ -601,32 +644,80 @@ const ClientPortal = () => {
                   </button>
                 </form>
               ) : (
-                <div className="space-y-6">
-                  <div>
-                    <label htmlFor="reset-email" className="label-field">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="reset-email"
-                      className="input-field"
-                      placeholder="your.email@iamatrust.com"
-                    />
+                resetEmailSent ? (
+                  <div className="space-y-6">
+                    <div className="p-4 bg-green-100 border border-green-400 text-green-800 rounded">
+                      <h4 className="font-semibold mb-2">Password Reset Email Sent!</h4>
+                      <p className="mb-3">
+                        We've sent a password reset link to your email address.
+                        Please check your inbox and follow the instructions to reset your password.
+                      </p>
+                      <p className="text-sm">
+                        The link will expire in 1 hour for security purposes.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(false)
+                        setResetEmailSent(false)
+                        setForgotPasswordEmail('')
+                        setError(null)
+                      }}
+                      className="w-full btn-primary"
+                    >
+                      Back to Login
+                    </button>
                   </div>
-                  <button className="w-full btn-primary">
-                    Send Reset Link
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(false)
-                      setError(null)
-                    }}
-                    className="w-full btn-ghost"
-                  >
-                    Back to Login
-                  </button>
-                </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-6">
+                    <div>
+                      <label htmlFor="reset-email" className="label-field">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="reset-email"
+                        required
+                        value={forgotPasswordEmail}
+                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                        className="input-field"
+                        placeholder="your.email@iamatrust.com"
+                      />
+                    </div>
+                    <p className="text-sm text-neutral-600">
+                      Enter your email address and we'll send you a link to reset your password.
+                    </p>
+                    <button
+                      type="submit"
+                      disabled={isSendingReset}
+                      className="w-full btn-primary"
+                    >
+                      {isSendingReset ? (
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Sending Reset Link...
+                        </div>
+                      ) : (
+                        'Send Reset Link'
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(false)
+                        setForgotPasswordEmail('')
+                        setError(null)
+                      }}
+                      className="w-full btn-ghost"
+                    >
+                      Back to Login
+                    </button>
+                  </form>
+                )
               )}
 
               {/* Divider */}

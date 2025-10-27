@@ -25,6 +25,10 @@ class DatabaseStorage {
         const [user] = await db_vercel_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.emailVerificationToken, token));
         return user || undefined;
     }
+    async getUserByPasswordResetToken(token) {
+        const [user] = await db_vercel_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.passwordResetToken, token));
+        return user || undefined;
+    }
     async createUser(insertUser) {
         const [user] = await db_vercel_1.db
             .insert(schema_1.users)

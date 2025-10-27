@@ -16,19 +16,31 @@ class EmailService {
     }
     initialize() {
         try {
-            if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-                console.warn('Email service: Missing SMTP configuration, email sending will be disabled');
+            if (!process.env.SMTP_HOST) {
+                console.warn('Email service: Missing SMTP host configuration, email sending will be disabled');
                 return;
             }
-            const config = {
+            // Check if we're using Google Workspace SMTP relay without auth
+            const isGoogleRelay = process.env.SMTP_HOST === 'smtp-relay.gmail.com';
+            const requiresAuth = process.env.SMTP_USER && process.env.SMTP_PASS;
+            let config = {
                 host: process.env.SMTP_HOST,
                 port: parseInt(process.env.SMTP_PORT || '587', 10),
                 secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-                auth: {
+            };
+            // Only add auth if credentials are provided
+            if (requiresAuth) {
+                config.auth = {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASS,
-                },
-            };
+                };
+            }
+            else if (isGoogleRelay) {
+                // Google Workspace relay without auth (requires IP whitelisting in Google Admin)
+                console.log('Using Google Workspace SMTP relay without authentication');
+                config.secure = false;
+                config.requireTLS = true;
+            }
             this.transporter = nodemailer_1.default.createTransport(config);
             this.isInitialized = true;
             console.log('Email service initialized successfully');
