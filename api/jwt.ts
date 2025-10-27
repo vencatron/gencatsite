@@ -16,7 +16,7 @@ export interface TokenUser {
 export function generateAccessToken(user: TokenUser): string {
   return jwt.sign(
     {
-      id: user.id,
+      userId: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
@@ -29,7 +29,7 @@ export function generateAccessToken(user: TokenUser): string {
 export function generateRefreshToken(user: TokenUser): string {
   return jwt.sign(
     {
-      id: user.id,
+      userId: user.id,
       username: user.username,
     },
     REFRESH_SECRET,
