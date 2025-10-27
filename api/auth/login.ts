@@ -62,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Update last login
-    await storage.updateUser(user.id, { lastLogin: new Date() });
+    await storage.updateUser(user.id, { lastLoginAt: new Date() });
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
