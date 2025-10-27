@@ -5,6 +5,7 @@ const linkBase = 'px-3 py-2 rounded-md text-sm font-medium transition-colors'
 
 const PortalLayout = () => {
   const { user, logout } = usePortalAuth()
+  const isAdmin = user?.role === 'admin'
   const navigate = useNavigate()
 
   return (
@@ -41,6 +42,9 @@ const PortalLayout = () => {
                 <NavLink to="/client-portal/appointments" className={({ isActive }) => `${linkBase} ${isActive ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-50'}`}>Appointments</NavLink>
                 <NavLink to="/client-portal/billing" className={({ isActive }) => `${linkBase} ${isActive ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-50'}`}>Billing</NavLink>
                 <NavLink to="/client-portal/settings" className={({ isActive }) => `${linkBase} ${isActive ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-50'}`}>Settings</NavLink>
+                {isAdmin && (
+                  <NavLink to="/client-portal/admin" className={({ isActive }) => `${linkBase} ${isActive ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-50'}`}>Admin</NavLink>
+                )}
               </nav>
             </aside>
 
@@ -56,4 +60,3 @@ const PortalLayout = () => {
 }
 
 export default PortalLayout
-
