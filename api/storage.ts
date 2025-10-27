@@ -64,21 +64,102 @@ export const storage = {
     const result = await sql`
       SELECT * FROM users WHERE username = ${username} LIMIT 1
     `;
-    return result[0] as User | undefined;
+    const user = result[0];
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.password_hash,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      role: user.role,
+      isActive: user.is_active,
+      emailVerified: user.email_verified,
+      emailVerificationToken: user.email_verification_token,
+      passwordResetToken: user.password_reset_token,
+      passwordResetExpires: user.password_reset_expires,
+      twoFactorSecret: user.two_factor_secret,
+      twoFactorEnabled: user.two_factor_enabled,
+      twoFactorBackupCodes: user.two_factor_backup_codes,
+      lastLoginAt: user.last_login_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    } as User;
   },
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE email = ${email} LIMIT 1
     `;
-    return result[0] as User | undefined;
+    const user = result[0];
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.password_hash,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      role: user.role,
+      isActive: user.is_active,
+      emailVerified: user.email_verified,
+      emailVerificationToken: user.email_verification_token,
+      passwordResetToken: user.password_reset_token,
+      passwordResetExpires: user.password_reset_expires,
+      twoFactorSecret: user.two_factor_secret,
+      twoFactorEnabled: user.two_factor_enabled,
+      twoFactorBackupCodes: user.two_factor_backup_codes,
+      lastLoginAt: user.last_login_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    } as User;
   },
 
   async getUser(id: number): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE id = ${id} LIMIT 1
     `;
-    return result[0] as User | undefined;
+    const user = result[0];
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.password_hash,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      role: user.role,
+      isActive: user.is_active,
+      emailVerified: user.email_verified,
+      emailVerificationToken: user.email_verification_token,
+      passwordResetToken: user.password_reset_token,
+      passwordResetExpires: user.password_reset_expires,
+      twoFactorSecret: user.two_factor_secret,
+      twoFactorEnabled: user.two_factor_enabled,
+      twoFactorBackupCodes: user.two_factor_backup_codes,
+      lastLoginAt: user.last_login_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    } as User;
   },
 
   async createUser(userData: InsertUser): Promise<User> {
