@@ -1,5 +1,4 @@
 // Simplified storage for Vercel serverless functions
-import { db } from './db';
 import { neon } from '@neondatabase/serverless';
 
 if (!process.env.DATABASE_URL) {
@@ -117,9 +116,12 @@ export const storage = {
         ${userData.updatedAt || new Date()}
       ) RETURNING *
     `;
-    
+
     // Map database fields to camelCase
     const user = result[0];
+    if (!user) {
+      throw new Error('Failed to create user');
+    }
     return {
       id: user.id,
       username: user.username,

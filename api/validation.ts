@@ -31,9 +31,13 @@ export function validatePassword(password: string): {
     errors.push('Password must contain at least one special character');
   }
   
+  if (errors.length === 0) {
+    return { valid: true };
+  }
+
   return {
-    valid: errors.length === 0,
-    errors: errors.length > 0 ? errors : undefined,
+    valid: false,
+    errors,
   };
 }
 
