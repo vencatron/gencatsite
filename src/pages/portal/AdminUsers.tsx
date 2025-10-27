@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { apiService, User } from '@/services/api'
 import { usePortalAuth } from '@/context/PortalAuthContext'
 
-const AdminPage = () => {
+const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -351,4 +351,4 @@ const AdminPage = () => {
   )
 }
 
-export default AdminPage
+export default AdminUsers
