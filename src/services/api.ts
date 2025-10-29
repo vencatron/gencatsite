@@ -165,7 +165,7 @@ class ApiService {
   private async handleResponse<T>(response: Response): Promise<T> {
     const text = await response.text();
     let data: any;
-    
+
     try {
       data = text ? JSON.parse(text) : {};
     } catch (e) {
@@ -176,7 +176,13 @@ class ApiService {
     }
 
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      // Create an error that preserves the response data
+      const error: any = new Error(data.error || `HTTP error! status: ${response.status}`);
+      error.response = {
+        status: response.status,
+        data: data
+      };
+      throw error;
     }
 
     return data;
