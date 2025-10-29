@@ -11,6 +11,73 @@ const BCRYPT_ROUNDS = 10;
 router.use(authenticateToken);
 router.use(requireAdmin);
 
+// GET /api/admin/stats - Get dashboard statistics
+router.get('/stats', async (req: AuthRequest, res: Response) => {
+  try {
+    const { db } = require('../db');
+    const { users, documents, messages, invoices } = require('../../shared/schema');
+    const { sql, count } = require('drizzle-orm');
+    const { eq } = require('drizzle-orm');
+
+    // Get counts using Promise.all for parallel execution
+    const [
+      totalUsersResult,
+      activeUsersResult,
+      inactiveUsersResult,
+      totalDocumentsResult,
+      totalMessagesResult,
+      unreadMessagesResult,
+      totalInvoicesResult,
+      pendingInvoicesResult,
+    ] = await Promise.all([
+      db.select({ count: count() }).from(users),
+      db.select({ count: count() }).from(users).where(eq(users.isActive, true)),
+      db.select({ count: count() }).from(users).where(eq(users.isActive, false)),
+      db.select({ count: count() }).from(documents),
+      db.select({ count: count() }).from(messages),
+      db.select({ count: count() }).from(messages).where(eq(messages.isRead, false)),
+      db.select({ count: count() }).from(invoices),
+      db.select({ count: count() }).from(invoices).where(eq(invoices.status, 'pending')),
+    ]);
+
+    // Get recent users (last 5)
+    const recentUsers = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(sql`${users.createdAt} DESC`)
+      .limit(5);
+
+    // Calculate total revenue
+    const invoiceResults = await db.select({ amount: invoices.amount }).from(invoices);
+    const totalRevenue = invoiceResults.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
+
+    res.json({
+      stats: {
+        totalUsers: totalUsersResult[0]?.count || 0,
+        activeUsers: activeUsersResult[0]?.count || 0,
+        inactiveUsers: inactiveUsersResult[0]?.count || 0,
+        totalDocuments: totalDocumentsResult[0]?.count || 0,
+        totalMessages: totalMessagesResult[0]?.count || 0,
+        unreadMessages: unreadMessagesResult[0]?.count || 0,
+        totalInvoices: totalInvoicesResult[0]?.count || 0,
+        pendingInvoices: pendingInvoicesResult[0]?.count || 0,
+        totalRevenue: totalRevenue,
+        recentUsers: recentUsers,
+      }
+    });
+  } catch (error) {
+    console.error('Get dashboard stats error:', error);
+    res.status(500).json({ error: 'Internal server error fetching dashboard statistics' });
+  }
+});
+
 // GET /api/admin/users - Get all users
 router.get('/users', async (req: AuthRequest, res: Response) => {
   try {

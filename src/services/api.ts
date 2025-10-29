@@ -89,6 +89,26 @@ export interface ApiError {
   details?: any;
 }
 
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  totalDocuments: number;
+  totalMessages: number;
+  unreadMessages: number;
+  totalInvoices: number;
+  pendingInvoices: number;
+  totalRevenue: number;
+  recentUsers: Array<{
+    id: number;
+    username: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    createdAt: string;
+  }>;
+}
+
 // Helper function for API calls with proper error handling
 class ApiService {
   private accessToken: string | null = null;
@@ -493,6 +513,12 @@ class ApiService {
   }
 
   // Admin APIs
+  async getAdminStats(): Promise<AdminStats> {
+    const response = await this.fetchWithAuth('/api/admin/stats');
+    const data = await this.handleResponse<{ stats: AdminStats }>(response);
+    return data.stats;
+  }
+
   async getAllUsers(): Promise<User[]> {
     const response = await this.fetchWithAuth('/api/admin/users');
     const data = await this.handleResponse<{ users: User[] }>(response);
