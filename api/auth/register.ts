@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import type { InsertUser } from '../storage';
 async function parseRequestBody(req: VercelRequest): Promise<Record<string, unknown>> {
   const { body } = req;
@@ -90,12 +91,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     debugStages.push('validated-required');
 
-    const [{ storage }, { generateAccessToken, generateRefreshToken }, validationModule] = await Promise.all([
+    const [{ storage }, { generateAccessToken, generateRefreshToken }, validationModule, emailServiceModule] = await Promise.all([
       import('../storage.js'),
       import('../jwt.js'),
       import('../validation.js'),
+      import('../../server/services/email.js'),
     ]);
     const { sanitizeInput, validateEmail, validatePassword, validateUsername } = validationModule;
+    const { emailService } = emailServiceModule;
     debugStages.push('loaded-dependencies');
 
     // Sanitize inputs
@@ -142,6 +145,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const passwordHash = await bcrypt.hash(rawPassword, BCRYPT_ROUNDS);
     debugStages.push('hashed-password');
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    debugStages.push('generated-verification-token');
+
     // Create user
     const newUser: InsertUser = {
       username: sanitizedUsername,
@@ -152,6 +160,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       phoneNumber,
       role: 'client',
       isActive: true,
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -159,25 +170,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await storage.createUser(newUser);
     debugStages.push('created-user');
 
-    // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    debugStages.push('generated-tokens');
+    // Send verification email (don't wait for it to complete)
+    emailService.sendVerificationEmail(
+      user.email,
+      user.username,
+      verificationToken
+    ).catch(error => {
+      console.error('Failed to send verification email:', error);
+    });
+    debugStages.push('sent-verification-email');
 
-    // Set refresh token cookie
-    res.setHeader('Set-Cookie', [
-      `refreshToken=${refreshToken}; HttpOnly; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Lax${
-        process.env.NODE_ENV === 'production' ? '; Secure' : ''
-      }`,
-    ]);
-    debugStages.push('set-cookie');
-
-    // Return user without password
+    // Return user without password and tokens
+    // Note: We don't generate tokens or login the user until email is verified
     const { passwordHash: _, ...userWithoutPassword } = user;
     return res.status(201).json({
-      message: 'User registered successfully',
+      message: 'Registration successful! Please check your email to verify your account.',
       user: userWithoutPassword,
-      accessToken,
+      emailVerificationRequired: true,
       ...(debugMode ? { debugStages } : {}),
     });
   } catch (error) {
