@@ -45,6 +45,7 @@ const ResetPassword = () => {
         body: JSON.stringify({
           token,
           newPassword,
+          confirmPassword,
         }),
       })
 

@@ -40,6 +40,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(403).json({ error: 'Account is deactivated' });
     }
 
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        error: 'Please verify your email address before logging in. Check your inbox for the verification email.',
+        emailNotVerified: true,
+        email: user.email
+      });
+    }
+
     // Verify password
     if (!user.passwordHash) {
       return res.status(401).json({ error: 'Invalid credentials' });

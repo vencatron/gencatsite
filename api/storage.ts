@@ -23,6 +23,7 @@ export interface User {
   isActive: boolean | null;
   emailVerified: boolean | null;
   emailVerificationToken: string | null;
+  emailVerificationExpires: Date | null;
   passwordResetToken: string | null;
   passwordResetExpires: Date | null;
   twoFactorSecret: string | null;
@@ -48,6 +49,7 @@ export interface InsertUser {
   isActive?: boolean | null;
   emailVerified?: boolean | null;
   emailVerificationToken?: string | null;
+  emailVerificationExpires?: Date | null;
   passwordResetToken?: string | null;
   passwordResetExpires?: Date | null;
   twoFactorSecret?: string | null;
@@ -161,6 +163,76 @@ export const storage = {
     } as User;
   },
 
+  async getUserByVerificationToken(token: string): Promise<User | undefined> {
+    const result = await sql`
+      SELECT * FROM users WHERE email_verification_token = ${token} LIMIT 1
+    `;
+    const user = result[0];
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.password_hash,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      role: user.role,
+      isActive: user.is_active,
+      emailVerified: user.email_verified,
+      emailVerificationToken: user.email_verification_token,
+      emailVerificationExpires: user.email_verification_expires,
+      passwordResetToken: user.password_reset_token,
+      passwordResetExpires: user.password_reset_expires,
+      twoFactorSecret: user.two_factor_secret,
+      twoFactorEnabled: user.two_factor_enabled,
+      twoFactorBackupCodes: user.two_factor_backup_codes,
+      lastLoginAt: user.last_login_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    } as User;
+  },
+
+  async getUserByPasswordResetToken(token: string): Promise<User | undefined> {
+    const result = await sql`
+      SELECT * FROM users WHERE password_reset_token = ${token} LIMIT 1
+    `;
+    const user = result[0];
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.password_hash,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      role: user.role,
+      isActive: user.is_active,
+      emailVerified: user.email_verified,
+      emailVerificationToken: user.email_verification_token,
+      emailVerificationExpires: user.email_verification_expires,
+      passwordResetToken: user.password_reset_token,
+      passwordResetExpires: user.password_reset_expires,
+      twoFactorSecret: user.two_factor_secret,
+      twoFactorEnabled: user.two_factor_enabled,
+      twoFactorBackupCodes: user.two_factor_backup_codes,
+      lastLoginAt: user.last_login_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    } as User;
+  },
+
   async getUser(id: number): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE id = ${id} LIMIT 1
@@ -201,9 +273,9 @@ export const storage = {
         username, email, password_hash, first_name, last_name,
         phone_number, address, city, state, zip_code,
         role, is_active, email_verified,
-        email_verification_token, password_reset_token,
-        password_reset_expires, two_factor_secret,
-        two_factor_enabled, two_factor_backup_codes,
+        email_verification_token, email_verification_expires,
+        password_reset_token, password_reset_expires,
+        two_factor_secret, two_factor_enabled, two_factor_backup_codes,
         last_login_at, created_at, updated_at
       ) VALUES (
         ${userData.username},
@@ -220,6 +292,7 @@ export const storage = {
         ${userData.isActive ?? true},
         ${userData.emailVerified ?? false},
         ${userData.emailVerificationToken || null},
+        ${userData.emailVerificationExpires || null},
         ${userData.passwordResetToken || null},
         ${userData.passwordResetExpires || null},
         ${userData.twoFactorSecret || null},
@@ -252,6 +325,7 @@ export const storage = {
       isActive: user.is_active,
       emailVerified: user.email_verified,
       emailVerificationToken: user.email_verification_token,
+      emailVerificationExpires: user.email_verification_expires,
       passwordResetToken: user.password_reset_token,
       passwordResetExpires: user.password_reset_expires,
       twoFactorSecret: user.two_factor_secret,
@@ -284,6 +358,7 @@ export const storage = {
       isActive: data.isActive !== undefined ? data.isActive : currentUser.isActive,
       emailVerified: data.emailVerified !== undefined ? data.emailVerified : currentUser.emailVerified,
       emailVerificationToken: data.emailVerificationToken !== undefined ? data.emailVerificationToken : currentUser.emailVerificationToken,
+      emailVerificationExpires: data.emailVerificationExpires !== undefined ? data.emailVerificationExpires : currentUser.emailVerificationExpires,
       passwordResetToken: data.passwordResetToken !== undefined ? data.passwordResetToken : currentUser.passwordResetToken,
       passwordResetExpires: data.passwordResetExpires !== undefined ? data.passwordResetExpires : currentUser.passwordResetExpires,
       twoFactorSecret: data.twoFactorSecret !== undefined ? data.twoFactorSecret : currentUser.twoFactorSecret,
@@ -310,6 +385,7 @@ export const storage = {
         is_active = ${updateData.isActive},
         email_verified = ${updateData.emailVerified},
         email_verification_token = ${updateData.emailVerificationToken},
+        email_verification_expires = ${updateData.emailVerificationExpires},
         password_reset_token = ${updateData.passwordResetToken},
         password_reset_expires = ${updateData.passwordResetExpires},
         two_factor_secret = ${updateData.twoFactorSecret},
@@ -341,6 +417,7 @@ export const storage = {
       isActive: user.is_active,
       emailVerified: user.email_verified,
       emailVerificationToken: user.email_verification_token,
+      emailVerificationExpires: user.email_verification_expires,
       passwordResetToken: user.password_reset_token,
       passwordResetExpires: user.password_reset_expires,
       twoFactorSecret: user.two_factor_secret,
