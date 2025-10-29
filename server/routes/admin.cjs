@@ -168,5 +168,53 @@ router.put('/users/:id/activate', async (req, res) => {
         res.status(500).json({ error: 'Internal server error activating user' });
     }
 });
+// PUT /api/admin/users/:id/role - Update user role
+router.put('/users/:id/role', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id, 10);
+        const { role } = req.body ?? {};
+        if (!role || (role !== 'admin' && role !== 'client')) {
+            return res.status(400).json({ error: 'Invalid role specified' });
+        }
+        const user = await storage_1.storage.getUser(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (user.role === role) {
+            return res.json({
+                message: `User ${user.username} already has role ${role}`,
+                userId: user.id,
+                role: user.role,
+            });
+        }
+        // Prevent demoting yourself from admin via portal
+        if (req.user && req.user.userId === userId && role !== 'admin') {
+            return res.status(403).json({ error: 'You cannot change your own admin role' });
+        }
+        if (user.role === 'admin' && role !== 'admin') {
+            const { db } = require('../db');
+            const { users } = require('../../shared/schema');
+            const { count, eq } = require('drizzle-orm');
+            const adminCountResult = await db
+                .select({ count: count() })
+                .from(users)
+                .where(eq(users.role, 'admin'));
+            const adminCount = Number(adminCountResult[0]?.count || 0);
+            if (adminCount <= 1) {
+                return res.status(400).json({ error: 'Cannot remove the last remaining admin' });
+            }
+        }
+        await storage_1.storage.updateUser(userId, { role, updatedAt: new Date() });
+        res.json({
+            message: `User ${user.username} role updated to ${role}`,
+            userId: user.id,
+            role,
+        });
+    }
+    catch (error) {
+        console.error('Update user role error:', error);
+        res.status(500).json({ error: 'Internal server error updating user role' });
+    }
+});
 exports.default = router;
 //# sourceMappingURL=admin.js.map

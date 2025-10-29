@@ -546,6 +546,14 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  async updateUserRole(userId: number, role: 'admin' | 'client'): Promise<{ message: string; userId: number; role: 'admin' | 'client' }> {
+    const response = await this.fetchWithAuth(`/api/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 // Export a singleton instance

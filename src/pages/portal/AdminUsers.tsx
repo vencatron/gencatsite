@@ -104,6 +104,28 @@ const AdminUsers = () => {
     }
   }
 
+  const handleChangeUserRole = async (user: User, targetRole: 'admin' | 'client') => {
+    if (targetRole === 'client') {
+      const confirmed = confirm(`Remove admin access for ${user.username}? They will lose access to the admin portal.`)
+      if (!confirmed) {
+        return
+      }
+    }
+
+    try {
+      setActionLoading(true)
+      setError(null)
+      const result = await apiService.updateUserRole(user.id, targetRole)
+      setSuccessMessage(`User ${user.username} is now set to ${result.role}`)
+      await loadUsers()
+      setTimeout(() => setSuccessMessage(null), 5000)
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user role')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   if (!isAdmin) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -221,44 +243,63 @@ const AdminUsers = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      {String(user.id) !== String(currentUser?.id) && user.role !== 'admin' && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setSelectedUser(user)
-                              setShowResetPasswordModal(true)
-                            }}
-                            disabled={actionLoading}
-                            className="text-primary-600 hover:text-primary-900 disabled:opacity-50"
-                          >
-                            Reset Password
-                          </button>
-                          {user.isActive ? (
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end flex-wrap gap-2">
+                        {String(user.id) === String(currentUser?.id) && (
+                          <span className="text-neutral-400">Current User</span>
+                        )}
+                        {String(user.id) !== String(currentUser?.id) && (
+                          <>
                             <button
-                              onClick={() => handleDeleteUser(user)}
+                              onClick={() =>
+                                handleChangeUserRole(user, user.role === 'admin' ? 'client' : 'admin')
+                              }
                               disabled={actionLoading}
-                              className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                              className={`${
+                                user.role === 'admin'
+                                  ? 'text-neutral-600 hover:text-neutral-900'
+                                  : 'text-purple-600 hover:text-purple-800'
+                              } disabled:opacity-50`}
                             >
-                              Deactivate
+                              {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                             </button>
-                          ) : (
-                            <button
-                              onClick={() => handleActivateUser(user)}
-                              disabled={actionLoading}
-                              className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                            >
-                              Activate
-                            </button>
-                          )}
-                        </>
-                      )}
-                      {String(user.id) === String(currentUser?.id) && (
-                        <span className="text-neutral-400">Current User</span>
-                      )}
-                      {user.role === 'admin' && String(user.id) !== String(currentUser?.id) && (
-                        <span className="text-neutral-400">Admin</span>
-                      )}
+                            {user.role !== 'admin' && (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setSelectedUser(user)
+                                    setShowResetPasswordModal(true)
+                                  }}
+                                  disabled={actionLoading}
+                                  className="text-primary-600 hover:text-primary-900 disabled:opacity-50"
+                                >
+                                  Reset Password
+                                </button>
+                                {user.isActive ? (
+                                  <button
+                                    onClick={() => handleDeleteUser(user)}
+                                    disabled={actionLoading}
+                                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                                  >
+                                    Deactivate
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleActivateUser(user)}
+                                    disabled={actionLoading}
+                                    className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                  >
+                                    Activate
+                                  </button>
+                                )}
+                              </>
+                            )}
+                            {user.role === 'admin' && (
+                              <span className="text-neutral-400">Admin</span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
