@@ -25,8 +25,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
+    if (!payload || typeof payload.userId !== 'number') {
+      return res.status(401).json({ error: 'Invalid token payload' });
+    }
+
     // Get user
-    const user = await storage.getUser(payload.id);
+    const user = await storage.getUser(payload.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

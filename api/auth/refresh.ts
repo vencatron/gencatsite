@@ -35,8 +35,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Invalid or expired refresh token' });
     }
 
+    if (!payload || typeof payload.userId !== 'number') {
+      res.setHeader('Set-Cookie', [
+        `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${
+          process.env.NODE_ENV === 'production' ? '; Secure' : ''
+        }`,
+      ]);
+      return res.status(401).json({ error: 'Invalid token payload' });
+    }
+
     // Get user
-    const user = await storage.getUser(payload.id);
+    const user = await storage.getUser(payload.userId);
     if (!user) {
       res.setHeader('Set-Cookie', [
         `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${

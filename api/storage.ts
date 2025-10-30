@@ -62,6 +62,79 @@ export interface InsertUser {
 
 // Storage implementation using direct SQL queries
 export const storage = {
+  async getAdminDashboardStats(): Promise<{
+    totalUsers: number;
+    activeUsers: number;
+    inactiveUsers: number;
+    totalDocuments: number;
+    totalMessages: number;
+    unreadMessages: number;
+    totalInvoices: number;
+    pendingInvoices: number;
+    totalRevenue: number;
+    recentUsers: Array<{
+      id: number;
+      username: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      createdAt: string;
+    }>;
+  }> {
+    const [
+      totalUsersResult,
+      activeUsersResult,
+      inactiveUsersResult,
+      totalDocumentsResult,
+      totalMessagesResult,
+      unreadMessagesResult,
+      totalInvoicesResult,
+      pendingInvoicesResult,
+      totalRevenueResult,
+      recentUsersResult,
+    ] = await Promise.all([
+      sql`SELECT COUNT(*)::int AS count FROM users`,
+      sql`SELECT COUNT(*)::int AS count FROM users WHERE is_active IS TRUE`,
+      sql`SELECT COUNT(*)::int AS count FROM users WHERE is_active IS FALSE`,
+      sql`SELECT COUNT(*)::int AS count FROM documents`,
+      sql`SELECT COUNT(*)::int AS count FROM messages`,
+      sql`SELECT COUNT(*)::int AS count FROM messages WHERE is_read IS FALSE`,
+      sql`SELECT COUNT(*)::int AS count FROM invoices`,
+      sql`SELECT COUNT(*)::int AS count FROM invoices WHERE status = 'pending'`,
+      sql`SELECT COALESCE(SUM(amount::numeric), 0)::numeric AS total FROM invoices`,
+      sql`
+        SELECT id, username, email, first_name, last_name, created_at
+        FROM users
+        ORDER BY created_at DESC NULLS LAST
+        LIMIT 5
+      `,
+    ]);
+
+    const countFrom = (result: any[]) => Number(result?.[0]?.count ?? 0);
+    const totalRevenue = Number(totalRevenueResult?.[0]?.total ?? 0);
+    const recentUsers = (recentUsersResult as any[]).map((user) => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      createdAt: user.created_at ? new Date(user.created_at).toISOString() : new Date().toISOString(),
+    }));
+
+    return {
+      totalUsers: countFrom(totalUsersResult),
+      activeUsers: countFrom(activeUsersResult),
+      inactiveUsers: countFrom(inactiveUsersResult),
+      totalDocuments: countFrom(totalDocumentsResult),
+      totalMessages: countFrom(totalMessagesResult),
+      unreadMessages: countFrom(unreadMessagesResult),
+      totalInvoices: countFrom(totalInvoicesResult),
+      pendingInvoices: countFrom(pendingInvoicesResult),
+      totalRevenue,
+      recentUsers,
+    };
+  },
+
   async getAllUsers(): Promise<User[]> {
     const result = await sql`
       SELECT * FROM users
