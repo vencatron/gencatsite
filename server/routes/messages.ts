@@ -6,6 +6,18 @@ import { InsertMessage } from '../../shared/schema';
 
 const router = Router();
 
+// Helper function to transform database message to frontend format
+function transformMessage(msg: any, currentUserId: number) {
+  return {
+    id: msg.id,
+    userId: msg.senderId,
+    from: msg.senderId === currentUserId ? 'user' : 'support',
+    text: msg.content,
+    isRead: msg.isRead || false,
+    createdAt: msg.createdAt
+  };
+}
+
 // GET /api/messages - List user's messages with pagination
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -20,21 +32,25 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     // Get all messages for the user
     const allMessages = await storage.getMessagesByUserId(req.user.userId);
-    
+
     // Filter out deleted messages
     const activeMessages = allMessages.filter(msg => msg.status !== 'deleted');
-    
+
     // Apply pagination
     const paginatedMessages = activeMessages.slice(offset, offset + limit);
-    
+
+    // Transform messages to frontend format
+    const transformedMessages = paginatedMessages.map(msg =>
+      transformMessage(msg, req.user!.userId)
+    );
+
     // Calculate unread count
-    const unreadCount = activeMessages.filter(msg => 
+    const unreadCount = activeMessages.filter(msg =>
       !msg.isRead && msg.recipientId === req.user!.userId
     ).length;
 
     res.json({
-      success: true,
-      messages: paginatedMessages,
+      messages: transformedMessages,
       pagination: {
         page,
         limit,
@@ -111,16 +127,28 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { recipientId, subject, content, priority, threadId, attachmentIds } = req.body;
+    // Accept both 'text' (frontend format) and 'content' (full API format)
+    const { text, recipientId, subject, content, priority, threadId, attachmentIds } = req.body;
+    const messageContent = text || content;
 
     // Validate required fields
-    if (!content) {
+    if (!messageContent) {
       return res.status(400).json({ error: 'Message content is required' });
     }
 
+    // Find an admin/support user to send message to (if recipientId not provided)
+    let targetRecipientId = recipientId;
+    if (!targetRecipientId) {
+      // Find first admin user to use as default support recipient
+      const adminUsers = await storage.getUserByRole('admin');
+      if (adminUsers.length > 0) {
+        targetRecipientId = adminUsers[0].id;
+      }
+    }
+
     // Validate recipient if provided
-    if (recipientId) {
-      const recipientIdNum = parseInt(recipientId);
+    if (targetRecipientId) {
+      const recipientIdNum = parseInt(targetRecipientId);
       if (isNaN(recipientIdNum)) {
         return res.status(400).json({ error: 'Invalid recipient ID' });
       }
@@ -135,6 +163,8 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       if (recipientIdNum === req.user.userId) {
         return res.status(400).json({ error: 'Cannot send message to yourself' });
       }
+
+      targetRecipientId = recipientIdNum;
     }
 
     // Validate priority
@@ -143,14 +173,14 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     // Sanitize inputs
     const sanitizedSubject = subject ? sanitizeInput(subject) : null;
-    const sanitizedContent = sanitizeInput(content);
+    const sanitizedContent = sanitizeInput(messageContent);
     const sanitizedAttachmentIds = attachmentIds ? sanitizeInput(attachmentIds) : null;
 
     // Create message
     const newMessage: InsertMessage = {
       threadId: threadId ? parseInt(threadId) : null,
       senderId: req.user.userId,
-      recipientId: recipientId ? parseInt(recipientId) : null,
+      recipientId: targetRecipientId || null,
       subject: sanitizedSubject,
       content: sanitizedContent,
       priority: messagePriority,
@@ -161,12 +191,13 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       updatedAt: new Date()
     };
 
-    const message = await storage.createMessage(newMessage);
+    const createdMessage = await storage.createMessage(newMessage);
+
+    // Transform to frontend format and return
+    const transformedMessage = transformMessage(createdMessage, req.user.userId);
 
     res.status(201).json({
-      success: true,
-      message: 'Message sent successfully',
-      data: message
+      message: transformedMessage
     });
   } catch (error) {
     console.error('Error sending message:', error);

@@ -5,6 +5,17 @@ const auth_1 = require("../middleware/auth");
 const storage_1 = require("../storage");
 const validation_1 = require("../utils/validation");
 const router = (0, express_1.Router)();
+// Helper function to transform database message to frontend format
+function transformMessage(msg, currentUserId) {
+    return {
+        id: msg.id,
+        userId: msg.senderId,
+        from: msg.senderId === currentUserId ? 'user' : 'support',
+        text: msg.content,
+        isRead: msg.isRead || false,
+        createdAt: msg.createdAt
+    };
+}
 // GET /api/messages - List user's messages with pagination
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
@@ -21,11 +32,12 @@ router.get('/', auth_1.authenticateToken, async (req, res) => {
         const activeMessages = allMessages.filter(msg => msg.status !== 'deleted');
         // Apply pagination
         const paginatedMessages = activeMessages.slice(offset, offset + limit);
+        // Transform messages to frontend format
+        const transformedMessages = paginatedMessages.map(msg => transformMessage(msg, req.user.userId));
         // Calculate unread count
         const unreadCount = activeMessages.filter(msg => !msg.isRead && msg.recipientId === req.user.userId).length;
         res.json({
-            success: true,
-            messages: paginatedMessages,
+            messages: transformedMessages,
             pagination: {
                 page,
                 limit,
@@ -93,14 +105,25 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
         if (!req.user) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
-        const { recipientId, subject, content, priority, threadId, attachmentIds } = req.body;
+        // Accept both 'text' (frontend format) and 'content' (full API format)
+        const { text, recipientId, subject, content, priority, threadId, attachmentIds } = req.body;
+        const messageContent = text || content;
         // Validate required fields
-        if (!content) {
+        if (!messageContent) {
             return res.status(400).json({ error: 'Message content is required' });
         }
+        // Find an admin/support user to send message to (if recipientId not provided)
+        let targetRecipientId = recipientId;
+        if (!targetRecipientId) {
+            // Find first admin user to use as default support recipient
+            const adminUsers = await storage_1.storage.getUserByRole('admin');
+            if (adminUsers.length > 0) {
+                targetRecipientId = adminUsers[0].id;
+            }
+        }
         // Validate recipient if provided
-        if (recipientId) {
-            const recipientIdNum = parseInt(recipientId);
+        if (targetRecipientId) {
+            const recipientIdNum = parseInt(targetRecipientId);
             if (isNaN(recipientIdNum)) {
                 return res.status(400).json({ error: 'Invalid recipient ID' });
             }
@@ -113,19 +136,20 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
             if (recipientIdNum === req.user.userId) {
                 return res.status(400).json({ error: 'Cannot send message to yourself' });
             }
+            targetRecipientId = recipientIdNum;
         }
         // Validate priority
         const validPriorities = ['low', 'normal', 'high', 'urgent'];
         const messagePriority = priority && validPriorities.includes(priority) ? priority : 'normal';
         // Sanitize inputs
         const sanitizedSubject = subject ? (0, validation_1.sanitizeInput)(subject) : null;
-        const sanitizedContent = (0, validation_1.sanitizeInput)(content);
+        const sanitizedContent = (0, validation_1.sanitizeInput)(messageContent);
         const sanitizedAttachmentIds = attachmentIds ? (0, validation_1.sanitizeInput)(attachmentIds) : null;
         // Create message
         const newMessage = {
             threadId: threadId ? parseInt(threadId) : null,
             senderId: req.user.userId,
-            recipientId: recipientId ? parseInt(recipientId) : null,
+            recipientId: targetRecipientId || null,
             subject: sanitizedSubject,
             content: sanitizedContent,
             priority: messagePriority,
@@ -135,11 +159,11 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
             createdAt: new Date(),
             updatedAt: new Date()
         };
-        const message = await storage_1.storage.createMessage(newMessage);
+        const createdMessage = await storage_1.storage.createMessage(newMessage);
+        // Transform to frontend format and return
+        const transformedMessage = transformMessage(createdMessage, req.user.userId);
         res.status(201).json({
-            success: true,
-            message: 'Message sent successfully',
-            data: message
+            message: transformedMessage
         });
     }
     catch (error) {
