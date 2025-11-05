@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
 import { storage } from './storage';
 import { User, InsertUser } from '../shared/schema';
 import {
@@ -19,6 +20,7 @@ import {
 } from './utils/validation';
 import { authenticateToken, AuthRequest } from './middleware/auth';
 import { emailService } from './services/email';
+import { MessagingWebSocketServer } from './websocket';
 
 // Import route modules
 import documentsRouter from './routes/documents';
@@ -675,8 +677,12 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
   }
 });
 
+// Create HTTP server and attach WebSocket server
+const httpServer = createServer(app);
+const wsServer = new MessagingWebSocketServer(httpServer);
+
 // Start server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Backend server with API endpoints running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('Available API endpoints:');
@@ -687,7 +693,8 @@ app.listen(PORT, () => {
   console.log('  - Invoices: /api/invoices/*');
   console.log('  - User Profile: /api/users/*');
   console.log('  - Admin: /api/admin/*');
-  
+  console.log('  - WebSocket: ws://localhost:' + PORT + '/ws/messages');
+
   // Check for JWT secrets
   if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
     console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');

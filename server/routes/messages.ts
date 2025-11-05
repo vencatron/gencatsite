@@ -20,21 +20,31 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     // Get all messages for the user
     const allMessages = await storage.getMessagesByUserId(req.user.userId);
-    
+
     // Filter out deleted messages
     const activeMessages = allMessages.filter(msg => msg.status !== 'deleted');
-    
+
     // Apply pagination
     const paginatedMessages = activeMessages.slice(offset, offset + limit);
-    
+
+    // Transform to match frontend expected format
+    const transformedMessages = paginatedMessages.map(msg => ({
+      id: msg.id,
+      userId: msg.senderId,
+      from: msg.senderId === req.user!.userId ? 'user' : 'support',
+      text: msg.content,
+      isRead: msg.isRead,
+      createdAt: msg.createdAt
+    }));
+
     // Calculate unread count
-    const unreadCount = activeMessages.filter(msg => 
+    const unreadCount = activeMessages.filter(msg =>
       !msg.isRead && msg.recipientId === req.user!.userId
     ).length;
 
     res.json({
       success: true,
-      messages: paginatedMessages,
+      messages: transformedMessages,
       pagination: {
         page,
         limit,
@@ -163,10 +173,20 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     const message = await storage.createMessage(newMessage);
 
+    // Transform to match frontend expected format
+    const transformedMessage = {
+      id: message.id,
+      userId: message.senderId,
+      from: 'user' as const,
+      text: message.content,
+      isRead: message.isRead,
+      createdAt: message.createdAt
+    };
+
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',
-      data: message
+      data: transformedMessage
     });
   } catch (error) {
     console.error('Error sending message:', error);

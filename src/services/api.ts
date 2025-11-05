@@ -385,10 +385,10 @@ class ApiService {
   async sendMessage(text: string): Promise<Message> {
     const response = await this.fetchWithAuth('/api/messages', {
       method: 'POST',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ content: text }), // Backend expects 'content' not 'text'
     });
-    const data = await this.handleResponse<{ message: Message }>(response);
-    return data.message;
+    const data = await this.handleResponse<{ data: Message }>(response);
+    return data.data;
   }
 
   async markMessageAsRead(id: number): Promise<Message> {

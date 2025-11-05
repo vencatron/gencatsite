@@ -8,11 +8,13 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const http_1 = require("http");
 const storage_1 = require("./storage");
 const jwt_1 = require("./utils/jwt");
 const validation_1 = require("./utils/validation");
 const auth_1 = require("./middleware/auth");
 const email_1 = require("./services/email");
+const websocket_1 = require("./websocket");
 // Import route modules
 const documents_1 = __importDefault(require("./routes/documents"));
 const messages_1 = __importDefault(require("./routes/messages"));
@@ -571,8 +573,11 @@ app.post('/api/auth/reset-password', async (req, res) => {
         res.status(500).json({ error: 'Internal server error resetting password' });
     }
 });
+// Create HTTP server and attach WebSocket server
+const httpServer = (0, http_1.createServer)(app);
+const wsServer = new websocket_1.MessagingWebSocketServer(httpServer);
 // Start server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Backend server with API endpoints running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log('Available API endpoints:');
@@ -583,6 +588,7 @@ app.listen(PORT, () => {
     console.log('  - Invoices: /api/invoices/*');
     console.log('  - User Profile: /api/users/*');
     console.log('  - Admin: /api/admin/*');
+    console.log('  - WebSocket: ws://localhost:' + PORT + '/ws/messages');
     // Check for JWT secrets
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
         console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');
