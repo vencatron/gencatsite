@@ -700,6 +700,16 @@ httpServer.listen(PORT, () => {
     console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');
     console.warn('⚠️  Using default development secrets. Please set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET in production.');
   }
+
+  // Validate S3 configuration
+  try {
+    validateS3Config();
+    console.log('✓ S3 document storage configured successfully');
+  } catch (error) {
+    console.error('⚠️  WARNING: S3 configuration incomplete!');
+    console.error('⚠️  Document uploads will fail until AWS credentials are set.');
+    console.error('   Error:', error instanceof Error ? error.message : 'Unknown error');
+  }
 });
 
 export default app;
