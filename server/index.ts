@@ -22,6 +22,22 @@ import { authenticateToken, AuthRequest } from './middleware/auth';
 import { emailService } from './services/email';
 import { MessagingWebSocketServer } from './websocket';
 
+// S3 configuration validation
+function validateS3Config(): void {
+  const requiredVars = [
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'AWS_S3_BUCKET_NAME',
+    'AWS_REGION'
+  ];
+
+  const missing = requiredVars.filter(varName => !process.env[varName]);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required S3 environment variables: ${missing.join(', ')}`);
+  }
+}
+
 // Import route modules
 import documentsRouter from './routes/documents';
 import messagesRouter from './routes/messages';

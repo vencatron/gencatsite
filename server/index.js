@@ -15,6 +15,19 @@ const validation_1 = require("./utils/validation");
 const auth_1 = require("./middleware/auth");
 const email_1 = require("./services/email");
 const websocket_1 = require("./websocket");
+// S3 configuration validation
+function validateS3Config() {
+    const requiredVars = [
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
+        'AWS_S3_BUCKET_NAME',
+        'AWS_REGION'
+    ];
+    const missing = requiredVars.filter(varName => !process.env[varName]);
+    if (missing.length > 0) {
+        throw new Error(`Missing required S3 environment variables: ${missing.join(', ')}`);
+    }
+}
 // Import route modules
 const documents_1 = __importDefault(require("./routes/documents"));
 const messages_1 = __importDefault(require("./routes/messages"));
@@ -593,6 +606,16 @@ httpServer.listen(PORT, () => {
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
         console.warn('⚠️  WARNING: JWT secrets not found in environment variables!');
         console.warn('⚠️  Using default development secrets. Please set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET in production.');
+    }
+    // Validate S3 configuration
+    try {
+        validateS3Config();
+        console.log('✓ S3 document storage configured successfully');
+    }
+    catch (error) {
+        console.error('⚠️  WARNING: S3 configuration incomplete!');
+        console.error('⚠️  Document uploads will fail until AWS credentials are set.');
+        console.error('   Error:', error instanceof Error ? error.message : 'Unknown error');
     }
 });
 exports.default = app;

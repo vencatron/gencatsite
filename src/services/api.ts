@@ -2,6 +2,8 @@
 // Handles all backend communication with proper TypeScript types
 
 // API Configuration
+export const ACCESS_TOKEN_STORAGE_KEY = 'portalAccessToken';
+
 const getApiUrl = () => {
   if (typeof window === 'undefined') {
     // Server-side rendering
@@ -112,10 +114,26 @@ export interface AdminStats {
 // Helper function for API calls with proper error handling
 class ApiService {
   private accessToken: string | null = null;
+  
+  constructor() {
+    if (typeof window !== 'undefined') {
+      const storedToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+      if (storedToken) {
+        this.accessToken = storedToken;
+      }
+    }
+  }
 
   // Set the access token
   setAccessToken(token: string | null) {
     this.accessToken = token;
+    if (typeof window !== 'undefined') {
+      if (token) {
+        window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+      } else {
+        window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      }
+    }
   }
 
   // Get the access token

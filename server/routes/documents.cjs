@@ -5,29 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const auth_1 = require("../middleware/auth");
 const storage_1 = require("../storage");
 const validation_1 = require("../utils/validation");
+const s3_1 = require("../lib/s3");
 const router = (0, express_1.Router)();
-// Configure multer for file uploads
-const uploadDir = path_1.default.join(process.cwd(), 'uploads');
-// Ensure upload directory exists
-if (!fs_1.default.existsSync(uploadDir)) {
-    fs_1.default.mkdirSync(uploadDir, { recursive: true });
-}
-// Configure storage
-const multerStorage = multer_1.default.diskStorage({
-    destination: (_req, _file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (_req, file, cb) => {
-        // Generate unique filename: timestamp-random-originalname
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
-    }
-});
+// Configure multer to use memory storage (files stored in buffer for S3 upload)
+const multerStorage = multer_1.default.memoryStorage();
 // File filter to validate file types
 const fileFilter = (_req, file, cb) => {
     // Log the MIME type for debugging
@@ -46,8 +30,7 @@ const fileFilter = (_req, file, cb) => {
         'application/vnd.ms-powerpoint',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'image/jpeg',
-        'image/jpg',
-        'image/png',
+        'image/jpg', 'image/png',
         'image/gif',
         'image/webp',
         'image/svg+xml',
@@ -105,7 +88,7 @@ router.get('/', auth_1.authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch documents' });
     }
 });
-// POST /api/documents - Upload file
+// POST /api/documents - Upload file to S3
 router.post('/', auth_1.authenticateToken, upload.single('file'), async (req, res) => {
     try {
         if (!req.user) {
@@ -115,7 +98,11 @@ router.post('/', auth_1.authenticateToken, upload.single('file'), async (req, re
             return res.status(400).json({ error: 'No file uploaded' });
         }
         const file = req.file;
-        // Create document metadata in database
+        console.log('Uploading file to S3:', file.originalname);
+        // Upload to S3 and get the S3 key (path)
+        const s3Key = await (0, s3_1.uploadToS3)(file, req.user.userId);
+        console.log('File uploaded to S3, creating database record...');
+        // Create document metadata in database with S3 key
         const newDocument = {
             userId: req.user.userId,
             fileName: (0, validation_1.sanitizeInput)(file.originalname),
@@ -124,7 +111,7 @@ router.post('/', auth_1.authenticateToken, upload.single('file'), async (req, re
             category: req.body.category ? (0, validation_1.sanitizeInput)(req.body.category) : null,
             description: req.body.description ? (0, validation_1.sanitizeInput)(req.body.description) : null,
             tags: req.body.tags ? (0, validation_1.sanitizeInput)(req.body.tags) : null,
-            storageUrl: file.path, // Store the file path on disk
+            storageUrl: s3Key, // Store the S3 key, not a local path
             uploadedBy: req.user.userId,
             status: 'active',
             isPublic: false,
@@ -132,6 +119,7 @@ router.post('/', auth_1.authenticateToken, upload.single('file'), async (req, re
             updatedAt: new Date()
         };
         const document = await storage_1.storage.createDocument(newDocument);
+        console.log('Document record created successfully');
         res.status(201).json({
             success: true,
             message: 'File uploaded successfully',
@@ -151,15 +139,14 @@ router.post('/', auth_1.authenticateToken, upload.single('file'), async (req, re
         });
     }
     catch (error) {
-        // Clean up uploaded file if database operation fails
-        if (req.file && fs_1.default.existsSync(req.file.path)) {
-            fs_1.default.unlinkSync(req.file.path);
-        }
         console.error('Error uploading file:', error);
         if (error.message?.includes('Invalid file type')) {
             return res.status(400).json({ error: error.message });
         }
-        res.status(500).json({ error: 'Failed to upload file' });
+        res.status(500).json({
+            error: 'Failed to upload file',
+            details: error.message
+        });
     }
 });
 // GET /api/documents/:id - Get specific document metadata
@@ -258,7 +245,7 @@ router.post('/upload', auth_1.authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to upload document' });
     }
 });
-// GET /api/documents/:id/download - Download file
+// GET /api/documents/:id/download - Generate signed S3 download URL
 router.get('/:id/download', auth_1.authenticateToken, async (req, res) => {
     try {
         if (!req.user) {
@@ -280,23 +267,26 @@ router.get('/:id/download', auth_1.authenticateToken, async (req, res) => {
         if (document.status === 'deleted') {
             return res.status(404).json({ error: 'Document not found' });
         }
-        // Check if file exists
-        if (!document.storageUrl || !fs_1.default.existsSync(document.storageUrl)) {
-            return res.status(404).json({ error: 'File not found on server' });
+        // Check if S3 key exists
+        if (!document.storageUrl) {
+            return res.status(404).json({ error: 'File storage location not found' });
         }
-        // Send file
-        res.download(document.storageUrl, document.fileName, (err) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ error: 'Failed to download file' });
-                }
-            }
+        console.log('Generating signed URL for:', document.storageUrl);
+        // Generate temporary signed URL (valid for 1 hour)
+        const downloadUrl = await (0, s3_1.getSignedDownloadUrl)(document.storageUrl);
+        res.json({
+            success: true,
+            downloadUrl,
+            filename: document.fileName,
+            expiresIn: 3600 // seconds
         });
     }
     catch (error) {
-        console.error('Error downloading document:', error);
-        res.status(500).json({ error: 'Failed to download document' });
+        console.error('Error generating download URL:', error);
+        res.status(500).json({
+            error: 'Failed to generate download URL',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
 });
 // PUT /api/documents/:id - Update document metadata
@@ -351,7 +341,7 @@ router.put('/:id', auth_1.authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to update document' });
     }
 });
-// DELETE /api/documents/:id - Delete document (soft delete)
+// DELETE /api/documents/:id - Delete document (soft delete + S3 deletion)
 router.delete('/:id', auth_1.authenticateToken, async (req, res) => {
     try {
         if (!req.user) {
@@ -370,7 +360,18 @@ router.delete('/:id', auth_1.authenticateToken, async (req, res) => {
         if (existingDocument.userId !== req.user.userId && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Access denied' });
         }
-        // Soft delete the document
+        // Delete from S3 if storageUrl exists
+        if (existingDocument.storageUrl) {
+            try {
+                await (0, s3_1.deleteFromS3)(existingDocument.storageUrl);
+                console.log('File deleted from S3:', existingDocument.storageUrl);
+            }
+            catch (s3Error) {
+                console.error('Error deleting from S3:', s3Error);
+                // Continue with database deletion even if S3 deletion fails
+            }
+        }
+        // Soft delete the document from database
         const deleted = await storage_1.storage.deleteDocument(documentId);
         if (!deleted) {
             return res.status(500).json({ error: 'Failed to delete document' });
