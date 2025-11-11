@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { usePortalAuth } from '@/context/PortalAuthContext';
-import { Message } from '@/services/api';
+import { apiService, Message } from '@/services/api';
 
 interface WebSocketMessage {
   type: 'message' | 'typing' | 'read' | 'ping' | 'pong' | 'error';
@@ -15,7 +15,7 @@ interface MessagingState {
 }
 
 export const useMessaging = () => {
-  const { accessToken } = usePortalAuth();
+  const { isAuthenticated } = usePortalAuth();
   const [state, setState] = useState<MessagingState>({
     messages: [],
     connected: false,
@@ -47,6 +47,12 @@ export const useMessaging = () => {
   }, []);
 
   const connect = useCallback(() => {
+    if (!isAuthenticated) {
+      console.log('User not authenticated, skipping WebSocket connection');
+      return;
+    }
+
+    const accessToken = apiService.getAccessToken();
     if (!accessToken) {
       console.log('No access token, skipping WebSocket connection');
       return;
@@ -159,7 +165,7 @@ export const useMessaging = () => {
         error: 'Failed to create connection',
       }));
     }
-  }, [accessToken, getWebSocketUrl]);
+  }, [getWebSocketUrl, isAuthenticated]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
