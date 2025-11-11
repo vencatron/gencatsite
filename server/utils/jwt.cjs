@@ -8,6 +8,7 @@ exports.generateRefreshToken = generateRefreshToken;
 exports.verifyAccessToken = verifyAccessToken;
 exports.verifyRefreshToken = verifyRefreshToken;
 exports.decodeToken = decodeToken;
+require("dotenv/config");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'dev_access_secret_change_in_production';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_change_in_production';
