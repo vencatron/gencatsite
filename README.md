@@ -120,3 +120,5 @@ This project is proprietary and confidential.
 ---
 
 Built with ❤️ for Generation Catalyst
+
+<!-- S3 environment variables configured -->
