@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyAccessToken } from '../jwt.js';
 import { storage } from '../storage.js';
-import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import multiparty from 'multiparty';
+import { getS3Client, getS3BucketName, getMissingS3EnvVars } from '../utils/s3.js';
 
 // Disable body parsing for multipart forms
 export const config = {
@@ -11,17 +11,6 @@ export const config = {
     bodyParser: false,
   },
 };
-
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!;
 
 // Helper to parse multipart form data
 function parseForm(req: VercelRequest): Promise<{ fields: any; files: any }> {
@@ -74,9 +63,9 @@ async function uploadToS3(
   console.log('Starting S3 upload:', { key, size: fileBuffer.length, type: mimeType });
 
   const upload = new Upload({
-    client: s3Client,
+    client: getS3Client(),
     params: {
-      Bucket: BUCKET_NAME,
+      Bucket: getS3BucketName(),
       Key: key,
       Body: fileBuffer,
       ContentType: mimeType,
@@ -97,6 +86,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const missingS3Env = getMissingS3EnvVars();
+    if (missingS3Env.length > 0) {
+      console.error('Upload error: missing AWS S3 environment variables', missingS3Env);
+      return res.status(500).json({
+        error: 'Document storage is not configured for uploads',
+        details: `Missing environment variables: ${missingS3Env.join(', ')}`
+      });
+    }
+
     // Verify authentication
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

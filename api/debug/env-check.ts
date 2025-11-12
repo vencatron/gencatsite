@@ -16,10 +16,17 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       JWT_REFRESH_SECRET_length: process.env.JWT_REFRESH_SECRET?.length || 0,
       JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION || 'not-set',
       JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION || 'not-set',
+      AWS_ACCESS_KEY_ID: !!process.env.AWS_ACCESS_KEY_ID,
+      AWS_ACCESS_KEY_ID_length: process.env.AWS_ACCESS_KEY_ID?.length || 0,
+      AWS_SECRET_ACCESS_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
+      AWS_SECRET_ACCESS_KEY_length: process.env.AWS_SECRET_ACCESS_KEY?.length || 0,
+      AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME || 'not-set',
+      AWS_REGION: process.env.AWS_REGION || 'not-set',
     },
     allEnvKeys: Object.keys(process.env).filter(key =>
       key.startsWith('DATABASE') ||
       key.startsWith('JWT') ||
+      key.startsWith('AWS') ||
       key.startsWith('VERCEL') ||
       key === 'NODE_ENV'
     ),

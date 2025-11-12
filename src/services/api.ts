@@ -194,8 +194,21 @@ class ApiService {
     }
 
     if (!response.ok) {
+      const errorMessageParts = [];
+      if (data?.error) {
+        errorMessageParts.push(data.error);
+      }
+      if (data?.details) {
+        errorMessageParts.push(data.details);
+      }
+
+      const message =
+        errorMessageParts.length > 0
+          ? errorMessageParts.join(': ')
+          : `HTTP error! status: ${response.status}`;
+
       // Create an error that preserves the response data
-      const error: any = new Error(data.error || `HTTP error! status: ${response.status}`);
+      const error: any = new Error(message);
       error.response = {
         status: response.status,
         data: data

@@ -35,6 +35,10 @@ Go to: https://vercel.com/dashboard → Your Project → Settings → Environmen
 | `JWT_ACCESS_EXPIRATION` | `15m` | 3 chars | ✓ Production, ✓ Preview, ✓ Development |
 | `JWT_REFRESH_EXPIRATION` | `7d` | 2 chars | ✓ Production, ✓ Preview, ✓ Development |
 | `NODE_ENV` | `production` | 10 chars | ✓ Production only |
+| `AWS_ACCESS_KEY_ID` | starts with your IAM access key | 16-24 chars | ✓ Production, ✓ Preview, ✓ Development |
+| `AWS_SECRET_ACCESS_KEY` | never empty | 40+ chars | ✓ Production, ✓ Preview, ✓ Development |
+| `AWS_S3_BUCKET_NAME` | `iamatrust-client-documents` | 1 value | ✓ Production, ✓ Preview, ✓ Development |
+| `AWS_REGION` | `us-east-1` (or your region) | 8-12 chars | ✓ Production, ✓ Preview, ✓ Development |
 
 ### 2. Common Issues
 
@@ -102,7 +106,7 @@ curl -X POST https://iamatrust.com/api/auth/register \
 
 If you can access the Vercel dashboard, check:
 
-1. **Environment Variables page**: Do you see all 6 variables?
+1. **Environment Variables page**: Do you see all database/JWT entries **and** the four AWS S3 variables?
 2. **Each variable**: Is it checked for all 3 environments?
 3. **Deployment logs**: Click on latest deployment → "Functions" tab → Check for errors
 4. **Runtime logs**: Click "View Function Logs" to see actual error messages
@@ -132,6 +136,11 @@ JWT_ACCESS_EXPIRATION=15m
 JWT_REFRESH_EXPIRATION=7d
 
 NODE_ENV=production
+
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+AWS_S3_BUCKET_NAME=iamatrust-client-documents
+AWS_REGION=us-east-1
 ```
 
 **IMPORTANT**: Copy these EXACTLY (including the full PostgreSQL connection string with password)

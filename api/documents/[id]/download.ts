@@ -1,19 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyAccessToken } from '../../jwt.js';
 import { storage } from '../../storage.js';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!;
+import { getS3BucketName, getS3Client, getMissingS3EnvVars } from '../../utils/s3.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow GET requests
@@ -22,6 +12,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const missingS3Env = getMissingS3EnvVars();
+    if (missingS3Env.length > 0) {
+      console.error('Download error: missing AWS S3 environment variables', missingS3Env);
+      return res.status(500).json({
+        error: 'Document storage is not configured for downloads',
+        details: `Missing environment variables: ${missingS3Env.join(', ')}`
+      });
+    }
+
     // Verify authentication
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -68,11 +67,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Generate temporary signed URL (valid for 1 hour)
     const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: getS3BucketName(),
       Key: document.storageUrl,
     });
 
-    const downloadUrl = await getSignedUrl(s3Client, command, {
+    const downloadUrl = await getSignedUrl(getS3Client(), command, {
       expiresIn: 3600, // 1 hour
     });
 

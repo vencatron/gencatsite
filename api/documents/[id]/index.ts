@@ -1,18 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyAccessToken } from '../../jwt.js';
 import { storage } from '../../storage.js';
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
-
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!;
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getS3BucketName, getS3Client } from '../../utils/s3.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -169,10 +159,10 @@ async function handleDelete(res: VercelResponse, userId: number, documentId: num
   if (document.storageUrl) {
     try {
       const deleteCommand = new DeleteObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: getS3BucketName(),
         Key: document.storageUrl,
       });
-      await s3Client.send(deleteCommand);
+      await getS3Client().send(deleteCommand);
       console.log('File deleted from S3:', document.storageUrl);
     } catch (s3Error) {
       console.error('Error deleting from S3:', s3Error);

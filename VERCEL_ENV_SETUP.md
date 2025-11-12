@@ -37,6 +37,18 @@ EMAIL_FROM=noreply@generationcatalyst.com
 - `SMTP_USER`: Your actual Gmail address
 - `SMTP_PASS`: Generate an App-Specific Password in Gmail (not your regular password)
 
+### 5. AWS S3 Document Storage (Required for uploads/downloads)
+```
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+AWS_S3_BUCKET_NAME=iamatrust-client-documents
+AWS_REGION=us-east-1
+```
+⚠️ **Action Required**:
+- Use the IAM access key/secret that has permissions for the `iamatrust-client-documents` bucket
+- Required permissions: `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`
+- Bucket name and region must match exactly (case-sensitive)
+
 ### 5. Application Configuration
 ```
 PORT=3001
@@ -91,6 +103,10 @@ vercel env pull .env.production
 | JWT_ACCESS_EXPIRATION | ⚠️ Required | 15m |
 | JWT_REFRESH_EXPIRATION | ⚠️ Required | 7d |
 | NODE_ENV | ⚠️ Required | Must be "production" |
+| AWS_ACCESS_KEY_ID | ⚠️ Required | IAM access key with S3 permissions |
+| AWS_SECRET_ACCESS_KEY | ⚠️ Required | IAM secret |
+| AWS_S3_BUCKET_NAME | ⚠️ Required | `iamatrust-client-documents` |
+| AWS_REGION | ⚠️ Required | e.g., `us-east-1` |
 | SMTP_HOST | ⚠️ Required | smtp.gmail.com |
 | SMTP_PORT | ⚠️ Required | 587 |
 | SMTP_USER | ❌ Update Required | Replace with actual email |
@@ -131,6 +147,9 @@ If you're using Gmail for SMTP:
 
 ### Issue: "Cannot connect to database"
 **Solution**: Verify DATABASE_URL is properly formatted and Neon database is active
+
+### Issue: "Failed to upload file" for document uploads
+**Solution**: Confirm all AWS S3 environment variables are set, redeploy, and ensure the IAM user has access to `iamatrust-client-documents`
 
 ### Issue: Email sending fails
 **Solution**: Ensure Gmail App Password is used (not regular password) and 2FA is enabled
