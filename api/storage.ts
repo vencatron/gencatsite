@@ -500,5 +500,157 @@ export const storage = {
       createdAt: user.created_at,
       updatedAt: user.updated_at
     } as User;
+  },
+
+  // Document methods
+  async getDocumentsByUserId(userId: number) {
+    const result = await sql`
+      SELECT * FROM documents
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `;
+
+    return result.map((doc: any) => ({
+      id: doc.id,
+      userId: doc.user_id,
+      fileName: doc.file_name,
+      fileType: doc.file_type,
+      fileSize: doc.file_size,
+      storageUrl: doc.storage_url,
+      category: doc.category,
+      description: doc.description,
+      tags: doc.tags,
+      uploadedBy: doc.uploaded_by,
+      status: doc.status,
+      isPublic: doc.is_public,
+      createdAt: doc.created_at,
+      updatedAt: doc.updated_at
+    }));
+  },
+
+  async getDocument(id: number) {
+    const result = await sql`
+      SELECT * FROM documents WHERE id = ${id} LIMIT 1
+    `;
+    const doc = result[0];
+    if (!doc) return undefined;
+
+    return {
+      id: doc.id,
+      userId: doc.user_id,
+      fileName: doc.file_name,
+      fileType: doc.file_type,
+      fileSize: doc.file_size,
+      storageUrl: doc.storage_url,
+      category: doc.category,
+      description: doc.description,
+      tags: doc.tags,
+      uploadedBy: doc.uploaded_by,
+      status: doc.status,
+      isPublic: doc.is_public,
+      createdAt: doc.created_at,
+      updatedAt: doc.updated_at
+    };
+  },
+
+  async createDocument(data: any) {
+    const result = await sql`
+      INSERT INTO documents (
+        user_id, file_name, file_type, file_size, storage_url,
+        category, description, tags, uploaded_by, status, is_public,
+        created_at, updated_at
+      ) VALUES (
+        ${data.userId},
+        ${data.fileName},
+        ${data.fileType},
+        ${data.fileSize},
+        ${data.storageUrl || null},
+        ${data.category || null},
+        ${data.description || null},
+        ${data.tags || null},
+        ${data.uploadedBy},
+        ${data.status || 'active'},
+        ${data.isPublic || false},
+        ${data.createdAt || new Date()},
+        ${data.updatedAt || new Date()}
+      ) RETURNING *
+    `;
+
+    const doc = result[0];
+    if (!doc) throw new Error('Failed to create document');
+
+    return {
+      id: doc.id,
+      userId: doc.user_id,
+      fileName: doc.file_name,
+      fileType: doc.file_type,
+      fileSize: doc.file_size,
+      storageUrl: doc.storage_url,
+      category: doc.category,
+      description: doc.description,
+      tags: doc.tags,
+      uploadedBy: doc.uploaded_by,
+      status: doc.status,
+      isPublic: doc.is_public,
+      createdAt: doc.created_at,
+      updatedAt: doc.updated_at
+    };
+  },
+
+  async updateDocument(id: number, data: any) {
+    const current = await this.getDocument(id);
+    if (!current) return undefined;
+
+    const updateData = {
+      fileName: data.fileName !== undefined ? data.fileName : current.fileName,
+      category: data.category !== undefined ? data.category : current.category,
+      description: data.description !== undefined ? data.description : current.description,
+      tags: data.tags !== undefined ? data.tags : current.tags,
+      status: data.status !== undefined ? data.status : current.status,
+      updatedAt: new Date()
+    };
+
+    const result = await sql`
+      UPDATE documents
+      SET
+        file_name = ${updateData.fileName},
+        category = ${updateData.category},
+        description = ${updateData.description},
+        tags = ${updateData.tags},
+        status = ${updateData.status},
+        updated_at = ${updateData.updatedAt}
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    const doc = result[0];
+    if (!doc) return undefined;
+
+    return {
+      id: doc.id,
+      userId: doc.user_id,
+      fileName: doc.file_name,
+      fileType: doc.file_type,
+      fileSize: doc.file_size,
+      storageUrl: doc.storage_url,
+      category: doc.category,
+      description: doc.description,
+      tags: doc.tags,
+      uploadedBy: doc.uploaded_by,
+      status: doc.status,
+      isPublic: doc.is_public,
+      createdAt: doc.created_at,
+      updatedAt: doc.updated_at
+    };
+  },
+
+  async deleteDocument(id: number) {
+    const result = await sql`
+      UPDATE documents
+      SET status = 'deleted', updated_at = ${new Date()}
+      WHERE id = ${id}
+      RETURNING id
+    `;
+    return result.length > 0;
   }
 };

@@ -353,7 +353,7 @@ class ApiService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_URL}/api/documents`, {
+    const response = await fetch(`${API_URL}/api/documents/upload`, {
       method: 'POST',
       headers: {
         // Don't set Content-Type - let browser set it with boundary for FormData
@@ -368,13 +368,23 @@ class ApiService {
   }
 
   async downloadDocument(id: number): Promise<Blob> {
+    // First get the signed download URL from our API
     const response = await this.fetchWithAuth(`/api/documents/${id}/download`);
-    
+
     if (!response.ok) {
-      throw new Error(`Failed to download document: ${response.statusText}`);
+      throw new Error(`Failed to get download URL: ${response.statusText}`);
     }
-    
-    return response.blob();
+
+    const data = await this.handleResponse<{ downloadUrl: string; filename: string }>(response);
+
+    // Fetch the file from S3 using the signed URL
+    const fileResponse = await fetch(data.downloadUrl);
+
+    if (!fileResponse.ok) {
+      throw new Error(`Failed to download file from storage: ${fileResponse.statusText}`);
+    }
+
+    return fileResponse.blob();
   }
 
   async renameDocument(id: number, newName: string): Promise<Document> {
