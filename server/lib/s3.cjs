@@ -9,15 +9,23 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const lib_storage_1 = require("@aws-sdk/lib-storage");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 const client_s3_2 = require("@aws-sdk/client-s3");
+const env_1 = require("../../shared/env");
+const REQUIRED_S3_VARS = [
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'AWS_S3_BUCKET_NAME',
+    'AWS_REGION'
+];
+(0, env_1.sanitizeEnvVars)(REQUIRED_S3_VARS);
 // Initialize S3 client
 exports.s3Client = new client_s3_1.S3Client({
-    region: process.env.AWS_REGION,
+    region: (0, env_1.getRequiredEnvVar)('AWS_REGION'),
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        accessKeyId: (0, env_1.getRequiredEnvVar)('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: (0, env_1.getRequiredEnvVar)('AWS_SECRET_ACCESS_KEY'),
     },
 });
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
+const BUCKET_NAME = (0, env_1.getRequiredEnvVar)('AWS_S3_BUCKET_NAME');
 /**
  * Upload file to S3
  * @param file - Multer file object

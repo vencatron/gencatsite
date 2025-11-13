@@ -3,17 +3,27 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getRequiredEnvVar, sanitizeEnvVars } from "../../shared/env";
+
+const REQUIRED_S3_VARS = [
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_S3_BUCKET_NAME',
+  'AWS_REGION'
+];
+
+sanitizeEnvVars(REQUIRED_S3_VARS);
 
 // Initialize S3 client
 export const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: getRequiredEnvVar('AWS_REGION'),
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: getRequiredEnvVar('AWS_ACCESS_KEY_ID'),
+    secretAccessKey: getRequiredEnvVar('AWS_SECRET_ACCESS_KEY'),
   },
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!;
+const BUCKET_NAME = getRequiredEnvVar('AWS_S3_BUCKET_NAME');
 
 /**
  * Upload file to S3

@@ -10,6 +10,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = require("http");
 const storage_1 = require("./storage");
+const env_1 = require("../shared/env");
 const jwt_1 = require("./utils/jwt");
 const validation_1 = require("./utils/validation");
 const auth_1 = require("./middleware/auth");
@@ -23,7 +24,7 @@ function validateS3Config() {
         'AWS_S3_BUCKET_NAME',
         'AWS_REGION'
     ];
-    const missing = requiredVars.filter(varName => !process.env[varName]);
+    const missing = requiredVars.filter(varName => !(0, env_1.getEnvVar)(varName));
     if (missing.length > 0) {
         throw new Error(`Missing required S3 environment variables: ${missing.join(', ')}`);
     }
@@ -37,6 +38,12 @@ const twoFactor_1 = __importDefault(require("./routes/twoFactor"));
 const admin_1 = __importDefault(require("./routes/admin"));
 // Load environment variables
 dotenv_1.default.config();
+(0, env_1.sanitizeEnvVars)([
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'AWS_S3_BUCKET_NAME',
+    'AWS_REGION'
+]);
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 const BCRYPT_ROUNDS = 10;

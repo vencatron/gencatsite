@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { storage } from './storage';
 import { User, InsertUser } from '../shared/schema';
+import { getEnvVar, sanitizeEnvVars } from '../shared/env';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -31,7 +32,7 @@ function validateS3Config(): void {
     'AWS_REGION'
   ];
 
-  const missing = requiredVars.filter(varName => !process.env[varName]);
+  const missing = requiredVars.filter(varName => !getEnvVar(varName));
 
   if (missing.length > 0) {
     throw new Error(`Missing required S3 environment variables: ${missing.join(', ')}`);
@@ -48,6 +49,12 @@ import adminRouter from './routes/admin';
 
 // Load environment variables
 dotenv.config();
+sanitizeEnvVars([
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_S3_BUCKET_NAME',
+  'AWS_REGION'
+]);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
