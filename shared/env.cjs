@@ -1,39 +1,39 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRequiredEnvVar = exports.getEnvVar = exports.sanitizeEnvVars = void 0;
-const sanitizeValue = (value) => {
+exports.getRequiredEnvVar = exports.sanitizeEnvVars = exports.getEnvVar = void 0;
+const normalizeValue = (value) => {
     if (typeof value !== 'string') {
         return undefined;
     }
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : undefined;
 };
-const sanitizeKey = (key) => {
-    const sanitized = sanitizeValue(process.env[key]);
-    if (sanitized !== undefined) {
-        process.env[key] = sanitized;
-    }
-    else {
-        // Preserve explicit empty so downstream code can detect missing values
-        process.env[key] = undefined;
-    }
+const clearEnvVar = (name) => {
+    delete process.env[name];
 };
-const sanitizeEnvVars = (keys) => {
-    if (Array.isArray(keys) && keys.length > 0) {
-        keys.forEach(sanitizeKey);
-        return;
-    }
-    Object.keys(process.env).forEach(sanitizeKey);
-};
-exports.sanitizeEnvVars = sanitizeEnvVars;
 const getEnvVar = (name) => {
-    const value = sanitizeValue(process.env[name]);
-    if (value) {
-        process.env[name] = value;
+    const raw = process.env[name];
+    const normalized = normalizeValue(raw);
+    if (normalized === undefined) {
+        clearEnvVar(name);
+        return undefined;
     }
-    return value;
+    if (raw !== normalized) {
+        process.env[name] = normalized;
+    }
+    return normalized;
 };
 exports.getEnvVar = getEnvVar;
+const sanitizeEnvVars = (keys) => {
+    const targetKeys = Array.isArray(keys) && keys.length > 0 ? keys : Object.keys(process.env);
+    targetKeys.forEach((key) => {
+        const value = (0, exports.getEnvVar)(key);
+        if (value === undefined) {
+            clearEnvVar(key);
+        }
+    });
+};
+exports.sanitizeEnvVars = sanitizeEnvVars;
 const getRequiredEnvVar = (name) => {
     const value = (0, exports.getEnvVar)(name);
     if (!value) {

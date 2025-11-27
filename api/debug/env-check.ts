@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getEnvVar, sanitizeEnvVars } from '../../shared/env';
+import { getEnvVar, sanitizeEnvVars } from '../utils/s3';
 
 const AWS_KEYS = [
   'AWS_ACCESS_KEY_ID',

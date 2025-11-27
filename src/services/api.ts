@@ -45,6 +45,8 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  documentCount?: number;
+  hasInvoice?: boolean;
 }
 
 export interface AuthResponse {
@@ -108,6 +110,8 @@ export interface AdminStats {
     firstName: string | null;
     lastName: string | null;
     createdAt: string;
+    documentCount?: number;
+    hasInvoice?: boolean;
   }>;
 }
 
@@ -147,9 +151,14 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<Response> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string> || {}),
     };
+
+    const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+    if (!isFormDataBody && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     // Add authorization header if we have a token
     if (this.accessToken) {
@@ -366,13 +375,8 @@ class ApiService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_URL}/api/documents/upload`, {
+    const response = await this.fetchWithAuth('/api/documents', {
       method: 'POST',
-      headers: {
-        // Don't set Content-Type - let browser set it with boundary for FormData
-        ...(this.accessToken ? { 'Authorization': `Bearer ${this.accessToken}` } : {}),
-      },
-      credentials: 'include',
       body: formData,
     });
 

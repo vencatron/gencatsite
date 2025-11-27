@@ -32,6 +32,8 @@ export interface User {
   lastLoginAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+  documentCount?: number;
+  hasInvoice?: boolean;
 }
 
 export interface InsertUser {
@@ -60,8 +62,105 @@ export interface InsertUser {
   updatedAt?: Date | null;
 }
 
+export interface Message {
+  id: number;
+  threadId: number | null;
+  senderId: number;
+  recipientId: number | null;
+  subject: string | null;
+  content: string;
+  isRead: boolean | null;
+  readAt: Date | null;
+  priority: string | null;
+  status: string | null;
+  attachmentIds: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
+
+export interface InsertMessage {
+  threadId?: number | null;
+  senderId: number;
+  recipientId?: number | null;
+  subject?: string | null;
+  content: string;
+  isRead?: boolean | null;
+  readAt?: Date | null;
+  priority?: string | null;
+  status?: string | null;
+  attachmentIds?: string | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+}
+
 // Storage implementation using direct SQL queries
 export const storage = {
+  async getMessages(userId: number): Promise<Message[]> {
+    const result = await sql`
+      SELECT * FROM messages
+      WHERE sender_id = ${userId} OR recipient_id = ${userId}
+      ORDER BY created_at ASC
+    `;
+
+    return result.map((msg: any) => ({
+      id: msg.id,
+      threadId: msg.thread_id,
+      senderId: msg.sender_id,
+      recipientId: msg.recipient_id,
+      subject: msg.subject,
+      content: msg.content,
+      isRead: msg.is_read,
+      readAt: msg.read_at,
+      priority: msg.priority,
+      status: msg.status,
+      attachmentIds: msg.attachment_ids,
+      createdAt: msg.created_at,
+      updatedAt: msg.updated_at
+    })) as Message[];
+  },
+
+  async createMessage(data: InsertMessage): Promise<Message> {
+    const result = await sql`
+      INSERT INTO messages (
+        thread_id, sender_id, recipient_id, subject, content,
+        is_read, read_at, priority, status, attachment_ids,
+        created_at, updated_at
+      ) VALUES (
+        ${data.threadId || null},
+        ${data.senderId},
+        ${data.recipientId || null},
+        ${data.subject || null},
+        ${data.content},
+        ${data.isRead ?? false},
+        ${data.readAt || null},
+        ${data.priority || 'normal'},
+        ${data.status || 'active'},
+        ${data.attachmentIds || null},
+        ${data.createdAt || new Date()},
+        ${data.updatedAt || new Date()}
+      ) RETURNING *
+    `;
+
+    const msg = result[0];
+    if (!msg) throw new Error('Failed to create message');
+
+    return {
+      id: msg.id,
+      threadId: msg.thread_id,
+      senderId: msg.sender_id,
+      recipientId: msg.recipient_id,
+      subject: msg.subject,
+      content: msg.content,
+      isRead: msg.is_read,
+      readAt: msg.read_at,
+      priority: msg.priority,
+      status: msg.status,
+      attachmentIds: msg.attachment_ids,
+      createdAt: msg.created_at,
+      updatedAt: msg.updated_at
+    } as Message;
+  },
+
   async getAdminDashboardStats(): Promise<{
     totalUsers: number;
     activeUsers: number;
@@ -79,6 +178,8 @@ export const storage = {
       firstName: string | null;
       lastName: string | null;
       createdAt: string;
+      documentCount: number;
+      hasInvoice: boolean;
     }>;
   }> {
     const [
@@ -103,10 +204,13 @@ export const storage = {
       sql`SELECT COUNT(*)::int AS count FROM invoices WHERE status = 'pending'`,
       sql`SELECT COALESCE(SUM(amount::numeric), 0)::numeric AS total FROM invoices`,
       sql`
-        SELECT id, username, email, first_name, last_name, created_at
-        FROM users
-        ORDER BY created_at DESC NULLS LAST
-        LIMIT 5
+        SELECT 
+          u.id, u.username, u.email, u.first_name, u.last_name, u.created_at,
+          (SELECT COUNT(*)::int FROM documents d WHERE d.user_id = u.id) as document_count,
+          EXISTS(SELECT 1 FROM invoices i WHERE i.user_id = u.id) as has_invoice
+        FROM users u
+        ORDER BY u.created_at DESC NULLS LAST
+        LIMIT 10
       `,
     ]);
 
@@ -119,6 +223,8 @@ export const storage = {
       firstName: user.first_name,
       lastName: user.last_name,
       createdAt: user.created_at ? new Date(user.created_at).toISOString() : new Date().toISOString(),
+      documentCount: Number(user.document_count ?? 0),
+      hasInvoice: Boolean(user.has_invoice),
     }));
 
     return {
@@ -137,8 +243,12 @@ export const storage = {
 
   async getAllUsers(): Promise<User[]> {
     const result = await sql`
-      SELECT * FROM users
-      ORDER BY created_at DESC
+      SELECT 
+        u.*,
+        (SELECT COUNT(*)::int FROM documents d WHERE d.user_id = u.id) as document_count,
+        EXISTS(SELECT 1 FROM invoices i WHERE i.user_id = u.id) as has_invoice
+      FROM users u
+      ORDER BY u.created_at DESC
     `;
 
     return result.map((user: any) => ({
@@ -164,7 +274,9 @@ export const storage = {
       twoFactorBackupCodes: user.two_factor_backup_codes,
       lastLoginAt: user.last_login_at,
       createdAt: user.created_at,
-      updatedAt: user.updated_at
+      updatedAt: user.updated_at,
+      documentCount: Number(user.document_count ?? 0),
+      hasInvoice: Boolean(user.has_invoice),
     })) as User[];
   },
 

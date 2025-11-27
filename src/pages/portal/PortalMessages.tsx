@@ -73,12 +73,12 @@ const PortalMessages = () => {
     }
   }
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmedText = text.trim()
     if (!trimmedText) return
 
-    // Send via WebSocket
-    const success = sendMessage(trimmedText)
+    // Send via WebSocket or HTTP Fallback
+    const success = await sendMessage(trimmedText)
 
     if (success) {
       setText('')
@@ -189,14 +189,14 @@ const PortalMessages = () => {
             }
           }}
           rows={2}
-          placeholder={connected ? "Type your message… (Press Enter to send)" : "Connecting to server..."}
+          placeholder="Type your message… (Press Enter to send)"
           className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-neutral-100 disabled:cursor-not-allowed"
-          disabled={!connected}
+          disabled={loading}
         />
         <button
           onClick={handleSend}
           className="btn-primary self-end disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!connected || !text.trim()}
+          disabled={loading || !text.trim()}
         >
           Send
         </button>

@@ -180,27 +180,34 @@ export const useMessaging = () => {
     setState(prev => ({ ...prev, connected: false }));
   }, []);
 
-  const sendMessage = useCallback((content: string) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.error('WebSocket not connected');
-      setState(prev => ({
-        ...prev,
-        error: 'Not connected to server',
-      }));
-      return false;
+  const sendMessage = useCallback(async (content: string) => {
+    // Try WebSocket first
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify({
+          type: 'message',
+          data: { content },
+        }));
+        return true;
+      } catch (err) {
+        console.error('Error sending via WebSocket, falling back to HTTP:', err);
+      }
     }
 
+    // Fallback to HTTP
     try {
-      wsRef.current.send(JSON.stringify({
-        type: 'message',
-        data: { content },
+      const message = await apiService.sendMessage(content);
+      setState(prev => ({
+        ...prev,
+        messages: [...prev.messages, message],
+        error: null
       }));
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending message:', err);
       setState(prev => ({
         ...prev,
-        error: 'Failed to send message',
+        error: err.message || 'Failed to send message',
       }));
       return false;
     }
@@ -223,6 +230,7 @@ export const useMessaging = () => {
 
   const markAsRead = useCallback((messageId: number) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      // TODO: Implement HTTP fallback for mark read
       return;
     }
 
@@ -243,6 +251,30 @@ export const useMessaging = () => {
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
+
+  // Polling for messages if WebSocket is not connected
+  useEffect(() => {
+    if (state.connected || !isAuthenticated) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const msgs = await apiService.getMessages();
+        setState(prev => {
+          const lastNewMessageId = msgs.length > 0 ? msgs[msgs.length - 1]!.id : undefined;
+          const lastExistingMessageId = prev.messages.length > 0 ? prev.messages[prev.messages.length - 1]!.id : undefined;
+
+          if (msgs.length !== prev.messages.length || lastNewMessageId !== lastExistingMessageId) {
+             return { ...prev, messages: msgs, error: null };
+          }
+          return prev;
+        });
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [state.connected, isAuthenticated]);
 
   // Connect on mount, disconnect on unmount
   useEffect(() => {

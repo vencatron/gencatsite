@@ -5,7 +5,8 @@
   "functions": {
     "api/**/*.ts": {
       "runtime": "@vercel/node@5.5.0",
-      "maxDuration": 10
+      "maxDuration": 10,
+      "includeFiles": "shared/**"
     }
   },
   "rewrites": [
