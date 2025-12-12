@@ -172,7 +172,7 @@ const PortalDashboard = () => {
                 <li key={inv.id} className="border-l-4 border-amber-400 pl-3">
                   <div className="flex justify-between">
                     <span className="font-medium text-neutral-900">{inv.invoiceNumber}</span>
-                    <span className="text-neutral-700">${inv.amount.toFixed(2)}</span>
+                    <span className="text-neutral-700">${(typeof inv.amount === 'number' ? inv.amount : parseFloat(String(inv.amount) || '0')).toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-neutral-500">
                     Due {new Date(inv.dueDate).toLocaleDateString()}

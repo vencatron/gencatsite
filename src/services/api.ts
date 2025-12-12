@@ -79,11 +79,19 @@ export interface Invoice {
   id: number;
   userId: number;
   invoiceNumber: string;
-  amount: number;
-  status: 'pending' | 'paid' | 'overdue';
+  amount: number | string;
+  tax?: number | string;
+  totalAmount?: number | string;
+  currency?: string;
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled' | 'processing';
   dueDate: string;
   paidDate: string | null;
+  paymentMethod?: string | null;
   description: string | null;
+  lineItems?: string | null;
+  stripePaymentIntentId?: string | null;
+  stripeCustomerId?: string | null;
+  stripePaymentStatus?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -459,6 +467,55 @@ class ApiService {
     return data.invoice;
   }
 
+  // Payment APIs (Stripe)
+  async getStripeConfig(): Promise<{ publishableKey: string }> {
+    const response = await fetch(`${API_URL}/api/payments/config`);
+    return this.handleResponse(response);
+  }
+
+  async createPaymentIntent(invoiceId: number): Promise<{
+    success: boolean;
+    clientSecret: string;
+    paymentIntentId: string;
+    amount: string;
+    currency: string;
+  }> {
+    const response = await this.fetchWithAuth('/api/payments/create-payment-intent', {
+      method: 'POST',
+      body: JSON.stringify({ invoiceId }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async confirmPayment(paymentIntentId: string, invoiceId: number): Promise<{
+    success: boolean;
+    message: string;
+    invoice: Invoice;
+  }> {
+    const response = await this.fetchWithAuth('/api/payments/confirm-payment', {
+      method: 'POST',
+      body: JSON.stringify({ paymentIntentId, invoiceId }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getPaymentHistory(): Promise<{
+    success: boolean;
+    payments: Array<{
+      id: number;
+      invoiceNumber: string;
+      amount: string;
+      currency: string;
+      paymentDate: string;
+      paymentMethod: string;
+      description: string;
+    }>;
+    totalPaid: number;
+  }> {
+    const response = await this.fetchWithAuth('/api/payments/history');
+    return this.handleResponse(response);
+  }
+
   // Dashboard data API
   async getDashboardData(): Promise<{
     documents: Document[];
@@ -602,6 +659,38 @@ class ApiService {
     const response = await this.fetchWithAuth(`/api/admin/users/${userId}/role`, {
       method: 'PUT',
       body: JSON.stringify({ role }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin Invoice APIs
+  async getAllInvoices(): Promise<{
+    invoices: Array<Invoice & { user: User | null }>;
+  }> {
+    const response = await this.fetchWithAuth('/api/invoices/all');
+    return this.handleResponse(response);
+  }
+
+  async createInvoice(data: {
+    userId: number;
+    invoiceNumber: string;
+    amount: number;
+    tax?: number;
+    description?: string;
+    lineItems?: Array<{ description: string; amount: string }>;
+    dueDate: string;
+    sendEmail?: boolean;
+  }): Promise<{ invoice: Invoice; emailSent: boolean }> {
+    const response = await this.fetchWithAuth('/api/invoices', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async sendInvoiceEmail(invoiceId: number): Promise<{ message: string }> {
+    const response = await this.fetchWithAuth(`/api/invoices/${invoiceId}/send`, {
+      method: 'POST',
     });
     return this.handleResponse(response);
   }

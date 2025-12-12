@@ -36,6 +36,7 @@ const invoices_1 = __importDefault(require("./routes/invoices"));
 const users_1 = __importDefault(require("./routes/users"));
 const twoFactor_1 = __importDefault(require("./routes/twoFactor"));
 const admin_1 = __importDefault(require("./routes/admin"));
+const payments_1 = __importDefault(require("./routes/payments"));
 // Load environment variables
 dotenv_1.default.config();
 (0, env_1.sanitizeEnvVars)([
@@ -88,6 +89,7 @@ app.use('/api/invoices', invoices_1.default);
 app.use('/api/users', users_1.default);
 app.use('/api/2fa', twoFactor_1.default);
 app.use('/api/admin', admin_1.default);
+app.use('/api/payments', payments_1.default);
 // Authentication Routes
 // POST /api/auth/register - User registration with password hashing
 app.post('/api/auth/register', async (req, res) => {
@@ -606,6 +608,7 @@ httpServer.listen(PORT, () => {
     console.log('  - Documents: /api/documents/*');
     console.log('  - Messages: /api/messages/*');
     console.log('  - Invoices: /api/invoices/*');
+    console.log('  - Payments (Stripe): /api/payments/*');
     console.log('  - User Profile: /api/users/*');
     console.log('  - Admin: /api/admin/*');
     console.log('  - WebSocket: ws://localhost:' + PORT + '/ws/messages');

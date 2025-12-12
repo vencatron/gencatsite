@@ -18,6 +18,7 @@ import PortalSettings from '@/pages/portal/PortalSettings'
 import AdminLayout from '@/pages/portal/AdminLayout'
 import AdminDashboard from '@/pages/portal/AdminDashboard'
 import AdminUsers from '@/pages/portal/AdminUsers'
+import AdminInvoices from '@/pages/portal/AdminInvoices'
 import RequirePortalAuth from '@/routes/RequirePortalAuth'
 import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
@@ -60,6 +61,7 @@ function App() {
               <Route path="admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
+                <Route path="invoices" element={<AdminInvoices />} />
               </Route>
             </Route>
           </Route>

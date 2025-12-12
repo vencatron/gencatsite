@@ -91,15 +91,19 @@ export const invoices = pgTable('invoices', {
   tax: decimal('tax', { precision: 10, scale: 2 }).default('0'),
   totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).default('USD'),
-  status: text('status').default('pending'), // pending, paid, overdue, cancelled
+  status: text('status').default('pending'), // pending, paid, overdue, cancelled, processing
   description: text('description'),
   lineItems: text('line_items'), // JSON string of line items
-  paymentMethod: text('payment_method'), // credit_card, bank_transfer, check, etc.
+  paymentMethod: text('payment_method'), // credit_card, bank_transfer, check, stripe
   paymentDate: timestamp('payment_date'),
   dueDate: timestamp('due_date').notNull(),
   reminderSent: boolean('reminder_sent').default(false),
   reminderSentAt: timestamp('reminder_sent_at'),
   notes: text('notes'),
+  // Stripe payment fields
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeCustomerId: text('stripe_customer_id'),
+  stripePaymentStatus: text('stripe_payment_status'), // requires_payment_method, processing, succeeded, failed
   createdBy: integer('created_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -109,6 +113,7 @@ export const invoices = pgTable('invoices', {
   statusIdx: index('invoices_status_idx').on(table.status),
   dueDateIdx: index('invoices_due_date_idx').on(table.dueDate),
   createdAtIdx: index('invoices_created_at_idx').on(table.createdAt),
+  stripePaymentIntentIdx: index('invoices_stripe_payment_intent_idx').on(table.stripePaymentIntentId),
 }));
 
 // Appointments table (existing)

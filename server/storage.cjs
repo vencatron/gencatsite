@@ -141,6 +141,12 @@ class DatabaseStorage {
             .where((0, drizzle_orm_1.eq)(schema_1.invoices.invoiceNumber, invoiceNumber));
         return invoice || undefined;
     }
+    async getAllInvoices() {
+        return await db_vercel_1.db
+            .select()
+            .from(schema_1.invoices)
+            .orderBy((0, drizzle_orm_1.desc)(schema_1.invoices.createdAt));
+    }
     async createInvoice(insertInvoice) {
         const [invoice] = await db_vercel_1.db
             .insert(schema_1.invoices)

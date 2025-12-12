@@ -46,6 +46,7 @@ import invoicesRouter from './routes/invoices';
 import usersRouter from './routes/users';
 import twoFactorRouter from './routes/twoFactor';
 import adminRouter from './routes/admin';
+import paymentsRouter from './routes/payments';
 
 // Load environment variables
 dotenv.config();
@@ -106,6 +107,7 @@ app.use('/api/invoices', invoicesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/2fa', twoFactorRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/payments', paymentsRouter);
 
 // Authentication Routes
 
@@ -714,6 +716,7 @@ httpServer.listen(PORT, () => {
   console.log('  - Documents: /api/documents/*');
   console.log('  - Messages: /api/messages/*');
   console.log('  - Invoices: /api/invoices/*');
+  console.log('  - Payments (Stripe): /api/payments/*');
   console.log('  - User Profile: /api/users/*');
   console.log('  - Admin: /api/admin/*');
   console.log('  - WebSocket: ws://localhost:' + PORT + '/ws/messages');

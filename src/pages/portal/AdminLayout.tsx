@@ -56,6 +56,18 @@ const AdminLayout = () => {
           >
             User Management
           </NavLink>
+          <NavLink
+            to="/client-portal/admin/invoices"
+            className={({ isActive }) =>
+              `${linkBase} ${
+                isActive
+                  ? 'bg-primary-600 text-white'
+                  : 'text-neutral-700 hover:bg-neutral-100'
+              }`
+            }
+          >
+            Invoices
+          </NavLink>
         </nav>
       </div>
 

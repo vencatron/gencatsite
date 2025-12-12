@@ -4,6 +4,7 @@ const express_1 = require("express");
 const auth_1 = require("../middleware/auth");
 const storage_1 = require("../storage");
 const validation_1 = require("../utils/validation");
+const email_1 = require("../services/email");
 const router = (0, express_1.Router)();
 // GET /api/invoices - List user's invoices
 router.get('/', auth_1.authenticateToken, async (req, res) => {
@@ -146,7 +147,8 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Admin access required to create invoices' });
         }
-        const { userId, invoiceNumber, amount, tax, description, lineItems, dueDate } = req.body;
+        const { userId, invoiceNumber, amount, tax, description, lineItems, dueDate, sendEmail = true // Default to sending email
+         } = req.body;
         // Validate required fields
         if (!userId || !invoiceNumber || !amount || !dueDate) {
             return res.status(400).json({
@@ -182,15 +184,137 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
             createdAt: new Date(),
             updatedAt: new Date()
         });
+        // Send invoice email to client
+        let emailSent = false;
+        if (sendEmail && targetUser.email) {
+            try {
+                // Parse line items for email
+                let parsedLineItems;
+                if (lineItems) {
+                    parsedLineItems = Array.isArray(lineItems) ? lineItems : JSON.parse(lineItems);
+                }
+                emailSent = await email_1.emailService.sendInvoiceEmail(targetUser.email, targetUser.firstName || targetUser.username, {
+                    invoiceNumber: (0, validation_1.sanitizeInput)(invoiceNumber),
+                    amount: amount.toString(),
+                    tax: taxNum.toString(),
+                    totalAmount: totalAmount.toString(),
+                    description: description ? (0, validation_1.sanitizeInput)(description) : undefined,
+                    dueDate: new Date(dueDate),
+                    lineItems: parsedLineItems
+                });
+                console.log(`Invoice email ${emailSent ? 'sent' : 'failed'} to ${targetUser.email}`);
+            }
+            catch (emailError) {
+                console.error('Error sending invoice email:', emailError);
+            }
+        }
         res.status(201).json({
             success: true,
             message: 'Invoice created successfully',
-            invoice: newInvoice
+            invoice: newInvoice,
+            emailSent
         });
     }
     catch (error) {
         console.error('Error creating invoice:', error);
         res.status(500).json({ error: 'Failed to create invoice' });
+    }
+});
+// POST /api/invoices/:id/send - Resend invoice email (admin only)
+router.post('/:id/send', auth_1.authenticateToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        // Only admin can send invoice emails
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required to send invoices' });
+        }
+        const invoiceId = parseInt(req.params.id);
+        if (isNaN(invoiceId)) {
+            return res.status(400).json({ error: 'Invalid invoice ID' });
+        }
+        // Get the invoice
+        const invoice = await storage_1.storage.getInvoice(invoiceId);
+        if (!invoice) {
+            return res.status(404).json({ error: 'Invoice not found' });
+        }
+        // Get the user
+        const user = await storage_1.storage.getUser(invoice.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (!user.email) {
+            return res.status(400).json({ error: 'User does not have an email address' });
+        }
+        // Parse line items
+        let lineItems;
+        if (invoice.lineItems) {
+            try {
+                lineItems = JSON.parse(invoice.lineItems);
+            }
+            catch (e) {
+                lineItems = undefined;
+            }
+        }
+        // Send the email
+        const emailSent = await email_1.emailService.sendInvoiceEmail(user.email, user.firstName || user.username, {
+            invoiceNumber: invoice.invoiceNumber,
+            amount: invoice.amount,
+            tax: invoice.tax || undefined,
+            totalAmount: invoice.totalAmount || invoice.amount,
+            description: invoice.description || undefined,
+            dueDate: invoice.dueDate,
+            lineItems
+        });
+        if (emailSent) {
+            res.json({
+                success: true,
+                message: `Invoice email sent to ${user.email}`
+            });
+        }
+        else {
+            res.status(500).json({ error: 'Failed to send invoice email' });
+        }
+    }
+    catch (error) {
+        console.error('Error sending invoice email:', error);
+        res.status(500).json({ error: 'Failed to send invoice email' });
+    }
+});
+// GET /api/invoices/all - Get all invoices (admin only)
+router.get('/all', auth_1.authenticateToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        // Only admin can view all invoices
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        const invoices = await storage_1.storage.getAllInvoices();
+        // Get user info for each invoice
+        const invoicesWithUsers = await Promise.all(invoices.map(async (invoice) => {
+            const user = await storage_1.storage.getUser(invoice.userId);
+            return {
+                ...invoice,
+                user: user ? {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName
+                } : null
+            };
+        }));
+        res.json({
+            success: true,
+            invoices: invoicesWithUsers
+        });
+    }
+    catch (error) {
+        console.error('Error fetching all invoices:', error);
+        res.status(500).json({ error: 'Failed to fetch invoices' });
     }
 });
 exports.default = router;

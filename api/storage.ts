@@ -764,5 +764,258 @@ export const storage = {
       RETURNING id
     `;
     return result.length > 0;
+  },
+
+  // Invoice methods
+  async getInvoice(id: number) {
+    const result = await sql`
+      SELECT * FROM invoices WHERE id = ${id} LIMIT 1
+    `;
+    const inv = result[0];
+    if (!inv) return undefined;
+
+    return {
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    };
+  },
+
+  async getInvoicesByUserId(userId: number) {
+    const result = await sql`
+      SELECT * FROM invoices
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `;
+
+    return result.map((inv: any) => ({
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    }));
+  },
+
+  async getAllInvoices() {
+    const result = await sql`
+      SELECT * FROM invoices
+      ORDER BY created_at DESC
+    `;
+
+    return result.map((inv: any) => ({
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    }));
+  },
+
+  async getInvoiceByNumber(invoiceNumber: string) {
+    const result = await sql`
+      SELECT * FROM invoices WHERE invoice_number = ${invoiceNumber} LIMIT 1
+    `;
+    const inv = result[0];
+    if (!inv) return undefined;
+
+    return {
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    };
+  },
+
+  async createInvoice(data: any) {
+    const result = await sql`
+      INSERT INTO invoices (
+        user_id, invoice_number, amount, tax, total_amount, currency,
+        status, description, line_items, payment_method, payment_date,
+        due_date, reminder_sent, reminder_sent_at, notes,
+        stripe_payment_intent_id, stripe_customer_id, stripe_payment_status,
+        created_by, created_at, updated_at
+      ) VALUES (
+        ${data.userId},
+        ${data.invoiceNumber},
+        ${data.amount},
+        ${data.tax || null},
+        ${data.totalAmount || data.amount},
+        ${data.currency || 'USD'},
+        ${data.status || 'pending'},
+        ${data.description || null},
+        ${data.lineItems || null},
+        ${data.paymentMethod || null},
+        ${data.paymentDate || null},
+        ${data.dueDate || null},
+        ${data.reminderSent || false},
+        ${data.reminderSentAt || null},
+        ${data.notes || null},
+        ${data.stripePaymentIntentId || null},
+        ${data.stripeCustomerId || null},
+        ${data.stripePaymentStatus || null},
+        ${data.createdBy || null},
+        ${data.createdAt || new Date()},
+        ${data.updatedAt || new Date()}
+      ) RETURNING *
+    `;
+
+    const inv = result[0];
+    if (!inv) throw new Error('Failed to create invoice');
+
+    return {
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    };
+  },
+
+  async updateInvoice(id: number, data: any) {
+    const current = await this.getInvoice(id);
+    if (!current) return undefined;
+
+    const updateData = {
+      status: data.status !== undefined ? data.status : current.status,
+      paymentMethod: data.paymentMethod !== undefined ? data.paymentMethod : current.paymentMethod,
+      paymentDate: data.paymentDate !== undefined ? data.paymentDate : current.paymentDate,
+      notes: data.notes !== undefined ? data.notes : current.notes,
+      stripePaymentIntentId: data.stripePaymentIntentId !== undefined ? data.stripePaymentIntentId : current.stripePaymentIntentId,
+      stripeCustomerId: data.stripeCustomerId !== undefined ? data.stripeCustomerId : current.stripeCustomerId,
+      stripePaymentStatus: data.stripePaymentStatus !== undefined ? data.stripePaymentStatus : current.stripePaymentStatus,
+      updatedAt: new Date()
+    };
+
+    const result = await sql`
+      UPDATE invoices
+      SET
+        status = ${updateData.status},
+        payment_method = ${updateData.paymentMethod},
+        payment_date = ${updateData.paymentDate},
+        notes = ${updateData.notes},
+        stripe_payment_intent_id = ${updateData.stripePaymentIntentId},
+        stripe_customer_id = ${updateData.stripeCustomerId},
+        stripe_payment_status = ${updateData.stripePaymentStatus},
+        updated_at = ${updateData.updatedAt}
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    const inv = result[0];
+    if (!inv) return undefined;
+
+    return {
+      id: inv.id,
+      userId: inv.user_id,
+      invoiceNumber: inv.invoice_number,
+      amount: inv.amount,
+      tax: inv.tax,
+      totalAmount: inv.total_amount,
+      currency: inv.currency,
+      status: inv.status,
+      description: inv.description,
+      lineItems: inv.line_items,
+      paymentMethod: inv.payment_method,
+      paymentDate: inv.payment_date,
+      dueDate: inv.due_date,
+      reminderSent: inv.reminder_sent,
+      reminderSentAt: inv.reminder_sent_at,
+      notes: inv.notes,
+      stripePaymentIntentId: inv.stripe_payment_intent_id,
+      stripeCustomerId: inv.stripe_customer_id,
+      stripePaymentStatus: inv.stripe_payment_status,
+      createdBy: inv.created_by,
+      createdAt: inv.created_at,
+      updatedAt: inv.updated_at
+    };
   }
 };

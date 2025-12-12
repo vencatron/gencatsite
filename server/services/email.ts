@@ -451,6 +451,393 @@ Generation Catalyst Team
   }
 
   /**
+   * Send invoice email to client
+   */
+  async sendInvoiceEmail(
+    email: string,
+    clientName: string,
+    invoice: {
+      invoiceNumber: string;
+      amount: string;
+      tax?: string;
+      totalAmount: string;
+      description?: string;
+      dueDate: Date;
+      lineItems?: Array<{ description: string; amount: string }>;
+    }
+  ): Promise<boolean> {
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+    const portalUrl = `${baseUrl}/client-portal/billing`;
+    const formattedDueDate = new Date(invoice.dueDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Build line items HTML if available
+    let lineItemsHtml = '';
+    if (invoice.lineItems && invoice.lineItems.length > 0) {
+      lineItemsHtml = `
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <thead>
+            <tr style="background-color: #f8f7f4;">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #b19373;">Description</th>
+              <th style="padding: 12px; text-align: right; border-bottom: 2px solid #b19373;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoice.lineItems.map(item => `
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.description}</td>
+                <td style="padding: 12px; text-align: right; border-bottom: 1px solid #eee;">$${parseFloat(item.amount).toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice from Generation Catalyst</title>
+        <style>
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f7f4;
+          }
+          .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          h1 {
+            color: #b19373;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #b19373;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: 600;
+          }
+          .button:hover {
+            background-color: #9a7e5f;
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+          }
+          .logo {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #b19373;
+            margin-bottom: 20px;
+          }
+          .invoice-box {
+            background-color: #f8f7f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+          }
+          .invoice-total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #b19373;
+            margin-top: 10px;
+          }
+          .due-date {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            padding: 12px;
+            margin: 15px 0;
+            color: #856404;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">Generation Catalyst</div>
+          <h1>New Invoice</h1>
+
+          <p>Hello ${clientName},</p>
+          <p>A new invoice has been created for your account. Please review the details below:</p>
+
+          <div class="invoice-box">
+            <div style="margin-bottom: 15px;">
+              <strong>Invoice #:</strong> ${invoice.invoiceNumber}
+            </div>
+            ${invoice.description ? `<div style="margin-bottom: 15px;"><strong>Description:</strong> ${invoice.description}</div>` : ''}
+
+            ${lineItemsHtml}
+
+            <div style="border-top: 2px solid #b19373; padding-top: 15px; margin-top: 15px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Subtotal:</span>
+                <span>$${parseFloat(invoice.amount).toFixed(2)}</span>
+              </div>
+              ${invoice.tax && parseFloat(invoice.tax) > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span>Tax:</span>
+                  <span>$${parseFloat(invoice.tax).toFixed(2)}</span>
+                </div>
+              ` : ''}
+              <div class="invoice-total" style="display: flex; justify-content: space-between;">
+                <span>Total Due:</span>
+                <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="due-date">
+            <strong>Due Date:</strong> ${formattedDueDate}
+          </div>
+
+          <p>To pay this invoice, please log in to your client portal:</p>
+
+          <a href="${portalUrl}" class="button">Pay Invoice</a>
+
+          <p style="font-size: 14px; color: #666;">
+            Or copy and paste this link into your browser:<br>
+            <span style="word-break: break-all;">${portalUrl}</span>
+          </p>
+
+          <div class="footer">
+            <p>If you have any questions about this invoice, please contact our support team.</p>
+            <p>&copy; ${new Date().getFullYear()} Generation Catalyst. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Build line items text if available
+    let lineItemsText = '';
+    if (invoice.lineItems && invoice.lineItems.length > 0) {
+      lineItemsText = '\nLine Items:\n' + invoice.lineItems.map(item =>
+        `  - ${item.description}: $${parseFloat(item.amount).toFixed(2)}`
+      ).join('\n') + '\n';
+    }
+
+    const text = `
+Hello ${clientName},
+
+A new invoice has been created for your account.
+
+Invoice Details:
+----------------
+Invoice #: ${invoice.invoiceNumber}
+${invoice.description ? `Description: ${invoice.description}\n` : ''}${lineItemsText}
+Subtotal: $${parseFloat(invoice.amount).toFixed(2)}
+${invoice.tax && parseFloat(invoice.tax) > 0 ? `Tax: $${parseFloat(invoice.tax).toFixed(2)}\n` : ''}Total Due: $${parseFloat(invoice.totalAmount).toFixed(2)}
+
+Due Date: ${formattedDueDate}
+
+To pay this invoice, please log in to your client portal:
+${portalUrl}
+
+If you have any questions about this invoice, please contact our support team.
+
+Best regards,
+Generation Catalyst Team
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: `Invoice #${invoice.invoiceNumber} from Generation Catalyst - $${parseFloat(invoice.totalAmount).toFixed(2)} Due`,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Send payment receipt email
+   */
+  async sendPaymentReceiptEmail(
+    email: string,
+    clientName: string,
+    payment: {
+      invoiceNumber: string;
+      amount: string;
+      paymentDate: Date;
+      paymentMethod?: string;
+    }
+  ): Promise<boolean> {
+    const formattedDate = new Date(payment.paymentDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Receipt - Generation Catalyst</title>
+        <style>
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f7f4;
+          }
+          .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          h1 {
+            color: #b19373;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+          }
+          .logo {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #b19373;
+            margin-bottom: 20px;
+          }
+          .success-box {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+          }
+          .success-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 10px;
+          }
+          .receipt-details {
+            background-color: #f8f7f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+          }
+          .receipt-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">Generation Catalyst</div>
+
+          <div class="success-box">
+            <div class="success-icon">✓</div>
+            <h1 style="margin: 0;">Payment Received</h1>
+            <p style="margin: 10px 0 0 0; color: #155724;">Thank you for your payment!</p>
+          </div>
+
+          <p>Hello ${clientName},</p>
+          <p>We've received your payment. Here are the details for your records:</p>
+
+          <div class="receipt-details">
+            <div class="receipt-row">
+              <span>Invoice Number:</span>
+              <span>#${payment.invoiceNumber}</span>
+            </div>
+            <div class="receipt-row">
+              <span>Payment Date:</span>
+              <span>${formattedDate}</span>
+            </div>
+            ${payment.paymentMethod ? `
+              <div class="receipt-row">
+                <span>Payment Method:</span>
+                <span>${payment.paymentMethod}</span>
+              </div>
+            ` : ''}
+            <div class="receipt-row">
+              <span>Amount Paid:</span>
+              <span>$${parseFloat(payment.amount).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Thank you for your business. If you have any questions, please don't hesitate to contact us.</p>
+            <p>&copy; ${new Date().getFullYear()} Generation Catalyst. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+Hello ${clientName},
+
+Payment Received - Thank you!
+
+We've received your payment. Here are the details for your records:
+
+Invoice Number: #${payment.invoiceNumber}
+Payment Date: ${formattedDate}
+${payment.paymentMethod ? `Payment Method: ${payment.paymentMethod}\n` : ''}Amount Paid: $${parseFloat(payment.amount).toFixed(2)}
+
+Thank you for your business. If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+Generation Catalyst Team
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: `Payment Receipt - Invoice #${payment.invoiceNumber} - Generation Catalyst`,
+      html,
+      text,
+    });
+  }
+
+  /**
    * Verify email service connection
    */
   async verifyConnection(): Promise<boolean> {

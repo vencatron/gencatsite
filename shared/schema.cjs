@@ -90,15 +90,19 @@ exports.invoices = (0, pg_core_1.pgTable)('invoices', {
     tax: (0, pg_core_1.decimal)('tax', { precision: 10, scale: 2 }).default('0'),
     totalAmount: (0, pg_core_1.decimal)('total_amount', { precision: 10, scale: 2 }).notNull(),
     currency: (0, pg_core_1.varchar)('currency', { length: 3 }).default('USD'),
-    status: (0, pg_core_1.text)('status').default('pending'), // pending, paid, overdue, cancelled
+    status: (0, pg_core_1.text)('status').default('pending'), // pending, paid, overdue, cancelled, processing
     description: (0, pg_core_1.text)('description'),
     lineItems: (0, pg_core_1.text)('line_items'), // JSON string of line items
-    paymentMethod: (0, pg_core_1.text)('payment_method'), // credit_card, bank_transfer, check, etc.
+    paymentMethod: (0, pg_core_1.text)('payment_method'), // credit_card, bank_transfer, check, stripe
     paymentDate: (0, pg_core_1.timestamp)('payment_date'),
     dueDate: (0, pg_core_1.timestamp)('due_date').notNull(),
     reminderSent: (0, pg_core_1.boolean)('reminder_sent').default(false),
     reminderSentAt: (0, pg_core_1.timestamp)('reminder_sent_at'),
     notes: (0, pg_core_1.text)('notes'),
+    // Stripe payment fields
+    stripePaymentIntentId: (0, pg_core_1.text)('stripe_payment_intent_id'),
+    stripeCustomerId: (0, pg_core_1.text)('stripe_customer_id'),
+    stripePaymentStatus: (0, pg_core_1.text)('stripe_payment_status'), // requires_payment_method, processing, succeeded, failed
     createdBy: (0, pg_core_1.integer)('created_by').references(() => exports.users.id),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow(),
@@ -108,6 +112,7 @@ exports.invoices = (0, pg_core_1.pgTable)('invoices', {
     statusIdx: (0, pg_core_1.index)('invoices_status_idx').on(table.status),
     dueDateIdx: (0, pg_core_1.index)('invoices_due_date_idx').on(table.dueDate),
     createdAtIdx: (0, pg_core_1.index)('invoices_created_at_idx').on(table.createdAt),
+    stripePaymentIntentIdx: (0, pg_core_1.index)('invoices_stripe_payment_intent_idx').on(table.stripePaymentIntentId),
 }));
 // Appointments table (existing)
 exports.appointments = (0, pg_core_1.pgTable)('appointments', {
