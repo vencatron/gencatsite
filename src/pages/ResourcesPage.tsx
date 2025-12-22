@@ -108,7 +108,7 @@ const ResourcesPage = () => {
       title: 'Will vs Trust Comparison',
       description: 'Understand the differences and benefits of each',
       type: 'Interactive Guide',
-      downloadUrl: '/resources/will-vs-trust-guide',
+      downloadUrl: '/resources/will-vs-trust-guide.html',
       icon: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.25l1.41-1.41L15.5 16.75L11.91 20.34 10.5 18.93l1.41-1.41 2.59 2.58L19.91 15.75l1.41 1.41-6.32 6.32z"/>
@@ -119,7 +119,7 @@ const ResourcesPage = () => {
       title: 'Estate Tax Calculator',
       description: 'Estimate your potential estate tax liability',
       type: 'Calculator',
-      downloadUrl: '/resources/estate-tax-calculator',
+      downloadUrl: '/resources/estate-tax-calculator.html',
       icon: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
