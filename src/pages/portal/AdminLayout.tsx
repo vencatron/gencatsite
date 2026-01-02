@@ -31,7 +31,7 @@ const AdminLayout = () => {
             Administrator
           </div>
         </div>
-        <nav className="flex gap-2">
+        <nav className="flex gap-2 flex-wrap">
           <NavLink
             to="/client-portal/admin/dashboard"
             className={({ isActive }) =>
@@ -45,6 +45,18 @@ const AdminLayout = () => {
             Dashboard
           </NavLink>
           <NavLink
+            to="/client-portal/admin/clients"
+            className={({ isActive }) =>
+              `${linkBase} ${
+                isActive
+                  ? 'bg-primary-600 text-white'
+                  : 'text-neutral-700 hover:bg-neutral-100'
+              }`
+            }
+          >
+            Clients
+          </NavLink>
+          <NavLink
             to="/client-portal/admin/users"
             className={({ isActive }) =>
               `${linkBase} ${
@@ -54,7 +66,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            User Management
+            All Users
           </NavLink>
           <NavLink
             to="/client-portal/admin/invoices"

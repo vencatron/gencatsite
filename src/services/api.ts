@@ -633,6 +633,19 @@ class ApiService {
     return data.users;
   }
 
+  async createClient(data: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber?: string;
+  }): Promise<{ message: string; user: User }> {
+    const response = await this.fetchWithAuth('/api/admin/users/create', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
   async resetUserPassword(userId: number, newPassword: string): Promise<{ message: string; userId: number }> {
     const response = await this.fetchWithAuth(`/api/admin/users/${userId}/reset-password`, {
       method: 'PUT',

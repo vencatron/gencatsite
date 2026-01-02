@@ -67,16 +67,55 @@ router.get('/stats', async (req, res) => {
         res.status(500).json({ error: 'Internal server error fetching dashboard statistics' });
     }
 });
-// GET /api/admin/users - Get all users
+// GET /api/admin/users - Get all users with document count and invoice status
 router.get('/users', async (req, res) => {
     try {
-        // Get all users from database
         const { db } = require('../db');
-        const { users } = require('../../shared/schema');
-        const allUsers = await db.select().from(users);
-        // Remove password hashes from response
-        const usersWithoutPasswords = allUsers.map(({ passwordHash, twoFactorSecret, twoFactorBackupCodes, ...user }) => user);
-        res.json({ users: usersWithoutPasswords });
+        const { users, documents, invoices } = require('../../shared/schema');
+        const { sql, eq, count } = require('drizzle-orm');
+        // Get all users with document count and invoice status
+        const allUsers = await db
+            .select({
+            id: users.id,
+            username: users.username,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            phoneNumber: users.phoneNumber,
+            role: users.role,
+            isActive: users.isActive,
+            emailVerified: users.emailVerified,
+            twoFactorEnabled: users.twoFactorEnabled,
+            createdAt: users.createdAt,
+            updatedAt: users.updatedAt,
+        })
+            .from(users)
+            .orderBy(sql `${users.createdAt} DESC`);
+        console.log('GET /api/admin/users - Sample user from DB:', JSON.stringify(allUsers[0], null, 2));
+        console.log('GET /api/admin/users - Total users:', allUsers.length);
+        console.log('GET /api/admin/users - Non-admin users:', allUsers.filter((u) => u.role !== 'admin').length);
+        // Get document counts per user
+        const docCounts = await db
+            .select({
+            userId: documents.userId,
+            count: count(),
+        })
+            .from(documents)
+            .groupBy(documents.userId);
+        // Get users who have invoices
+        const usersWithInvoices = await db
+            .select({ userId: invoices.userId })
+            .from(invoices)
+            .groupBy(invoices.userId);
+        const docCountMap = new Map(docCounts.map((d) => [d.userId, Number(d.count)]));
+        const invoiceUserIds = new Set(usersWithInvoices.map((i) => i.userId));
+        // Enrich users with document count and invoice status
+        const enrichedUsers = allUsers.map((user) => ({
+            ...user,
+            documentCount: docCountMap.get(user.id) || 0,
+            hasInvoice: invoiceUserIds.has(user.id),
+        }));
+        res.json({ users: enrichedUsers });
     }
     catch (error) {
         console.error('Get users error:', error);
@@ -166,6 +205,114 @@ router.put('/users/:id/activate', async (req, res) => {
     catch (error) {
         console.error('Activate user error:', error);
         res.status(500).json({ error: 'Internal server error activating user' });
+    }
+});
+// POST /api/admin/users/create - Create a new client record for invoicing
+router.post('/users/create', async (req, res) => {
+    try {
+        const { email, firstName, lastName, phoneNumber } = req.body;
+        // Validate required fields
+        if (!email || !firstName || !lastName) {
+            return res.status(400).json({ error: 'Email, first name, and last name are required' });
+        }
+        // Sanitize inputs
+        const sanitizedEmail = (0, validation_1.sanitizeInput)(email.toLowerCase().trim());
+        const sanitizedFirstName = (0, validation_1.sanitizeInput)(firstName.trim());
+        const sanitizedLastName = (0, validation_1.sanitizeInput)(lastName.trim());
+        const sanitizedPhoneNumber = phoneNumber ? (0, validation_1.sanitizeInput)(phoneNumber.trim()) : null;
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(sanitizedEmail)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        // Check if user with this email already exists
+        const existingUser = await storage_1.storage.getUserByEmail(sanitizedEmail);
+        if (existingUser) {
+            return res.status(400).json({ error: 'A client with this email already exists' });
+        }
+        // Generate username from email
+        const username = sanitizedEmail.split('@')[0] + '_' + Date.now().toString(36);
+        // Create the client record (no password needed for invoice-only clients)
+        const newUser = await storage_1.storage.createUser({
+            username,
+            email: sanitizedEmail,
+            passwordHash: null, // No login required
+            firstName: sanitizedFirstName,
+            lastName: sanitizedLastName,
+            phoneNumber: sanitizedPhoneNumber,
+            role: 'client',
+            isActive: true,
+            emailVerified: true,
+        });
+        // Remove sensitive data from response
+        const { passwordHash: _, twoFactorSecret, twoFactorBackupCodes, ...userResponse } = newUser;
+        res.status(201).json({
+            message: `Client ${sanitizedFirstName} ${sanitizedLastName} created successfully`,
+            user: userResponse
+        });
+    }
+    catch (error) {
+        console.error('Create client error:', error);
+        res.status(500).json({ error: 'Internal server error creating client' });
+    }
+});
+// POST /api/admin/users - Create a new client user (legacy endpoint)
+router.post('/users', async (req, res) => {
+    try {
+        const { email, firstName, lastName, phoneNumber, password } = req.body;
+        // Validate required fields
+        if (!email || !firstName || !lastName || !password) {
+            return res.status(400).json({ error: 'Email, first name, last name, and password are required' });
+        }
+        // Sanitize inputs
+        const sanitizedEmail = (0, validation_1.sanitizeInput)(email.toLowerCase().trim());
+        const sanitizedFirstName = (0, validation_1.sanitizeInput)(firstName.trim());
+        const sanitizedLastName = (0, validation_1.sanitizeInput)(lastName.trim());
+        const sanitizedPhoneNumber = phoneNumber ? (0, validation_1.sanitizeInput)(phoneNumber.trim()) : null;
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(sanitizedEmail)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        // Validate password
+        const passwordValidation = (0, validation_1.validatePassword)(password);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({
+                error: 'Password does not meet requirements',
+                details: passwordValidation.errors
+            });
+        }
+        // Check if user with this email already exists
+        const existingUser = await storage_1.storage.getUserByEmail(sanitizedEmail);
+        if (existingUser) {
+            return res.status(400).json({ error: 'A user with this email already exists' });
+        }
+        // Generate username from email
+        const username = sanitizedEmail.split('@')[0] + '_' + Date.now().toString(36);
+        // Hash password
+        const passwordHash = await bcrypt_1.default.hash(password, BCRYPT_ROUNDS);
+        // Create the user
+        const newUser = await storage_1.storage.createUser({
+            username,
+            email: sanitizedEmail,
+            passwordHash,
+            firstName: sanitizedFirstName,
+            lastName: sanitizedLastName,
+            phoneNumber: sanitizedPhoneNumber,
+            role: 'client',
+            isActive: true,
+            emailVerified: true, // Admin-created users are pre-verified
+        });
+        // Remove sensitive data from response
+        const { passwordHash: _, twoFactorSecret, twoFactorBackupCodes, ...userResponse } = newUser;
+        res.status(201).json({
+            message: `Client ${sanitizedFirstName} ${sanitizedLastName} created successfully`,
+            user: userResponse
+        });
+    }
+    catch (error) {
+        console.error('Create client error:', error);
+        res.status(500).json({ error: 'Internal server error creating client' });
     }
 });
 // PUT /api/admin/users/:id/role - Update user role

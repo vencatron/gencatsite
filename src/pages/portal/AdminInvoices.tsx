@@ -46,6 +46,7 @@ const AdminInvoices = () => {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showCreateClientModal, setShowCreateClientModal] = useState(false)
   const [sendingEmail, setSendingEmail] = useState<number | null>(null)
   const { user: currentUser } = usePortalAuth()
 
@@ -61,6 +62,15 @@ const AdminInvoices = () => {
   })
   const [lineItems, setLineItems] = useState<LineItem[]>([{ description: '', amount: '' }])
   const [creating, setCreating] = useState(false)
+
+  // Create Client form state
+  const [clientFormData, setClientFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+  })
+  const [creatingClient, setCreatingClient] = useState(false)
 
   const isAdmin = currentUser?.role === 'admin'
 
@@ -81,6 +91,7 @@ const AdminInvoices = () => {
         apiService.getAllInvoices(),
         apiService.getAllUsers(),
       ])
+      console.log('loadData - users returned:', usersRes.length, usersRes.map(u => ({ id: u.id, name: `${u.firstName} ${u.lastName}`, role: u.role })))
       setInvoices(invoicesRes.invoices)
       setUsers(usersRes)
     } catch (err: any) {
@@ -166,6 +177,60 @@ const AdminInvoices = () => {
       sendEmail: true,
     })
     setLineItems([{ description: '', amount: '' }])
+  }
+
+  const resetClientForm = () => {
+    setClientFormData({
+      email: '',
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+    })
+  }
+
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('handleCreateClient called', clientFormData)
+    setCreatingClient(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const clientData: {
+        email: string;
+        firstName: string;
+        lastName: string;
+        phoneNumber?: string;
+      } = {
+        email: clientFormData.email,
+        firstName: clientFormData.firstName,
+        lastName: clientFormData.lastName,
+      }
+      if (clientFormData.phoneNumber) {
+        clientData.phoneNumber = clientFormData.phoneNumber
+      }
+
+      console.log('Calling API to create client...')
+      const result = await apiService.createClient(clientData)
+      console.log('API response:', result)
+
+      setSuccess(result.message)
+      setShowCreateClientModal(false)
+      resetClientForm()
+
+      // Reload users list to include the new client
+      await loadData()
+
+      // Auto-select the new client in the invoice form if the invoice modal is open
+      if (result.user && result.user.id) {
+        setFormData(prev => ({ ...prev, userId: String(result.user.id) }))
+      }
+    } catch (err: any) {
+      console.error('Error creating client:', err)
+      setError(err.message || 'Failed to create client')
+    } finally {
+      setCreatingClient(false)
+    }
   }
 
   const addLineItem = () => {
@@ -375,9 +440,19 @@ const AdminInvoices = () => {
             <form onSubmit={handleCreateInvoice} className="p-6 space-y-6">
               {/* Client Selection */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Client *
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-neutral-700">
+                    Client *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateClientModal(true)}
+                    className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                  >
+                    <Icons.Plus />
+                    New Client
+                  </button>
+                </div>
                 <select
                   value={formData.userId}
                   onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
@@ -569,6 +644,126 @@ const AdminInvoices = () => {
                     </>
                   ) : (
                     'Create Invoice'
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Create Client Modal */}
+      {showCreateClientModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6 border-b border-neutral-200 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-neutral-900">Create New Client</h2>
+              <button
+                onClick={() => {
+                  setShowCreateClientModal(false)
+                  resetClientForm()
+                }}
+                className="text-neutral-500 hover:text-neutral-700"
+              >
+                <Icons.Close />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateClient} className="p-6 space-y-4">
+              {/* Error display inside modal */}
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* First Name */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={clientFormData.firstName}
+                  onChange={(e) => setClientFormData({ ...clientFormData, firstName: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="John"
+                />
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={clientFormData.lastName}
+                  onChange={(e) => setClientFormData({ ...clientFormData, lastName: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Doe"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={clientFormData.email}
+                  onChange={(e) => setClientFormData({ ...clientFormData, email: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="john.doe@example.com"
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={clientFormData.phoneNumber}
+                  onChange={(e) => setClientFormData({ ...clientFormData, phoneNumber: e.target.value })}
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateClientModal(false)
+                    resetClientForm()
+                  }}
+                  className="px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingClient}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {creatingClient ? (
+                    <>
+                      <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Client'
                   )}
                 </button>
               </div>
