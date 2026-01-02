@@ -28,14 +28,16 @@ export const useMessaging = () => {
   const reconnectAttemptsRef = useRef(0);
   const MAX_RECONNECT_ATTEMPTS = 5;
 
+  // Check if we're in a production environment that doesn't support WebSockets
+  // Vercel serverless functions don't support persistent WebSocket connections
+  const isProductionWithoutWebSocket = useCallback(() => {
+    const hostname = window.location.hostname;
+    return hostname.includes('vercel.app') || hostname.includes('iamatrust.com');
+  }, []);
+
   const getWebSocketUrl = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const hostname = window.location.hostname;
-
-    // For Vercel deployment
-    if (hostname.includes('vercel.app') || hostname.includes('iamatrust.com')) {
-      return `${protocol}//${hostname}/ws/messages`;
-    }
 
     // For Replit
     if (hostname.includes('replit')) {
@@ -47,6 +49,13 @@ export const useMessaging = () => {
   }, []);
 
   const connect = useCallback(() => {
+    // Skip WebSocket connection for production environments that don't support it
+    // (Vercel serverless doesn't support WebSockets - use HTTP polling instead)
+    if (isProductionWithoutWebSocket()) {
+      console.log('Production environment detected - using HTTP polling instead of WebSocket');
+      return;
+    }
+
     if (!isAuthenticated) {
       console.log('User not authenticated, skipping WebSocket connection');
       return;
@@ -165,7 +174,7 @@ export const useMessaging = () => {
         error: 'Failed to create connection',
       }));
     }
-  }, [getWebSocketUrl, isAuthenticated]);
+  }, [getWebSocketUrl, isAuthenticated, isProductionWithoutWebSocket]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

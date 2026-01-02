@@ -101,18 +101,39 @@ const PortalMessages = () => {
             <p className="text-sm text-neutral-600">You're messaging as {user?.email}</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-xs text-neutral-600">
-              {connected ? 'Connected' : 'Disconnected'}
-            </span>
-            {!connected && (
-              <button
-                onClick={reconnect}
-                className="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded hover:bg-primary-200"
-              >
-                Reconnect
-              </button>
-            )}
+            {(() => {
+              // Check if we're in production (Vercel) where HTTP polling is used
+              const isProduction = window.location.hostname.includes('vercel.app') ||
+                                   window.location.hostname.includes('iamatrust.com');
+
+              if (isProduction) {
+                // In production, always show green since HTTP polling is active
+                return (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-xs text-neutral-600">Active</span>
+                  </>
+                );
+              }
+
+              // In development, show WebSocket connection status
+              return (
+                <>
+                  <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-xs text-neutral-600">
+                    {connected ? 'Connected' : 'Disconnected'}
+                  </span>
+                  {!connected && (
+                    <button
+                      onClick={reconnect}
+                      className="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded hover:bg-primary-200"
+                    >
+                      Reconnect
+                    </button>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
