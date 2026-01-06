@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { apiService, User } from '@/services/api'
 import { usePortalAuth } from '@/context/PortalAuthContext'
+import AdminPageHeader from '@/components/admin/AdminPageHeader'
+import UsersTable from '@/components/admin/UsersTable'
+import ResetPasswordModal from '@/components/admin/ResetPasswordModal'
+import Loading from '@/components/common/Loading'
+import ErrorMessage from '@/components/common/ErrorMessage'
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([])
@@ -129,10 +134,7 @@ const AdminUsers = () => {
   if (!isAdmin) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-red-800 mb-2">Access Denied</h2>
-          <p className="text-red-600">Admin privileges required to view this page.</p>
-        </div>
+        <ErrorMessage message="Admin privileges required to view this page." />
       </div>
     )
   }
@@ -140,9 +142,7 @@ const AdminUsers = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        </div>
+        <Loading message="Loading users..." />
       </div>
     )
   }
@@ -154,10 +154,10 @@ const AdminUsers = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">User Management</h1>
-          <p className="text-neutral-600">Manage user accounts, reset passwords, and control access</p>
-        </div>
+        <AdminPageHeader 
+          title="User Management" 
+          description="Manage user accounts, reset passwords, and control access" 
+        />
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -174,238 +174,38 @@ const AdminUsers = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Docs
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Invoiced
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-neutral-200">
-                {users.map((user) => (
-                  <tr key={user.id} className={!user.isActive ? 'bg-neutral-50 opacity-60' : ''}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
-                          <span className="text-primary-600 font-semibold">
-                            {(user.firstName?.[0] ?? user.username?.[0] ?? '?').toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-neutral-900">
-                            {user.firstName && user.lastName
-                              ? `${user.firstName} ${user.lastName}`
-                              : user.username}
-                          </div>
-                          <div className="text-sm text-neutral-500">@{user.username}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-neutral-900">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-neutral-900">{user.documentCount ?? 0}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.hasInvoice
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-neutral-100 text-neutral-800'
-                      }`}>
-                        {user.hasInvoice ? 'Yes' : 'No'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end flex-wrap gap-2">
-                        {String(user.id) === String(currentUser?.id) && (
-                          <span className="text-neutral-400">Current User</span>
-                        )}
-                        {String(user.id) !== String(currentUser?.id) && (
-                          <>
-                            <button
-                              onClick={() =>
-                                handleChangeUserRole(user, user.role === 'admin' ? 'client' : 'admin')
-                              }
-                              disabled={actionLoading}
-                              className={`${
-                                user.role === 'admin'
-                                  ? 'text-neutral-600 hover:text-neutral-900'
-                                  : 'text-purple-600 hover:text-purple-800'
-                              } disabled:opacity-50`}
-                            >
-                              {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                            </button>
-                            {user.role !== 'admin' && (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    setSelectedUser(user)
-                                    setShowResetPasswordModal(true)
-                                  }}
-                                  disabled={actionLoading}
-                                  className="text-primary-600 hover:text-primary-900 disabled:opacity-50"
-                                >
-                                  Reset Password
-                                </button>
-                                {user.isActive ? (
-                                  <button
-                                    onClick={() => handleDeleteUser(user)}
-                                    disabled={actionLoading}
-                                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                                  >
-                                    Deactivate
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() => handleActivateUser(user)}
-                                    disabled={actionLoading}
-                                    className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                                  >
-                                    Activate
-                                  </button>
-                                )}
-                              </>
-                            )}
-                            {user.role === 'admin' && (
-                              <span className="text-neutral-400">Admin</span>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {users.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-neutral-600">No users found</p>
-          </div>
-        )}
+        <UsersTable 
+          users={users}
+          currentUser={currentUser}
+          onRoleChange={handleChangeUserRole}
+          onDelete={handleDeleteUser}
+          onActivate={handleActivateUser}
+          onResetPassword={(user) => {
+            setSelectedUser(user)
+            setShowResetPasswordModal(true)
+          }}
+          actionLoading={actionLoading}
+        />
       </motion.div>
 
-      {/* Reset Password Modal */}
-      {showResetPasswordModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-          >
-            <h3 className="text-xl font-bold text-neutral-900 mb-4">
-              Reset Password for {selectedUser.username}
-            </h3>
-
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
-                <p className="text-red-800 text-sm">{error}</p>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="newPassword" className="label-field">
-                  New Password (min 8 characters)
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="input-field"
-                  placeholder="Enter new password"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className="label-field">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input-field"
-                  placeholder="Confirm new password"
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  onClick={handleResetPassword}
-                  disabled={actionLoading || !newPassword || !confirmPassword}
-                  className="flex-1 btn-primary disabled:opacity-50"
-                >
-                  {actionLoading ? 'Resetting...' : 'Reset Password'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowResetPasswordModal(false)
-                    setSelectedUser(null)
-                    setNewPassword('')
-                    setConfirmPassword('')
-                    setError(null)
-                  }}
-                  disabled={actionLoading}
-                  className="flex-1 btn-ghost"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <ResetPasswordModal
+        isOpen={showResetPasswordModal}
+        onClose={() => {
+          setShowResetPasswordModal(false)
+          setSelectedUser(null)
+          setNewPassword('')
+          setConfirmPassword('')
+          setError(null)
+        }}
+        username={selectedUser?.username || ''}
+        onReset={handleResetPassword}
+        loading={actionLoading}
+        error={error}
+        newPassword={newPassword}
+        setNewPassword={setNewPassword}
+        confirmPassword={confirmPassword}
+        setConfirmPassword={setConfirmPassword}
+      />
     </div>
   )
 }

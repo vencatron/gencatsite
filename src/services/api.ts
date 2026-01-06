@@ -10,21 +10,10 @@ const getApiUrl = () => {
     return '';
   }
   
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  
-  // For Vercel deployment (uses serverless functions at /api)
-  if (hostname.includes('vercel.app') || hostname.includes('iamatrust.com')) {
-    return ''; // Use relative URLs for Vercel serverless functions
-  }
-  
-  // For Replit environment
-  if (hostname.includes('replit')) {
-    return `${protocol}//${hostname}:3001`;
-  }
-  
-  // For local development
-  return 'http://localhost:3001';
+  // Use relative URL for both production and local development
+  // In production: Vercel handles routing
+  // In local dev: 'vercel dev' handles routing to /api and frontend
+  return '';
 };
 
 const API_URL = getApiUrl();
@@ -101,6 +90,17 @@ export interface ApiError {
   details?: any;
 }
 
+export interface RecentUser {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
+  documentCount?: number;
+  hasInvoice?: boolean;
+}
+
 export interface AdminStats {
   totalUsers: number;
   activeUsers: number;
@@ -111,16 +111,7 @@ export interface AdminStats {
   totalInvoices: number;
   pendingInvoices: number;
   totalRevenue: number;
-  recentUsers: Array<{
-    id: number;
-    username: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    createdAt: string;
-    documentCount?: number;
-    hasInvoice?: boolean;
-  }>;
+  recentUsers: RecentUser[];
 }
 
 // Helper function for API calls with proper error handling
