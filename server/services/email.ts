@@ -40,7 +40,18 @@ class EmailService {
       const isGoogleRelay = process.env.SMTP_HOST === 'smtp-relay.gmail.com';
       const requiresAuth = process.env.SMTP_USER && process.env.SMTP_PASS;
 
-      let config: any = {
+      interface SmtpConfig {
+        host: string;
+        port: number;
+        secure: boolean;
+        requireTLS?: boolean;
+        auth?: {
+          user: string;
+          pass: string;
+        };
+      }
+
+      const config: SmtpConfig = {
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587', 10),
         secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports

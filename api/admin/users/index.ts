@@ -1,8 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyAccessToken } from '../../jwt.js';
-import { storage } from '../../storage.js';
+import { storage, User } from '../../storage.js';
 
-const sanitizeUsers = (users: any[]) =>
+// Define the sanitized user type (excludes sensitive fields)
+type SanitizedUser = Omit<User, 'passwordHash' | 'twoFactorSecret' | 'twoFactorBackupCodes' | 'passwordResetToken' | 'emailVerificationToken'>;
+
+const sanitizeUsers = (users: User[]): SanitizedUser[] =>
   users.map(({ passwordHash, twoFactorSecret, twoFactorBackupCodes, passwordResetToken, emailVerificationToken, ...rest }) => ({
     ...rest,
     // Ensure boolean fields default to false when null

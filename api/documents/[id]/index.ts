@@ -37,11 +37,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       default:
         return res.status(405).json({ error: 'Method not allowed' });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Document operation error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Internal server error',
-      details: error.message
+      details: errorMessage
     });
   }
 }
@@ -97,19 +98,32 @@ async function handleUpdate(req: VercelRequest, res: VercelResponse, userId: num
     return res.status(403).json({ error: 'Access denied' });
   }
 
+  // Define expected body structure
+  interface UpdateRequestBody {
+    fileName?: string;
+    name?: string;
+    category?: string;
+    description?: string;
+    tags?: string;
+    status?: string;
+  }
+
   // Normalize request body to an object
-  let body: any = req.body ?? {};
-  if (typeof body === 'string') {
+  let body: UpdateRequestBody = {};
+  const rawBody = req.body ?? {};
+  if (typeof rawBody === 'string') {
     try {
-      body = JSON.parse(body);
+      body = JSON.parse(rawBody) as UpdateRequestBody;
     } catch {
       return res.status(400).json({ error: 'Invalid JSON body' });
     }
+  } else {
+    body = rawBody as UpdateRequestBody;
   }
 
   // Prepare update data
   const { fileName, name, category, description, tags, status } = body;
-  const updateData: any = {};
+  const updateData: { fileName?: string; category?: string; description?: string; tags?: string; status?: string } = {};
 
   // Support both 'name' and 'fileName' for backwards compatibility
   if (name) updateData.fileName = name;

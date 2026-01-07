@@ -11,9 +11,30 @@ interface AuthenticatedWebSocket extends WebSocket {
   isAlive?: boolean;
 }
 
+// WebSocket message data types
+interface NewMessageData {
+  content: string;
+  recipientId?: number;
+}
+
+interface TypingData {
+  isTyping: boolean;
+  recipientId?: number;
+}
+
+interface MarkAsReadData {
+  messageId: number;
+}
+
 interface WSMessage {
   type: 'message' | 'typing' | 'read' | 'ping' | 'pong';
-  data?: any;
+  data?: NewMessageData | TypingData | MarkAsReadData | Record<string, unknown>;
+}
+
+// Outgoing message types
+interface OutgoingMessage {
+  type: string;
+  data?: Record<string, unknown>;
 }
 
 export class MessagingWebSocketServer {
@@ -49,7 +70,7 @@ export class MessagingWebSocketServer {
     console.log('WebSocket server initialized at /ws/messages');
   }
 
-  private handleConnection(ws: AuthenticatedWebSocket, req: any) {
+  private handleConnection(ws: AuthenticatedWebSocket, req: { url: string; headers: { host?: string; authorization?: string } }) {
     // Extract token from query string or headers
     const url = new URL(req.url, `http://${req.headers.host}`);
     const token = url.searchParams.get('token') || req.headers.authorization?.replace('Bearer ', '');
@@ -138,11 +159,12 @@ export class MessagingWebSocketServer {
     }
   }
 
-  private async handleNewMessage(ws: AuthenticatedWebSocket, data: any) {
+  private async handleNewMessage(ws: AuthenticatedWebSocket, data: NewMessageData | undefined) {
     if (!ws.userId) return;
 
     try {
-      const { content, recipientId } = data;
+      const content = data?.content;
+      const recipientId = data?.recipientId;
 
       if (!content) {
         this.sendToClient(ws, {
@@ -211,8 +233,8 @@ export class MessagingWebSocketServer {
     }
   }
 
-  private async handleTyping(ws: AuthenticatedWebSocket, data: any) {
-    if (!ws.userId) return;
+  private async handleTyping(ws: AuthenticatedWebSocket, data: TypingData | undefined) {
+    if (!ws.userId || !data) return;
 
     const { isTyping, recipientId } = data;
 
@@ -234,11 +256,11 @@ export class MessagingWebSocketServer {
     }
   }
 
-  private async handleMarkAsRead(ws: AuthenticatedWebSocket, data: any) {
+  private async handleMarkAsRead(ws: AuthenticatedWebSocket, data: MarkAsReadData | undefined) {
     if (!ws.userId) return;
 
     try {
-      const { messageId } = data;
+      const messageId = data?.messageId;
 
       if (!messageId) return;
 
@@ -260,13 +282,13 @@ export class MessagingWebSocketServer {
     }
   }
 
-  private sendToClient(ws: AuthenticatedWebSocket, message: any) {
+  private sendToClient(ws: AuthenticatedWebSocket, message: OutgoingMessage) {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(message));
     }
   }
 
-  private broadcastToUser(userId: number, message: any) {
+  private broadcastToUser(userId: number, message: OutgoingMessage) {
     const userClients = this.clients.get(userId);
     if (userClients) {
       userClients.forEach(client => {
@@ -290,7 +312,7 @@ export class MessagingWebSocketServer {
     }
   }
 
-  public broadcast(message: any) {
+  public broadcast(message: OutgoingMessage) {
     this.wss.clients.forEach((client: AuthenticatedWebSocket) => {
       this.sendToClient(client, message);
     });

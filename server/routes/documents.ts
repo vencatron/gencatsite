@@ -152,16 +152,17 @@ router.post('/', authenticateToken, upload.single('file'), async (req: AuthReque
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error uploading file:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-    if (error.message?.includes('Invalid file type')) {
-      return res.status(400).json({ error: error.message });
+    if (errorMessage.includes('Invalid file type')) {
+      return res.status(400).json({ error: errorMessage });
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to upload file',
-      details: error.message 
+      details: errorMessage
     });
   }
 });

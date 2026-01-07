@@ -1,10 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
+import { applyRateLimit, EMAIL_VERIFICATION_LIMIT } from '../utils/rateLimiter.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Apply rate limiting for email verification requests
+  if (!applyRateLimit(req, res, EMAIL_VERIFICATION_LIMIT)) {
+    return;
   }
 
   try {

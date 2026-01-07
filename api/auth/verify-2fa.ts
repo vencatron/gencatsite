@@ -6,11 +6,17 @@ import {
 } from '../jwt.js';
 import { sanitizeInput } from '../validation.js';
 import { verifyTwoFactorToken, verifyBackupCode, removeUsedBackupCode } from '../twoFactor.js';
+import { applyRateLimit, TWO_FACTOR_LIMIT } from '../utils/rateLimiter.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Apply rate limiting - strict for 2FA to prevent brute force
+  if (!applyRateLimit(req, res, TWO_FACTOR_LIMIT)) {
+    return;
   }
 
   try {

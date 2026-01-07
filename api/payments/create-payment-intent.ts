@@ -17,7 +17,7 @@ async function getOrCreateStripeCustomer(userId: number): Promise<string> {
 
   // Check if user has existing invoices with a Stripe customer ID
   const invoices = await storage.getInvoicesByUserId(userId);
-  const existingCustomerId = invoices.find((inv: any) => inv.stripeCustomerId)?.stripeCustomerId;
+  const existingCustomerId = invoices.find((inv) => inv.stripeCustomerId)?.stripeCustomerId;
   
   if (existingCustomerId) {
     return existingCustomerId;
