@@ -24,9 +24,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Get all paid invoices for the user
     const invoices = await storage.getInvoicesByUserId(decoded.userId);
-    const paidInvoices = invoices.filter((inv: any) => inv.status === 'paid');
+    const paidInvoices = invoices.filter((inv) => inv.status === 'paid');
 
-    const paymentHistory = paidInvoices.map((inv: any) => ({
+    const paymentHistory = paidInvoices.map((inv) => ({
       id: inv.id,
       invoiceNumber: inv.invoiceNumber,
       amount: inv.totalAmount,
@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json({
       success: true,
       payments: paymentHistory,
-      totalPaid: paidInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.totalAmount || '0'), 0),
+      totalPaid: paidInvoices.reduce((sum, inv) => sum + parseFloat(inv.totalAmount || '0'), 0),
     });
   } catch (error) {
     console.error('Error fetching payment history:', error);

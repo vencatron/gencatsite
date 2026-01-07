@@ -237,7 +237,10 @@ router.post('/webhook', async (req: Request, res: Response) => {
     // Verify webhook signature
     // Note: For this to work, you need to use raw body (express.raw middleware)
     // We'll handle this in the main server file
-    const rawBody = (req as any).rawBody || req.body;
+    interface RequestWithRawBody extends Request {
+      rawBody?: string;
+    }
+    const rawBody = (req as RequestWithRawBody).rawBody || req.body;
     event = stripe.webhooks.constructEvent(
       typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody),
       sig as string,

@@ -66,7 +66,16 @@ router.put('/profile', authenticateToken, async (req: AuthRequest, res: Response
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: {
+      email?: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      phoneNumber?: string | null;
+      address?: string | null;
+      city?: string | null;
+      state?: string | null;
+      zipCode?: string | null;
+    } = {};
 
     // Update email if provided and valid
     if (email && email !== currentUser.email) {

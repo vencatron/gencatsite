@@ -12,8 +12,14 @@ export interface RefreshTokenPayload extends TokenPayload {
   isRefreshToken: true;
 }
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'dev_access_secret_change_in_production';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_change_in_production';
+// SECURITY: Fail fast if JWT secrets are not configured
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!ACCESS_SECRET || !REFRESH_SECRET) {
+  throw new Error('FATAL: JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be set in environment variables');
+}
+
 const ACCESS_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || '15m';
 const REFRESH_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '7d';
 
@@ -42,18 +48,44 @@ export function generateRefreshToken(user: User): string {
   } as jwt.SignOptions);
 }
 
+// Type guard to validate token payload structure
+function isValidTokenPayload(payload: unknown): payload is TokenPayload {
+  if (typeof payload !== 'object' || payload === null) return false;
+  const obj = payload as Record<string, unknown>;
+  return (
+    typeof obj.userId === 'number' &&
+    typeof obj.email === 'string' &&
+    typeof obj.role === 'string'
+  );
+}
+
+// Type guard to validate refresh token payload structure
+function isValidRefreshTokenPayload(payload: unknown): payload is RefreshTokenPayload {
+  if (!isValidTokenPayload(payload)) return false;
+  const obj = payload as Record<string, unknown>;
+  return obj.isRefreshToken === true;
+}
+
 export function verifyAccessToken(token: string): TokenPayload {
-  return jwt.verify(token, ACCESS_SECRET) as TokenPayload;
+  const payload = jwt.verify(token, ACCESS_SECRET);
+  if (!isValidTokenPayload(payload)) {
+    throw new Error('Invalid access token payload structure');
+  }
+  return payload;
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload {
-  const payload = jwt.verify(token, REFRESH_SECRET) as RefreshTokenPayload;
-  if (!payload.isRefreshToken) {
-    throw new Error('Invalid refresh token');
+  const payload = jwt.verify(token, REFRESH_SECRET);
+  if (!isValidRefreshTokenPayload(payload)) {
+    throw new Error('Invalid refresh token payload structure');
   }
   return payload;
 }
 
 export function decodeToken(token: string): jwt.JwtPayload | null {
-  return jwt.decode(token) as jwt.JwtPayload | null;
+  const decoded = jwt.decode(token);
+  if (decoded === null || typeof decoded === 'string') {
+    return null;
+  }
+  return decoded;
 }

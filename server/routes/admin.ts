@@ -55,8 +55,9 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       .limit(5);
 
     // Calculate total revenue
-    const invoiceResults = await db.select({ amount: invoices.amount }).from(invoices);
-    const totalRevenue = invoiceResults.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
+    interface InvoiceAmount { amount: string | null }
+    const invoiceResults: InvoiceAmount[] = await db.select({ amount: invoices.amount }).from(invoices);
+    const totalRevenue = invoiceResults.reduce((sum, inv) => sum + Number(inv.amount ?? 0), 0);
 
     res.json({
       stats: {
@@ -104,12 +105,30 @@ router.get('/users', async (req: AuthRequest, res: Response) => {
       .from(users)
       .orderBy(sql`${users.createdAt} DESC`);
 
-    console.log('GET /api/admin/users - Sample user from DB:', JSON.stringify(allUsers[0], null, 2));
-    console.log('GET /api/admin/users - Total users:', allUsers.length);
-    console.log('GET /api/admin/users - Non-admin users:', allUsers.filter((u: any) => u.role !== 'admin').length);
+    // Define user result type
+    interface UserResult {
+      id: number;
+      username: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      phoneNumber: string | null;
+      role: string | null;
+      isActive: boolean | null;
+      emailVerified: boolean | null;
+      twoFactorEnabled: boolean | null;
+      createdAt: Date | null;
+      updatedAt: Date | null;
+    }
+
+    const typedUsers = allUsers as UserResult[];
+    console.log('GET /api/admin/users - Sample user from DB:', JSON.stringify(typedUsers[0], null, 2));
+    console.log('GET /api/admin/users - Total users:', typedUsers.length);
+    console.log('GET /api/admin/users - Non-admin users:', typedUsers.filter((u) => u.role !== 'admin').length);
 
     // Get document counts per user
-    const docCounts = await db
+    interface DocCount { userId: number; count: number }
+    const docCounts: DocCount[] = await db
       .select({
         userId: documents.userId,
         count: count(),
@@ -118,16 +137,17 @@ router.get('/users', async (req: AuthRequest, res: Response) => {
       .groupBy(documents.userId);
 
     // Get users who have invoices
-    const usersWithInvoices = await db
+    interface InvoiceUserId { userId: number }
+    const usersWithInvoices: InvoiceUserId[] = await db
       .select({ userId: invoices.userId })
       .from(invoices)
       .groupBy(invoices.userId);
 
-    const docCountMap = new Map(docCounts.map((d: any) => [d.userId, Number(d.count)]));
-    const invoiceUserIds = new Set(usersWithInvoices.map((i: any) => i.userId));
+    const docCountMap = new Map(docCounts.map((d) => [d.userId, Number(d.count)]));
+    const invoiceUserIds = new Set(usersWithInvoices.map((i) => i.userId));
 
     // Enrich users with document count and invoice status
-    const enrichedUsers = allUsers.map((user: any) => ({
+    const enrichedUsers = typedUsers.map((user) => ({
       ...user,
       documentCount: docCountMap.get(user.id) || 0,
       hasInvoice: invoiceUserIds.has(user.id),

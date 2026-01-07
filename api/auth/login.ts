@@ -6,11 +6,17 @@ import {
   generateRefreshToken,
 } from '../jwt.js';
 import { sanitizeInput } from '../validation.js';
+import { applyRateLimit, AUTH_LIMIT } from '../utils/rateLimiter.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Apply rate limiting
+  if (!applyRateLimit(req, res, AUTH_LIMIT)) {
+    return; // Response already sent by applyRateLimit
   }
 
   try {

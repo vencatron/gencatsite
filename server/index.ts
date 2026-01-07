@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
@@ -20,6 +21,13 @@ import {
   sanitizeInput
 } from './utils/validation';
 import { authenticateToken, AuthRequest } from './middleware/auth';
+import {
+  authLimiter,
+  passwordResetLimiter,
+  emailVerificationLimiter,
+  twoFactorLimiter,
+  apiLimiter
+} from './middleware/rateLimiter';
 import { emailService } from './services/email';
 import { MessagingWebSocketServer } from './websocket';
 
@@ -61,32 +69,60 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const BCRYPT_ROUNDS = 10;
 
-// Middleware - Configure CORS for Replit environment
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'"],
+      connectSrc: ["'self'", "wss:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Required for third-party fonts
+}));
+
+// Production allowed origins
+const ALLOWED_ORIGINS = [
+  'https://iamatrust.com',
+  'https://www.iamatrust.com',
+  'https://gencatsite.vercel.app',
+];
+
+// Middleware - Configure CORS with strict origin checking
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-    
-    // Allow localhost for development
-    if (origin.startsWith('http://localhost:') || 
-        origin.startsWith('https://localhost:')) {
+    // In development, allow localhost
+    if (process.env.NODE_ENV !== 'production') {
+      if (!origin ||
+          origin.startsWith('http://localhost:') ||
+          origin.startsWith('https://localhost:')) {
+        return callback(null, true);
+      }
+    }
+
+    // In production, strictly check against allowed origins
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Allow Replit domains
-    if (origin.includes('.replit.dev') || 
+
+    // Allow Replit domains in development/staging
+    if (origin && (
+        origin.includes('.replit.dev') ||
         origin.includes('.replit.app') ||
-        origin.includes('.repl.co')) {
+        origin.includes('.repl.co'))) {
       return callback(null, true);
     }
-    
-    // Otherwise reject
+
+    // Reject unknown origins (SECURITY: no-origin bypass removed)
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Request logging middleware
@@ -112,7 +148,7 @@ app.use('/api/payments', paymentsRouter);
 // Authentication Routes
 
 // POST /api/auth/register - User registration with password hashing
-app.post('/api/auth/register', async (req: Request, res: Response) => {
+app.post('/api/auth/register', authLimiter, async (req: Request, res: Response) => {
   try {
     const { username, email, password, firstName, lastName, phoneNumber } = req.body;
 
@@ -213,7 +249,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/login - User login with JWT token generation
-app.post('/api/auth/login', async (req: Request, res: Response) => {
+app.post('/api/auth/login', authLimiter, async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
 
@@ -304,7 +340,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/verify-2fa - Complete login after 2FA verification
-app.post('/api/auth/verify-2fa', async (req: Request, res: Response) => {
+app.post('/api/auth/verify-2fa', twoFactorLimiter, async (req: Request, res: Response) => {
   try {
     const { userId, token, isBackupCode } = req.body;
 
@@ -518,7 +554,7 @@ app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/resend-verification - Resend verification email
-app.post('/api/auth/resend-verification', async (req: Request, res: Response) => {
+app.post('/api/auth/resend-verification', emailVerificationLimiter, async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
@@ -577,7 +613,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // POST /api/auth/forgot-password - Request password reset
-app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+app.post('/api/auth/forgot-password', passwordResetLimiter, async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
@@ -637,7 +673,7 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/reset-password - Reset password with token
-app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+app.post('/api/auth/reset-password', passwordResetLimiter, async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body;
 

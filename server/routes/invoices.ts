@@ -122,7 +122,12 @@ router.put('/:id/status', authenticateToken, async (req: AuthRequest, res: Respo
     }
 
     // Prepare update data
-    const updateData: any = { status };
+    const updateData: {
+      status: string;
+      paymentDate?: Date;
+      paymentMethod?: string;
+      notes?: string;
+    } = { status };
 
     // If marking as paid, add payment details
     if (status === 'paid') {

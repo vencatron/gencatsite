@@ -12,13 +12,35 @@ export const config = {
   },
 };
 
+// Multiparty form field/file types
+interface ParsedFields {
+  [key: string]: string[] | undefined;
+}
+
+interface ParsedFile {
+  fieldName: string;
+  originalFilename: string;
+  path: string;
+  headers: Record<string, string>;
+  size: number;
+}
+
+interface ParsedFiles {
+  [key: string]: ParsedFile[] | undefined;
+}
+
+interface ParsedFormResult {
+  fields: ParsedFields;
+  files: ParsedFiles;
+}
+
 // Helper to parse multipart form data
-function parseForm(req: VercelRequest): Promise<{ fields: any; files: any }> {
+function parseForm(req: VercelRequest): Promise<ParsedFormResult> {
   return new Promise((resolve, reject) => {
     const form = new multiparty.Form();
     form.parse(req, (err, fields, files) => {
       if (err) reject(err);
-      else resolve({ fields, files });
+      else resolve({ fields: fields as ParsedFields, files: files as ParsedFiles });
     });
   });
 }
@@ -171,11 +193,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         uploadedAt: document.createdAt,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Failed to upload file',
-      details: error.message,
+      details: errorMessage,
     });
   }
 }

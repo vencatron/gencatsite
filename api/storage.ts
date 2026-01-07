@@ -7,6 +7,201 @@ if (!process.env.DATABASE_URL) {
 
 const sql = neon(process.env.DATABASE_URL);
 
+// Database row types (snake_case as returned from PostgreSQL)
+interface UserRow {
+  id: number;
+  username: string;
+  email: string;
+  password_hash: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  phone_number: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  role: string | null;
+  is_active: boolean | null;
+  email_verified: boolean | null;
+  email_verification_token: string | null;
+  email_verification_expires: Date | null;
+  password_reset_token: string | null;
+  password_reset_expires: Date | null;
+  two_factor_secret: string | null;
+  two_factor_enabled: boolean | null;
+  two_factor_backup_codes: string | null;
+  last_login_at: Date | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+  document_count?: number;
+  has_invoice?: boolean;
+}
+
+interface MessageRow {
+  id: number;
+  thread_id: number | null;
+  sender_id: number;
+  recipient_id: number | null;
+  subject: string | null;
+  content: string;
+  is_read: boolean | null;
+  read_at: Date | null;
+  priority: string | null;
+  status: string | null;
+  attachment_ids: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+}
+
+interface DocumentRow {
+  id: number;
+  user_id: number;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_url: string | null;
+  category: string | null;
+  description: string | null;
+  tags: string | null;
+  uploaded_by: number | null;
+  status: string | null;
+  is_public: boolean | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+}
+
+interface InvoiceRow {
+  id: number;
+  user_id: number;
+  invoice_number: string;
+  amount: string;
+  tax: string | null;
+  total_amount: string | null;
+  currency: string | null;
+  status: string | null;
+  description: string | null;
+  line_items: string | null;
+  payment_method: string | null;
+  payment_date: Date | null;
+  due_date: Date;
+  reminder_sent: boolean | null;
+  reminder_sent_at: Date | null;
+  notes: string | null;
+  stripe_payment_intent_id: string | null;
+  stripe_customer_id: string | null;
+  stripe_payment_status: string | null;
+  created_by: number | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+}
+
+interface CountResult {
+  count: number;
+}
+
+interface RevenueResult {
+  total: string;
+}
+
+// Helper function to map user row to User interface
+function mapUserRow(user: UserRow): User {
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    passwordHash: user.password_hash,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    phoneNumber: user.phone_number,
+    address: user.address,
+    city: user.city,
+    state: user.state,
+    zipCode: user.zip_code,
+    role: user.role,
+    isActive: user.is_active,
+    emailVerified: user.email_verified,
+    emailVerificationToken: user.email_verification_token,
+    emailVerificationExpires: user.email_verification_expires,
+    passwordResetToken: user.password_reset_token,
+    passwordResetExpires: user.password_reset_expires,
+    twoFactorSecret: user.two_factor_secret,
+    twoFactorEnabled: user.two_factor_enabled,
+    twoFactorBackupCodes: user.two_factor_backup_codes,
+    lastLoginAt: user.last_login_at,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at,
+    documentCount: user.document_count !== undefined ? Number(user.document_count) : undefined,
+    hasInvoice: user.has_invoice !== undefined ? Boolean(user.has_invoice) : undefined,
+  };
+}
+
+// Helper function to map message row to Message interface
+function mapMessageRow(msg: MessageRow): Message {
+  return {
+    id: msg.id,
+    threadId: msg.thread_id,
+    senderId: msg.sender_id,
+    recipientId: msg.recipient_id,
+    subject: msg.subject,
+    content: msg.content,
+    isRead: msg.is_read,
+    readAt: msg.read_at,
+    priority: msg.priority,
+    status: msg.status,
+    attachmentIds: msg.attachment_ids,
+    createdAt: msg.created_at,
+    updatedAt: msg.updated_at,
+  };
+}
+
+// Helper function to map document row to Document interface
+function mapDocumentRow(doc: DocumentRow): Document {
+  return {
+    id: doc.id,
+    userId: doc.user_id,
+    fileName: doc.file_name,
+    fileType: doc.file_type,
+    fileSize: doc.file_size,
+    storageUrl: doc.storage_url,
+    category: doc.category,
+    description: doc.description,
+    tags: doc.tags,
+    uploadedBy: doc.uploaded_by,
+    status: doc.status,
+    isPublic: doc.is_public,
+    createdAt: doc.created_at,
+    updatedAt: doc.updated_at,
+  };
+}
+
+// Helper function to map invoice row to Invoice interface
+function mapInvoiceRow(inv: InvoiceRow): Invoice {
+  return {
+    id: inv.id,
+    userId: inv.user_id,
+    invoiceNumber: inv.invoice_number,
+    amount: inv.amount,
+    tax: inv.tax,
+    totalAmount: inv.total_amount,
+    currency: inv.currency,
+    status: inv.status,
+    description: inv.description,
+    lineItems: inv.line_items,
+    paymentMethod: inv.payment_method,
+    paymentDate: inv.payment_date,
+    dueDate: inv.due_date,
+    reminderSent: inv.reminder_sent,
+    reminderSentAt: inv.reminder_sent_at,
+    notes: inv.notes,
+    stripePaymentIntentId: inv.stripe_payment_intent_id,
+    stripeCustomerId: inv.stripe_customer_id,
+    stripePaymentStatus: inv.stripe_payment_status,
+    createdBy: inv.created_by,
+    createdAt: inv.created_at,
+    updatedAt: inv.updated_at,
+  };
+}
+
 export interface User {
   id: number;
   username: string;
@@ -93,6 +288,106 @@ export interface InsertMessage {
   updatedAt?: Date | null;
 }
 
+export interface Document {
+  id: number;
+  userId: number;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  storageUrl: string | null;
+  category: string | null;
+  description: string | null;
+  tags: string | null;
+  uploadedBy: number | null;
+  status: string | null;
+  isPublic: boolean | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
+
+export interface InsertDocument {
+  userId: number;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  storageUrl?: string | null;
+  category?: string | null;
+  description?: string | null;
+  tags?: string | null;
+  uploadedBy: number;
+  status?: string | null;
+  isPublic?: boolean | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+}
+
+export interface UpdateDocument {
+  fileName?: string;
+  category?: string | null;
+  description?: string | null;
+  tags?: string | null;
+  status?: string;
+}
+
+export interface Invoice {
+  id: number;
+  userId: number;
+  invoiceNumber: string;
+  amount: string;
+  tax: string | null;
+  totalAmount: string | null;
+  currency: string | null;
+  status: string | null;
+  description: string | null;
+  lineItems: string | null;
+  paymentMethod: string | null;
+  paymentDate: Date | null;
+  dueDate: Date;
+  reminderSent: boolean | null;
+  reminderSentAt: Date | null;
+  notes: string | null;
+  stripePaymentIntentId: string | null;
+  stripeCustomerId: string | null;
+  stripePaymentStatus: string | null;
+  createdBy: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
+
+export interface InsertInvoice {
+  userId: number;
+  invoiceNumber: string;
+  amount: string;
+  tax?: string | null;
+  totalAmount?: string;
+  currency?: string | null;
+  status?: string | null;
+  description?: string | null;
+  lineItems?: string | null;
+  paymentMethod?: string | null;
+  paymentDate?: Date | null;
+  dueDate: Date;
+  reminderSent?: boolean | null;
+  reminderSentAt?: Date | null;
+  notes?: string | null;
+  stripePaymentIntentId?: string | null;
+  stripeCustomerId?: string | null;
+  stripePaymentStatus?: string | null;
+  createdBy?: number | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+}
+
+export interface UpdateInvoice {
+  status?: string;
+  paymentMethod?: string | null;
+  paymentDate?: Date | null;
+  notes?: string | null;
+  stripePaymentIntentId?: string | null;
+  stripeCustomerId?: string | null;
+  stripePaymentStatus?: string | null;
+}
+
 // Storage implementation using direct SQL queries
 export const storage = {
   async getMessages(userId: number): Promise<Message[]> {
@@ -102,21 +397,7 @@ export const storage = {
       ORDER BY created_at ASC
     `;
 
-    return result.map((msg: any) => ({
-      id: msg.id,
-      threadId: msg.thread_id,
-      senderId: msg.sender_id,
-      recipientId: msg.recipient_id,
-      subject: msg.subject,
-      content: msg.content,
-      isRead: msg.is_read,
-      readAt: msg.read_at,
-      priority: msg.priority,
-      status: msg.status,
-      attachmentIds: msg.attachment_ids,
-      createdAt: msg.created_at,
-      updatedAt: msg.updated_at
-    })) as Message[];
+    return (result as MessageRow[]).map(mapMessageRow);
   },
 
   async createMessage(data: InsertMessage): Promise<Message> {
@@ -141,24 +422,10 @@ export const storage = {
       ) RETURNING *
     `;
 
-    const msg = result[0];
+    const msg = result[0] as MessageRow | undefined;
     if (!msg) throw new Error('Failed to create message');
 
-    return {
-      id: msg.id,
-      threadId: msg.thread_id,
-      senderId: msg.sender_id,
-      recipientId: msg.recipient_id,
-      subject: msg.subject,
-      content: msg.content,
-      isRead: msg.is_read,
-      readAt: msg.read_at,
-      priority: msg.priority,
-      status: msg.status,
-      attachmentIds: msg.attachment_ids,
-      createdAt: msg.created_at,
-      updatedAt: msg.updated_at
-    } as Message;
+    return mapMessageRow(msg);
   },
 
   async getAdminDashboardStats(): Promise<{
@@ -214,9 +481,21 @@ export const storage = {
       `,
     ]);
 
-    const countFrom = (result: any[]) => Number(result?.[0]?.count ?? 0);
-    const totalRevenue = Number(totalRevenueResult?.[0]?.total ?? 0);
-    const recentUsers = (recentUsersResult as any[]).map((user) => ({
+    const countFrom = (result: CountResult[]) => Number(result[0]?.count ?? 0);
+    const revenueResult = totalRevenueResult as RevenueResult[];
+    const totalRevenue = Number(revenueResult[0]?.total ?? 0);
+
+    interface RecentUserRow {
+      id: number;
+      username: string;
+      email: string;
+      first_name: string | null;
+      last_name: string | null;
+      created_at: Date | null;
+      document_count: number;
+      has_invoice: boolean;
+    }
+    const recentUsers = (recentUsersResult as RecentUserRow[]).map((user) => ({
       id: user.id,
       username: user.username,
       email: user.email,
@@ -243,7 +522,7 @@ export const storage = {
 
   async getAllUsers(): Promise<User[]> {
     const result = await sql`
-      SELECT 
+      SELECT
         u.*,
         (SELECT COUNT(*)::int FROM documents d WHERE d.user_id = u.id) as document_count,
         EXISTS(SELECT 1 FROM invoices i WHERE i.user_id = u.id) as has_invoice
@@ -251,205 +530,52 @@ export const storage = {
       ORDER BY u.created_at DESC
     `;
 
-    return result.map((user: any) => ({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at,
-      documentCount: Number(user.document_count ?? 0),
-      hasInvoice: Boolean(user.has_invoice),
-    })) as User[];
+    return (result as UserRow[]).map(mapUserRow);
   },
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE username = ${username} LIMIT 1
     `;
-    const user = result[0];
+    const user = result[0] as UserRow | undefined;
     if (!user) return undefined;
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    return mapUserRow(user);
   },
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE email = ${email} LIMIT 1
     `;
-    const user = result[0];
+    const user = result[0] as UserRow | undefined;
     if (!user) return undefined;
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    return mapUserRow(user);
   },
 
   async getUserByVerificationToken(token: string): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE email_verification_token = ${token} LIMIT 1
     `;
-    const user = result[0];
+    const user = result[0] as UserRow | undefined;
     if (!user) return undefined;
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      emailVerificationExpires: user.email_verification_expires,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    return mapUserRow(user);
   },
 
   async getUserByPasswordResetToken(token: string): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE password_reset_token = ${token} LIMIT 1
     `;
-    const user = result[0];
+    const user = result[0] as UserRow | undefined;
     if (!user) return undefined;
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      emailVerificationExpires: user.email_verification_expires,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    return mapUserRow(user);
   },
 
   async getUser(id: number): Promise<User | undefined> {
     const result = await sql`
       SELECT * FROM users WHERE id = ${id} LIMIT 1
     `;
-    const user = result[0];
+    const user = result[0] as UserRow | undefined;
     if (!user) return undefined;
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    return mapUserRow(user);
   },
 
   async createUser(userData: InsertUser): Promise<User> {
@@ -489,37 +615,9 @@ export const storage = {
       ) RETURNING *
     `;
 
-    // Map database fields to camelCase
-    const user = result[0];
-    if (!user) {
-      throw new Error('Failed to create user');
-    }
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      emailVerificationExpires: user.email_verification_expires,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    const user = result[0] as UserRow | undefined;
+    if (!user) throw new Error('Failed to create user');
+    return mapUserRow(user);
   },
 
   async updateUser(id: number, data: Partial<InsertUser>): Promise<User | undefined> {
@@ -582,90 +680,31 @@ export const storage = {
       RETURNING *
     `;
 
-    if (!result[0]) return undefined;
-
-    // Map database fields to camelCase
-    const user = result[0];
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      passwordHash: user.password_hash,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phoneNumber: user.phone_number,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zip_code,
-      role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified,
-      emailVerificationToken: user.email_verification_token,
-      emailVerificationExpires: user.email_verification_expires,
-      passwordResetToken: user.password_reset_token,
-      passwordResetExpires: user.password_reset_expires,
-      twoFactorSecret: user.two_factor_secret,
-      twoFactorEnabled: user.two_factor_enabled,
-      twoFactorBackupCodes: user.two_factor_backup_codes,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
-      updatedAt: user.updated_at
-    } as User;
+    const user = result[0] as UserRow | undefined;
+    if (!user) return undefined;
+    return mapUserRow(user);
   },
 
   // Document methods
-  async getDocumentsByUserId(userId: number) {
+  async getDocumentsByUserId(userId: number): Promise<Document[]> {
     const result = await sql`
       SELECT * FROM documents
       WHERE user_id = ${userId}
       ORDER BY created_at DESC
     `;
-
-    return result.map((doc: any) => ({
-      id: doc.id,
-      userId: doc.user_id,
-      fileName: doc.file_name,
-      fileType: doc.file_type,
-      fileSize: doc.file_size,
-      storageUrl: doc.storage_url,
-      category: doc.category,
-      description: doc.description,
-      tags: doc.tags,
-      uploadedBy: doc.uploaded_by,
-      status: doc.status,
-      isPublic: doc.is_public,
-      createdAt: doc.created_at,
-      updatedAt: doc.updated_at
-    }));
+    return (result as DocumentRow[]).map(mapDocumentRow);
   },
 
-  async getDocument(id: number) {
+  async getDocument(id: number): Promise<Document | undefined> {
     const result = await sql`
       SELECT * FROM documents WHERE id = ${id} LIMIT 1
     `;
-    const doc = result[0];
+    const doc = result[0] as DocumentRow | undefined;
     if (!doc) return undefined;
-
-    return {
-      id: doc.id,
-      userId: doc.user_id,
-      fileName: doc.file_name,
-      fileType: doc.file_type,
-      fileSize: doc.file_size,
-      storageUrl: doc.storage_url,
-      category: doc.category,
-      description: doc.description,
-      tags: doc.tags,
-      uploadedBy: doc.uploaded_by,
-      status: doc.status,
-      isPublic: doc.is_public,
-      createdAt: doc.created_at,
-      updatedAt: doc.updated_at
-    };
+    return mapDocumentRow(doc);
   },
 
-  async createDocument(data: any) {
+  async createDocument(data: InsertDocument): Promise<Document> {
     const result = await sql`
       INSERT INTO documents (
         user_id, file_name, file_type, file_size, storage_url,
@@ -688,28 +727,12 @@ export const storage = {
       ) RETURNING *
     `;
 
-    const doc = result[0];
+    const doc = result[0] as DocumentRow | undefined;
     if (!doc) throw new Error('Failed to create document');
-
-    return {
-      id: doc.id,
-      userId: doc.user_id,
-      fileName: doc.file_name,
-      fileType: doc.file_type,
-      fileSize: doc.file_size,
-      storageUrl: doc.storage_url,
-      category: doc.category,
-      description: doc.description,
-      tags: doc.tags,
-      uploadedBy: doc.uploaded_by,
-      status: doc.status,
-      isPublic: doc.is_public,
-      createdAt: doc.created_at,
-      updatedAt: doc.updated_at
-    };
+    return mapDocumentRow(doc);
   },
 
-  async updateDocument(id: number, data: any) {
+  async updateDocument(id: number, data: UpdateDocument): Promise<Document | undefined> {
     const current = await this.getDocument(id);
     if (!current) return undefined;
 
@@ -735,28 +758,12 @@ export const storage = {
       RETURNING *
     `;
 
-    const doc = result[0];
+    const doc = result[0] as DocumentRow | undefined;
     if (!doc) return undefined;
-
-    return {
-      id: doc.id,
-      userId: doc.user_id,
-      fileName: doc.file_name,
-      fileType: doc.file_type,
-      fileSize: doc.file_size,
-      storageUrl: doc.storage_url,
-      category: doc.category,
-      description: doc.description,
-      tags: doc.tags,
-      uploadedBy: doc.uploaded_by,
-      status: doc.status,
-      isPublic: doc.is_public,
-      createdAt: doc.created_at,
-      updatedAt: doc.updated_at
-    };
+    return mapDocumentRow(doc);
   },
 
-  async deleteDocument(id: number) {
+  async deleteDocument(id: number): Promise<boolean> {
     const result = await sql`
       UPDATE documents
       SET status = 'deleted', updated_at = ${new Date()}
@@ -767,138 +774,42 @@ export const storage = {
   },
 
   // Invoice methods
-  async getInvoice(id: number) {
+  async getInvoice(id: number): Promise<Invoice | undefined> {
     const result = await sql`
       SELECT * FROM invoices WHERE id = ${id} LIMIT 1
     `;
-    const inv = result[0];
+    const inv = result[0] as InvoiceRow | undefined;
     if (!inv) return undefined;
-
-    return {
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    };
+    return mapInvoiceRow(inv);
   },
 
-  async getInvoicesByUserId(userId: number) {
+  async getInvoicesByUserId(userId: number): Promise<Invoice[]> {
     const result = await sql`
       SELECT * FROM invoices
       WHERE user_id = ${userId}
       ORDER BY created_at DESC
     `;
-
-    return result.map((inv: any) => ({
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    }));
+    return (result as InvoiceRow[]).map(mapInvoiceRow);
   },
 
-  async getAllInvoices() {
+  async getAllInvoices(): Promise<Invoice[]> {
     const result = await sql`
       SELECT * FROM invoices
       ORDER BY created_at DESC
     `;
-
-    return result.map((inv: any) => ({
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    }));
+    return (result as InvoiceRow[]).map(mapInvoiceRow);
   },
 
-  async getInvoiceByNumber(invoiceNumber: string) {
+  async getInvoiceByNumber(invoiceNumber: string): Promise<Invoice | undefined> {
     const result = await sql`
       SELECT * FROM invoices WHERE invoice_number = ${invoiceNumber} LIMIT 1
     `;
-    const inv = result[0];
+    const inv = result[0] as InvoiceRow | undefined;
     if (!inv) return undefined;
-
-    return {
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    };
+    return mapInvoiceRow(inv);
   },
 
-  async createInvoice(data: any) {
+  async createInvoice(data: InsertInvoice): Promise<Invoice> {
     const result = await sql`
       INSERT INTO invoices (
         user_id, invoice_number, amount, tax, total_amount, currency,
@@ -918,7 +829,7 @@ export const storage = {
         ${data.lineItems || null},
         ${data.paymentMethod || null},
         ${data.paymentDate || null},
-        ${data.dueDate || null},
+        ${data.dueDate},
         ${data.reminderSent || false},
         ${data.reminderSentAt || null},
         ${data.notes || null},
@@ -931,36 +842,12 @@ export const storage = {
       ) RETURNING *
     `;
 
-    const inv = result[0];
+    const inv = result[0] as InvoiceRow | undefined;
     if (!inv) throw new Error('Failed to create invoice');
-
-    return {
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    };
+    return mapInvoiceRow(inv);
   },
 
-  async updateInvoice(id: number, data: any) {
+  async updateInvoice(id: number, data: UpdateInvoice): Promise<Invoice | undefined> {
     const current = await this.getInvoice(id);
     if (!current) return undefined;
 
@@ -990,32 +877,8 @@ export const storage = {
       RETURNING *
     `;
 
-    const inv = result[0];
+    const inv = result[0] as InvoiceRow | undefined;
     if (!inv) return undefined;
-
-    return {
-      id: inv.id,
-      userId: inv.user_id,
-      invoiceNumber: inv.invoice_number,
-      amount: inv.amount,
-      tax: inv.tax,
-      totalAmount: inv.total_amount,
-      currency: inv.currency,
-      status: inv.status,
-      description: inv.description,
-      lineItems: inv.line_items,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.payment_date,
-      dueDate: inv.due_date,
-      reminderSent: inv.reminder_sent,
-      reminderSentAt: inv.reminder_sent_at,
-      notes: inv.notes,
-      stripePaymentIntentId: inv.stripe_payment_intent_id,
-      stripeCustomerId: inv.stripe_customer_id,
-      stripePaymentStatus: inv.stripe_payment_status,
-      createdBy: inv.created_by,
-      createdAt: inv.created_at,
-      updatedAt: inv.updated_at
-    };
+    return mapInvoiceRow(inv);
   }
 };
