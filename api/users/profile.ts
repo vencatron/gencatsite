@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Return user profile without password
-    const { passwordHash: _, ...userProfile } = user;
+    const { passwordHash: _passwordHash, ...userProfile } = user;
     return res.json({
       profile: userProfile
     });

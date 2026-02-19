@@ -6,7 +6,7 @@ import { storage, User } from '../../storage.js';
 type SanitizedUser = Omit<User, 'passwordHash' | 'twoFactorSecret' | 'twoFactorBackupCodes' | 'passwordResetToken' | 'emailVerificationToken'>;
 
 const sanitizeUsers = (users: User[]): SanitizedUser[] =>
-  users.map(({ passwordHash, twoFactorSecret, twoFactorBackupCodes, passwordResetToken, emailVerificationToken, ...rest }) => ({
+  users.map(({ passwordHash: _passwordHash, twoFactorSecret: _twoFactorSecret, twoFactorBackupCodes: _twoFactorBackupCodes, passwordResetToken: _passwordResetToken, emailVerificationToken: _emailVerificationToken, ...rest }) => ({
     ...rest,
     // Ensure boolean fields default to false when null
     isActive: rest.isActive ?? false,
