@@ -46,3 +46,18 @@ coverage/
 # Vercel
 .vercel/
 .vercel
+
+# TypeScript build outputs in server/shared directories
+server/**/*.js
+server/**/*.cjs
+server/**/*.js.map
+shared/**/*.js
+shared/**/*.cjs
+shared/**/*.js.map
+
+# Upload directories (user uploads should not be tracked)
+uploads/
+
+# Debug/test artifacts
+cookies.txt
+*.txt.bak
