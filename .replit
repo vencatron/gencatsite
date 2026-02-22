@@ -40,7 +40,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node server/index.cjs"
+args = "npm run server"
 waitForPort = 3001
 
 [workflows.workflow.metadata]
@@ -68,5 +68,5 @@ externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "node server/index.cjs & vite preview --host 0.0.0.0 --port 5000"]
+run = ["sh", "-c", "npm run build:server && node server/index.js & vite preview --host 0.0.0.0 --port 5000"]
 build = ["npm", "run", "build"]
