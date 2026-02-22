@@ -237,16 +237,28 @@ export const useMessaging = () => {
     }
   }, []);
 
-  const markAsRead = useCallback((messageId: number) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      // TODO: Implement HTTP fallback for mark read
-      return;
+  const markAsRead = useCallback(async (messageId: number) => {
+    // Try WebSocket first
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify({
+          type: 'read',
+          data: { messageId },
+        }));
+        return;
+      } catch (err) {
+        console.error('Error marking message as read via WebSocket, falling back to HTTP:', err);
+      }
     }
 
+    // HTTP fallback when WebSocket is unavailable
     try {
-      wsRef.current.send(JSON.stringify({
-        type: 'read',
-        data: { messageId },
+      await apiService.markMessageAsRead(messageId);
+      setState(prev => ({
+        ...prev,
+        messages: prev.messages.map(msg =>
+          msg.id === messageId ? { ...msg, isRead: true } : msg
+        ),
       }));
     } catch (err) {
       console.error('Error marking message as read:', err);
