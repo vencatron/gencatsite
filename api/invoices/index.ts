@@ -60,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         description,
         lineItems,
         dueDate,
-        sendEmail = true
+        sendEmail: _sendEmail = true
       } = req.body;
 
       // Validate required fields

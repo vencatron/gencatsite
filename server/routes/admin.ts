@@ -304,7 +304,7 @@ router.post('/users/create', async (req: AuthRequest, res: Response) => {
     });
 
     // Remove sensitive data from response
-    const { passwordHash: _, twoFactorSecret, twoFactorBackupCodes, ...userResponse } = newUser;
+    const { passwordHash: _, twoFactorSecret: _twoFactorSecret, twoFactorBackupCodes: _twoFactorBackupCodes, ...userResponse } = newUser;
 
     res.status(201).json({
       message: `Client ${sanitizedFirstName} ${sanitizedLastName} created successfully`,
@@ -373,7 +373,7 @@ router.post('/users', async (req: AuthRequest, res: Response) => {
     });
 
     // Remove sensitive data from response
-    const { passwordHash: _, twoFactorSecret, twoFactorBackupCodes, ...userResponse } = newUser;
+    const { passwordHash: _, twoFactorSecret: _twoFactorSecret, twoFactorBackupCodes: _twoFactorBackupCodes, ...userResponse } = newUser;
 
     res.status(201).json({
       message: `Client ${sanitizedFirstName} ${sanitizedLastName} created successfully`,

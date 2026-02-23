@@ -11,8 +11,7 @@ import { getEnvVar, sanitizeEnvVars } from '../shared/env';
 import {
   generateAccessToken,
   generateRefreshToken,
-  verifyRefreshToken,
-  TokenPayload
+  verifyRefreshToken
 } from './utils/jwt';
 import {
   validateEmail,
@@ -25,8 +24,7 @@ import {
   authLimiter,
   passwordResetLimiter,
   emailVerificationLimiter,
-  twoFactorLimiter,
-  apiLimiter
+  twoFactorLimiter
 } from './middleware/rateLimiter';
 import { emailService } from './services/email';
 import { MessagingWebSocketServer } from './websocket';
@@ -235,7 +233,7 @@ app.post('/api/auth/register', authLimiter, async (req: Request, res: Response) 
     });
 
     // Return user info and access token
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.status(201).json({
       message: 'User registered successfully. Please check your email to verify your account.',
       user: userWithoutPassword,
@@ -326,7 +324,7 @@ app.post('/api/auth/login', authLimiter, async (req: Request, res: Response) => 
     });
 
     // Return user info and access token
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.json({
       message: 'Login successful',
       user: userWithoutPassword,
@@ -395,7 +393,7 @@ app.post('/api/auth/verify-2fa', twoFactorLimiter, async (req: Request, res: Res
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.json({
       message: '2FA verification successful',
       user: userWithoutPassword,
@@ -436,7 +434,7 @@ app.get('/api/auth/me', authenticateToken, async (req: AuthRequest, res: Respons
     }
 
     // Return user info without password
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.json({ user: userWithoutPassword });
   } catch (error) {
     console.error('Get current user error:', error);
@@ -539,7 +537,7 @@ app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
     });
 
     // Return user info and access token for auto-login
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.json({
       message: 'Email verified successfully',
       emailVerified: true,
@@ -726,7 +724,7 @@ app.post('/api/auth/reset-password', passwordResetLimiter, async (req: Request, 
     });
 
     // Return success with tokens for auto-login
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     res.json({
       message: 'Password has been reset successfully',
       user: userWithoutPassword,
@@ -740,7 +738,7 @@ app.post('/api/auth/reset-password', passwordResetLimiter, async (req: Request, 
 
 // Create HTTP server and attach WebSocket server
 const httpServer = createServer(app);
-const wsServer = new MessagingWebSocketServer(httpServer);
+const _wsServer = new MessagingWebSocketServer(httpServer);
 
 // Start server
 httpServer.listen(PORT, () => {

@@ -98,9 +98,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     debugStages.push('validated-required');
 
-    const [{ storage }, { generateAccessToken, generateRefreshToken }, validationModule, emailServiceModule] = await Promise.all([
+    const [{ storage }, validationModule, emailServiceModule] = await Promise.all([
       import('../storage.js'),
-      import('../jwt.js'),
       import('../validation.js'),
       import('../../server/services/email.js'),
     ]);
@@ -189,7 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Return user without password and tokens
     // Note: We don't generate tokens or login the user until email is verified
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return res.status(201).json({
       message: 'Registration successful! Please check your email to verify your account.',
       user: userWithoutPassword,

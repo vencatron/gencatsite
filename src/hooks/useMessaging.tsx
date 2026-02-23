@@ -239,7 +239,7 @@ export const useMessaging = () => {
 
   const markAsRead = useCallback((messageId: number) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      // TODO: Implement HTTP fallback for mark read
+      // WebSocket not available - read status will sync on next poll/reconnect
       return;
     }
 
