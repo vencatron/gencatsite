@@ -7,11 +7,8 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vercel dev",
     "build": "tsc && vite build",
-    "build:server": "tsc --project tsconfig.server.json && find server -name '*.js' -exec sh -c 'cp \"$0\" \"${0%.js}.cjs\"' {} \\; && find shared -name '*.js' -exec sh -c 'cp \"$0\" \"${0%.js}.cjs\"' {} \\;",
-    "server": "npm run build:server && node server/index.js",
-    "server:dev": "npm run build:server && node server/index.js",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
