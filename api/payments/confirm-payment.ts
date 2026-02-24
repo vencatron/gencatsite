@@ -79,9 +79,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error('Error confirming payment:', error);
+    // Check for Stripe-specific errors that are safe to expose
+    if (error instanceof Stripe.errors.StripeError) {
+      return res.status(400).json({ 
+        error: 'Payment confirmation error',
+        code: error.code,
+      });
+    }
     return res.status(500).json({ 
       error: 'Failed to confirm payment',
-      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 }
