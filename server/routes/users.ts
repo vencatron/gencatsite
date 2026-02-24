@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { storage } from '../storage';
 import { validateEmail, validatePassword, sanitizeInput } from '../utils/validation';
@@ -25,7 +25,7 @@ router.get('/profile', authenticateToken, async (req: AuthRequest, res: Response
     }
 
     // Return user profile without sensitive information
-    const { passwordHash, ...userProfile } = user;
+    const { passwordHash: _passwordHash, ...userProfile } = user;
     
     res.json({
       success: true,
@@ -131,7 +131,7 @@ router.put('/profile', authenticateToken, async (req: AuthRequest, res: Response
     }
 
     // Return updated profile without password
-    const { passwordHash, ...userProfile } = updatedUser;
+    const { passwordHash: _passwordHash, ...userProfile } = updatedUser;
     
     res.json({
       success: true,
@@ -287,7 +287,7 @@ router.put('/:id/status', authenticateToken, async (req: AuthRequest, res: Respo
       return res.status(500).json({ error: 'Failed to update user status' });
     }
 
-    const { passwordHash, ...userProfile } = updatedUser;
+    const { passwordHash: _passwordHash, ...userProfile } = updatedUser;
     
     res.json({
       success: true,
