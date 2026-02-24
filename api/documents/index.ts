@@ -49,10 +49,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: unknown) {
     console.error('Documents endpoint error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Failed to fetch documents',
-      details: errorMessage
     });
   }
 }

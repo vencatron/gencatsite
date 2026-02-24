@@ -197,12 +197,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('Error message:', error instanceof Error ? error.message : String(error));
     return res.status(500).json({
       error: 'Internal server error during registration',
-      details: error instanceof Error ? error.message : String(error),
-      ...(debugMode ? { debugStages } : {}),
+      ...(debugMode ? { debugStages, errorMessage: error instanceof Error ? error.message : String(error) } : {}),
     });
   }
 }

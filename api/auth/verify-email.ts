@@ -63,7 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Email verification error:', error);
     return res.status(500).json({
       error: 'Internal server error during email verification',
-      details: error instanceof Error ? error.message : String(error),
     });
   }
 }

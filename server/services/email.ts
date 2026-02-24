@@ -4,16 +4,6 @@ import crypto from 'crypto';
 
 dotenv.config();
 
-interface EmailConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
-}
-
 interface EmailOptions {
   to: string;
   subject: string;

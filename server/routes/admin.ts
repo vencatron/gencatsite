@@ -84,7 +84,7 @@ router.get('/users', async (req: AuthRequest, res: Response) => {
   try {
     const { db } = require('../db');
     const { users, documents, invoices } = require('../../shared/schema');
-    const { sql, eq, count } = require('drizzle-orm');
+    const { sql, count } = require('drizzle-orm');
 
     // Get all users with document count and invoice status
     const allUsers = await db
