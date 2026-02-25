@@ -63,8 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: 'File storage location not found' });
     }
 
-    console.log('Generating signed URL for:', document.storageUrl);
-
     // Generate temporary signed URL (valid for 1 hour)
     const command = new GetObjectCommand({
       Bucket: getS3BucketName(),

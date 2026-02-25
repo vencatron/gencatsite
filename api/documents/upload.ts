@@ -82,8 +82,6 @@ async function uploadToS3(
   // Format: documents/identifier_userId/YYYY-MM-DD_timestamp_originalname.ext
   const key = `documents/${ownerLabel}_${userId}/${date}_${timestamp}_${sanitizedBaseName}${extension}`;
 
-  console.log('Starting S3 upload:', { key, size: fileBuffer.length, type: mimeType });
-
   const upload = new Upload({
     client: getS3Client(),
     params: {
@@ -96,7 +94,6 @@ async function uploadToS3(
   });
 
   await upload.done();
-  console.log('S3 upload completed:', key);
 
   return key;
 }

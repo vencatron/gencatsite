@@ -175,7 +175,6 @@ async function handleDelete(res: VercelResponse, userId: number, documentId: num
         Key: document.storageUrl,
       });
       await getS3Client().send(deleteCommand);
-      console.log('File deleted from S3:', document.storageUrl);
     } catch (s3Error) {
       console.error('Error deleting from S3:', s3Error);
       // Continue with database deletion even if S3 deletion fails
