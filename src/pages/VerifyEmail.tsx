@@ -57,15 +57,14 @@ export default function VerifyEmail() {
             setMessage(data.error || 'Failed to verify email');
           }
         }
-      } catch (error) {
-        console.error('Verification error:', error);
+      } catch (_error) {
         setStatus('error');
         setMessage('An error occurred while verifying your email');
       }
     };
 
     verifyEmail();
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const handleResendVerification = async () => {
     const email = prompt('Please enter your email address:');

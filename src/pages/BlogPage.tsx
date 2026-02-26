@@ -2,19 +2,15 @@ import { motion } from 'framer-motion'
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-const BlogPage = () => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+const CATEGORIES = [
+  'All',
+  'Estate Planning',
+  'Tax Planning',
+  'Family Planning',
+  'Business Planning'
+] as const
 
-  const categories = [
-    'All',
-    'Estate Planning',
-    'Tax Planning',
-    'Family Planning',
-    'Business Planning'
-  ]
-
-  const blogPosts = [
+const BLOG_POSTS = [
     {
       title: '2024 Estate Planning Changes: What You Need to Know',
       excerpt: 'Important updates to estate tax laws and planning strategies for the new year. Learn how recent legislative changes may affect your existing estate plan and what steps you should take to stay compliant.',
@@ -97,8 +93,12 @@ const BlogPage = () => {
     }
   ]
 
+const BlogPage = () => {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
   const filteredPosts = useMemo(() => {
-    return blogPosts.filter(post => {
+    return BLOG_POSTS.filter(post => {
       const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = !activeCategory || activeCategory === 'All' || post.category === activeCategory
@@ -164,7 +164,7 @@ const BlogPage = () => {
 
             {/* Category Filters */}
             <div className="flex flex-wrap gap-2 justify-center">
-              {categories.map((category) => (
+              {CATEGORIES.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category === 'All' ? null : category)}

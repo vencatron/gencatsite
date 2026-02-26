@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { apiService, Invoice } from '@/services/api'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { PaymentModal } from '@/components/payments'
@@ -15,14 +15,13 @@ const PortalBilling = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
       const invs = await apiService.getInvoices()
       setInvoices(invs)
     } catch (err: any) {
-      console.error('Error fetching invoices:', err)
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
@@ -31,7 +30,7 @@ const PortalBilling = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [navigate])
 
   useEffect(() => {
     refresh()
@@ -43,7 +42,7 @@ const PortalBilling = () => {
       // Clear the URL params
       navigate('/client-portal/billing', { replace: true })
     }
-  }, [])
+  }, [location.search, navigate, refresh])
 
   const openPaymentModal = (invoice: Invoice) => {
     setPaymentModal({ isOpen: true, invoice })

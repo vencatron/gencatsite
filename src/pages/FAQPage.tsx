@@ -223,6 +223,7 @@ const FAQPage = () => {
       const matchesCategory = !activeCategory || activeCategory === 'All' || category.title === activeCategory
       return matchesCategory && category.faqs.length > 0
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, activeCategory])
 
   const totalFaqs = filteredFaqCategories.reduce((sum, cat) => sum + cat.faqs.length, 0)
