@@ -52,23 +52,19 @@ export const useMessaging = () => {
     // Skip WebSocket connection for production environments that don't support it
     // (Vercel serverless doesn't support WebSockets - use HTTP polling instead)
     if (isProductionWithoutWebSocket()) {
-      console.log('Production environment detected - using HTTP polling instead of WebSocket');
       return;
     }
 
     if (!isAuthenticated) {
-      console.log('User not authenticated, skipping WebSocket connection');
       return;
     }
 
     const accessToken = apiService.getAccessToken();
     if (!accessToken) {
-      console.log('No access token, skipping WebSocket connection');
       return;
     }
 
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log('WebSocket already connected');
       return;
     }
 
@@ -77,7 +73,6 @@ export const useMessaging = () => {
       const ws = new WebSocket(`${wsUrl}?token=${accessToken}`);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
         reconnectAttemptsRef.current = 0;
         setState(prev => ({ ...prev, connected: true, error: null }));
       };
@@ -121,7 +116,6 @@ export const useMessaging = () => {
               break;
 
             case 'error':
-              console.error('WebSocket error message:', message.data);
               setState(prev => ({
                 ...prev,
                 error: message.data.error,
@@ -129,15 +123,15 @@ export const useMessaging = () => {
               break;
 
             default:
-              console.log('Unknown message type:', message.type);
+              // Ignore unknown message types
+              break;
           }
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
+        } catch (_err) {
+          // Ignore malformed messages
         }
       };
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      ws.onerror = () => {
         setState(prev => ({
           ...prev,
           connected: false,
@@ -146,13 +140,11 @@ export const useMessaging = () => {
       };
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
         setState(prev => ({ ...prev, connected: false }));
 
         // Attempt to reconnect
         if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
@@ -167,8 +159,7 @@ export const useMessaging = () => {
       };
 
       wsRef.current = ws;
-    } catch (err) {
-      console.error('Error creating WebSocket:', err);
+    } catch (_err) {
       setState(prev => ({
         ...prev,
         error: 'Failed to create connection',
@@ -198,8 +189,8 @@ export const useMessaging = () => {
           data: { content },
         }));
         return true;
-      } catch (err) {
-        console.error('Error sending via WebSocket, falling back to HTTP:', err);
+      } catch (_err) {
+        // Fall through to HTTP fallback
       }
     }
 
@@ -213,7 +204,6 @@ export const useMessaging = () => {
       }));
       return true;
     } catch (err: any) {
-      console.error('Error sending message:', err);
       setState(prev => ({
         ...prev,
         error: err.message || 'Failed to send message',
@@ -232,8 +222,8 @@ export const useMessaging = () => {
         type: 'typing',
         data: { isTyping },
       }));
-    } catch (err) {
-      console.error('Error sending typing indicator:', err);
+    } catch (_err) {
+      // Silently ignore typing indicator failures
     }
   }, []);
 
@@ -248,8 +238,8 @@ export const useMessaging = () => {
         type: 'read',
         data: { messageId },
       }));
-    } catch (err) {
-      console.error('Error marking message as read:', err);
+    } catch (_err) {
+      // Silently ignore - read status will sync on next poll
     }
   }, []);
 
@@ -277,8 +267,8 @@ export const useMessaging = () => {
           }
           return prev;
         });
-      } catch (err) {
-        console.error('Polling error:', err);
+      } catch (_err) {
+        // Polling error - will retry on next interval
       }
     }, 5000); // Poll every 5 seconds
 

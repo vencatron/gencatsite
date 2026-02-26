@@ -108,9 +108,8 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setUser(convertToPortalUser(apiUser))
         recordActivity()
       }
-    } catch (error) {
-      // User is not authenticated or token is invalid
-      console.log('Not authenticated:', error)
+    } catch (_error) {
+      // User is not authenticated or token is invalid - this is expected behavior
       setUser(null)
       apiService.setAccessToken(null)
       clearActivity()
