@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { apiService, Document, Invoice, Message } from '@/services/api'
 import { usePortalAuth } from '@/context/PortalAuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -23,7 +23,7 @@ const PortalDashboard = () => {
   )
   const navigate = useNavigate()
 
-  async function fetchDashboardData() {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -32,7 +32,6 @@ const PortalDashboard = () => {
       setMessages(data.messages)
       setInvoices(data.invoices)
     } catch (err: any) {
-      console.error('Error fetching dashboard data:', err)
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
@@ -41,11 +40,11 @@ const PortalDashboard = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [navigate])
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [fetchDashboardData])
 
   useEffect(() => {
     localStorage.setItem('portal_plan_steps', JSON.stringify(steps))

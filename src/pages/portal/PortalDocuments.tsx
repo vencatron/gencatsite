@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { apiService, Document } from '@/services/api'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,14 +12,13 @@ const PortalDocuments = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     try {
       setFetchingDocs(true)
       setError(null)
       const documents = await apiService.getDocuments()
       setDocs(documents)
     } catch (err: any) {
-      console.error('Error fetching documents:', err)
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
@@ -28,11 +27,11 @@ const PortalDocuments = () => {
     } finally {
       setFetchingDocs(false)
     }
-  }
+  }, [navigate])
 
   useEffect(() => {
     refresh()
-  }, [])
+  }, [refresh])
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
@@ -44,8 +43,7 @@ const PortalDocuments = () => {
       }
       await refresh()
     } catch (err: any) {
-      console.error('Error uploading files:', err)
-      setError('Failed to upload files. Please try again.')
+      setError(err.message || 'Failed to upload files. Please try again.')
     } finally {
       setLoading(false)
     }
