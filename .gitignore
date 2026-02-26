@@ -81,3 +81,7 @@ uploads/
 # Debug/test artifacts
 cookies.txt
 *.txt.bak
+
+# IDE/AI assistant directories (development artifacts)
+.gemini/
+.serena/
