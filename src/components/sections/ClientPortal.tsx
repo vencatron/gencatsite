@@ -35,7 +35,7 @@ const ClientPortal = () => {
   const [resendingVerification, setResendingVerification] = useState(false)
   const { register, refreshUser } = usePortalAuth()
   const navigate = useNavigate()
-  const location = useLocation() as any
+  const location = useLocation()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,9 +45,9 @@ const ClientPortal = () => {
       const response = await apiService.login(loginData.email, loginData.password)
 
       // Check if 2FA is required
-      if ((response as any).requires2FA) {
+      if (response.requires2FA) {
         setRequires2FA(true)
-        setTwoFAUserId((response as any).userId)
+        setTwoFAUserId(response.userId ?? null)
         setIsLoggingIn(false)
         return
       }

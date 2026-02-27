@@ -43,6 +43,9 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   emailVerificationRequired?: boolean;
+  requires2FA?: boolean;
+  userId?: number;
+  tempToken?: string;
 }
 
 export interface Document {
