@@ -57,13 +57,13 @@ const ClientPortal = () => {
 
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    } catch (err: any) {
+    } catch (err) {
       // Check if the error is due to unverified email
       if (err.response?.data?.emailNotVerified) {
         setUnverifiedEmail(err.response.data.email || loginData.email)
         setError('Please verify your email address before logging in. Check your inbox for the verification email.')
       } else {
-        setError(err.message || 'Login failed. Please check your credentials.')
+        setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.')
       }
     } finally {
       setIsLoggingIn(false)
@@ -81,8 +81,8 @@ const ClientPortal = () => {
       await refreshUser() // Update auth context
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    } catch (err: any) {
-      throw new Error(err.message || '2FA verification failed')
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : '2FA verification failed')
     } finally {
       setIsVerifying2FA(false)
     }
@@ -136,8 +136,8 @@ const ClientPortal = () => {
         const redirectTo = '/client-portal/dashboard'
         navigate(redirectTo)
       }
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.')
     } finally {
       setIsRegistering(false)
     }

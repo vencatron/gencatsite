@@ -27,8 +27,8 @@ const TwoFactorSetup = ({ onComplete, onCancel }: TwoFactorSetupProps) => {
       setSecret(response.secret);
       setBackupCodes(response.backupCodes);
       setStep('qr');
-    } catch (err: any) {
-      setError(err.message || 'Failed to initialize 2FA setup');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to initialize 2FA setup');
     } finally {
       setIsLoading(false);
     }
@@ -46,8 +46,8 @@ const TwoFactorSetup = ({ onComplete, onCancel }: TwoFactorSetupProps) => {
     try {
       await apiService.verify2FASetup(verificationCode, backupCodes);
       setStep('backup');
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
       setVerificationCode('');
     } finally {
       setIsLoading(false);

@@ -1,4 +1,4 @@
-type EmailPayload = {
+export type EmailPayload = {
   to: string
   name: string
   startISO: string

@@ -32,8 +32,8 @@ const AdminDashboard = () => {
       setError(null)
       const data = await apiService.getAdminStats()
       setStats(data)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load dashboard statistics')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard statistics')
     } finally {
       setLoading(false)
     }
