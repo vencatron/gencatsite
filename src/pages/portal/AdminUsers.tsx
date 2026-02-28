@@ -38,8 +38,8 @@ const AdminUsers = () => {
       setError(null)
       const allUsers = await apiService.getAllUsers()
       setUsers(allUsers)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load users')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load users')
     } finally {
       setLoading(false)
     }
@@ -68,8 +68,8 @@ const AdminUsers = () => {
       setNewPassword('')
       setConfirmPassword('')
       setTimeout(() => setSuccessMessage(null), 5000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to reset password')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset password')
     } finally {
       setActionLoading(false)
     }
@@ -87,8 +87,8 @@ const AdminUsers = () => {
       setSuccessMessage(`User ${user.username} deactivated successfully`)
       await loadUsers() // Reload users
       setTimeout(() => setSuccessMessage(null), 5000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to deactivate user')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to deactivate user')
     } finally {
       setActionLoading(false)
     }
@@ -102,8 +102,8 @@ const AdminUsers = () => {
       setSuccessMessage(`User ${user.username} activated successfully`)
       await loadUsers() // Reload users
       setTimeout(() => setSuccessMessage(null), 5000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to activate user')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to activate user')
     } finally {
       setActionLoading(false)
     }
@@ -124,8 +124,8 @@ const AdminUsers = () => {
       setSuccessMessage(`User ${user.username} is now set to ${result.role}`)
       await loadUsers()
       setTimeout(() => setSuccessMessage(null), 5000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to update user role')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update user role')
     } finally {
       setActionLoading(false)
     }

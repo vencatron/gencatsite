@@ -33,7 +33,7 @@ const PortalMessages = () => {
         setInitialError(null)
         const msgs = await apiService.getMessages()
         setMessages(msgs)
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error fetching messages:', err)
         if (err.message?.includes('401')) {
           navigate('/client-portal')

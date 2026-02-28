@@ -21,7 +21,7 @@ const PortalBilling = () => {
       setError(null)
       const invs = await apiService.getInvoices()
       setInvoices(invs)
-    } catch (err: any) {
+    } catch (err) {
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {

@@ -18,7 +18,7 @@ const PortalDocuments = () => {
       setError(null)
       const documents = await apiService.getDocuments()
       setDocs(documents)
-    } catch (err: any) {
+    } catch (err) {
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
@@ -42,8 +42,8 @@ const PortalDocuments = () => {
         await apiService.uploadDocument(f)
       }
       await refresh()
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload files. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload files. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -62,7 +62,7 @@ const PortalDocuments = () => {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error downloading document:', err)
       setError('Failed to download document. Please try again.')
     }
@@ -73,7 +73,7 @@ const PortalDocuments = () => {
       setError(null)
       await apiService.deleteDocument(id)
       await refresh()
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error deleting document:', err)
       setError('Failed to delete document. Please try again.')
     }
@@ -87,7 +87,7 @@ const PortalDocuments = () => {
         setRenamingId(null)
         setNewName('')
         await refresh()
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error renaming document:', err)
         setError('Failed to rename document. Please try again.')
       }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import { apiService, User as ApiUser, ACCESS_TOKEN_STORAGE_KEY } from '@/services/api'
+import { apiService, User as ApiUser, ACCESS_TOKEN_STORAGE_KEY, AuthResponse } from '@/services/api'
 
 const LAST_ACTIVITY_STORAGE_KEY = 'portalLastActivity'
 const SESSION_TIMEOUT_MS = 15 * 60 * 1000
@@ -29,7 +29,7 @@ type AuthContextShape = {
     firstName?: string,
     lastName?: string,
     phoneNumber?: string
-  ) => Promise<any>
+  ) => Promise<AuthResponse>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -144,7 +144,7 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     firstName?: string,
     lastName?: string,
     phoneNumber?: string
-  ): Promise<any> => {
+  ): Promise<AuthResponse> => {
     try {
       const response = await apiService.register(
         username,
@@ -234,6 +234,8 @@ export const PortalAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// Hook must be exported from same file as context provider for proper coupling
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePortalAuth = () => {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('usePortalAuth must be used within PortalAuthProvider')

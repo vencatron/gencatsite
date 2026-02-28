@@ -31,7 +31,7 @@ const PortalDashboard = () => {
       setDocs(data.documents)
       setMessages(data.messages)
       setInvoices(data.invoices)
-    } catch (err: any) {
+    } catch (err) {
       if (err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
