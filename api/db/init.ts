@@ -7,6 +7,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // SECURITY: Disable database initialization in production
+  // This endpoint should only be used during initial setup
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+    return res.status(403).json({ 
+      error: 'Database initialization is disabled in production',
+      message: 'This endpoint is only available in development environments'
+    });
+  }
+
   if (!process.env.DATABASE_URL) {
     return res.status(500).json({ error: 'Database URL not configured' });
   }
