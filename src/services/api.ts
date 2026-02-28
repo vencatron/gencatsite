@@ -90,7 +90,21 @@ export interface Invoice {
 
 export interface ApiError {
   error: string;
-  details?: any;
+  details?: string | string[];
+}
+
+// Custom error class for API responses with typed response data
+export class ApiServiceError extends Error {
+  public response: {
+    status: number;
+    data: Record<string, unknown>;
+  };
+
+  constructor(message: string, status: number, data: Record<string, unknown>) {
+    super(message);
+    this.name = 'ApiServiceError';
+    this.response = { status, data };
+  }
 }
 
 export interface RecentUser {
@@ -193,15 +207,14 @@ class ApiService {
   // Parse response and handle errors
   private async handleResponse<T>(response: Response): Promise<T> {
     const text = await response.text();
-    let data: any;
+    let data: Record<string, unknown> = {};
 
     try {
       data = text ? JSON.parse(text) : {};
-    } catch (e) {
+    } catch {
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`);
       }
-      data = {};
     }
 
     if (!response.ok) {
@@ -218,13 +231,8 @@ class ApiService {
           ? errorMessageParts.join(': ')
           : `HTTP error! status: ${response.status}`;
 
-      // Create an error that preserves the response data
-      const error: any = new Error(message);
-      error.response = {
-        status: response.status,
-        data: data
-      };
-      throw error;
+      // Create a typed error that preserves the response data
+      throw new ApiServiceError(message, response.status, data as Record<string, unknown>);
     }
 
     return data;
