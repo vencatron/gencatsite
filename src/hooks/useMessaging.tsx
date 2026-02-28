@@ -4,7 +4,7 @@ import { apiService, Message } from '@/services/api';
 
 interface WebSocketMessage {
   type: 'message' | 'typing' | 'read' | 'ping' | 'pong' | 'error';
-  data?: any;
+  data?: Message | { typing: boolean } | { messageId: number } | { error: string } | unknown;
 }
 
 interface MessagingState {
@@ -203,10 +203,10 @@ export const useMessaging = () => {
         error: null
       }));
       return true;
-    } catch (err: any) {
+    } catch (err) {
       setState(prev => ({
         ...prev,
-        error: err.message || 'Failed to send message',
+        error: err instanceof Error ? err.message : 'Failed to send message',
       }));
       return false;
     }

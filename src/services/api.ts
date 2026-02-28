@@ -55,7 +55,7 @@ export interface Document {
   type: string;
   size: number;
   uploadedAt: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Message {
