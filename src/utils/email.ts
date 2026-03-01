@@ -3,9 +3,9 @@ export type EmailPayload = {
   name: string
   startISO: string
   endISO: string
-  notes?: string
-  phone?: string
-  ics?: string
+  notes?: string | undefined
+  phone?: string | undefined
+  ics?: string | undefined
 }
 
 // Lightweight email sender. Posts to a configured endpoint.

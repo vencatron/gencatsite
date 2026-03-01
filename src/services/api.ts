@@ -235,7 +235,10 @@ class ApiService {
       throw new ApiServiceError(message, response.status, data as Record<string, unknown>);
     }
 
-    return data;
+    // Cast the parsed JSON to the expected type
+    // Note: This is a runtime trust boundary - the caller is responsible for
+    // ensuring the response matches the expected type T
+    return data as T;
   }
 
   // Authentication APIs

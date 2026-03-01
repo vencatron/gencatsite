@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { usePortalAuth } from '@/context/PortalAuthContext'
-import { apiService } from '@/services/api'
+import { apiService, ApiServiceError } from '@/services/api'
 import TwoFactorVerification from '@/components/portal/TwoFactorVerification'
 
 const ClientPortal = () => {
@@ -57,10 +57,11 @@ const ClientPortal = () => {
 
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    } catch (err) {
+    } catch (err: unknown) {
       // Check if the error is due to unverified email
-      if (err.response?.data?.emailNotVerified) {
-        setUnverifiedEmail(err.response.data.email || loginData.email)
+      if (err instanceof ApiServiceError && err.response?.data?.emailNotVerified) {
+        const email = err.response.data.email as string | undefined
+        setUnverifiedEmail(email || loginData.email)
         setError('Please verify your email address before logging in. Check your inbox for the verification email.')
       } else {
         setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.')

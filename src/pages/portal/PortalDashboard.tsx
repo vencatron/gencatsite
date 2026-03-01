@@ -31,8 +31,8 @@ const PortalDashboard = () => {
       setDocs(data.documents)
       setMessages(data.messages)
       setInvoices(data.invoices)
-    } catch (err) {
-      if (err.message?.includes('401')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
         setError('Failed to load dashboard data. Please refresh the page.')
