@@ -15,13 +15,12 @@ const BusinessSuccessionPage = () => {
         </header>
 
         <motion.div
-          className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+          className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.05 }}
         >
-          <img src="/images/service-business.svg" alt="" aria-hidden className="absolute right-0 bottom-0 w-64 opacity-30" />
-          <div className="relative">
+          <div>
             <h2 className="text-xl font-semibold text-primary-800">What's included</h2>
             <ul className="mt-4 grid gap-2 text-neutral-700 sm:grid-cols-2">
               <li>Ownership transfer planning</li>

@@ -10,15 +10,7 @@ const AboutPage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Background image - replace with local asset if available at /images/family-hero.jpg */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('/images/family-hero.jpg')",
-          }}
-        />
-        {/* Fallback gradient overlay if image is missing or while loading */}
+        {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/70 via-neutral-900/60 to-primary-900/40" />
 
         <div className="relative z-10 h-full flex items-center">

@@ -21,8 +21,8 @@ const PortalBilling = () => {
       setError(null)
       const invs = await apiService.getInvoices()
       setInvoices(invs)
-    } catch (err) {
-      if (err.message?.includes('401')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
         setError('Failed to load invoices. Please try again.')

@@ -189,7 +189,7 @@ class EmailService {
 
           <div class="footer">
             <p>If you didn't create an account with Generation Catalyst, please ignore this email.</p>
-            <p>&copy; 2024 Generation Catalyst. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} Generation Catalyst. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -309,7 +309,7 @@ Generation Catalyst Team
 
           <div class="footer">
             <p>If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>
-            <p>&copy; 2024 Generation Catalyst. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} Generation Catalyst. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -418,7 +418,7 @@ Generation Catalyst Team
 
           <div class="footer">
             <p>If you didn't enable 2FA on your account, please contact our support team immediately.</p>
-            <p>&copy; 2024 Generation Catalyst. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} Generation Catalyst. All rights reserved.</p>
           </div>
         </div>
       </body>

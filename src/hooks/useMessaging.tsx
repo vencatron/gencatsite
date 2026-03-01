@@ -4,7 +4,24 @@ import { apiService, Message } from '@/services/api';
 
 interface WebSocketMessage {
   type: 'message' | 'typing' | 'read' | 'ping' | 'pong' | 'error';
-  data?: Message | { typing: boolean } | { messageId: number } | { error: string } | unknown;
+  data?: unknown;
+}
+
+// Type guards for WebSocket message data
+function isMessage(data: unknown): data is Message {
+  return typeof data === 'object' && data !== null && 'id' in data && 'text' in data;
+}
+
+function isTypingIndicator(data: unknown): data is { isTyping: boolean } {
+  return typeof data === 'object' && data !== null && 'isTyping' in data;
+}
+
+function isReadConfirmation(data: unknown): data is { messageId: number } {
+  return typeof data === 'object' && data !== null && 'messageId' in data;
+}
+
+function isErrorMessage(data: unknown): data is { error: string } {
+  return typeof data === 'object' && data !== null && 'error' in data;
 }
 
 interface MessagingState {
@@ -82,45 +99,62 @@ export const useMessaging = () => {
           const message: WebSocketMessage = JSON.parse(event.data);
 
           switch (message.type) {
-            case 'message':
+            case 'message': {
               // New message received
-              setState(prev => ({
-                ...prev,
-                messages: [...prev.messages, message.data],
-              }));
+              const msgData = message.data;
+              if (isMessage(msgData)) {
+                setState(prev => ({
+                  ...prev,
+                  messages: [...prev.messages, msgData],
+                }));
+              }
               break;
+            }
 
-            case 'typing':
+            case 'typing': {
               // Typing indicator
-              setState(prev => ({
-                ...prev,
-                typing: message.data.isTyping,
-              }));
+              const typingData = message.data;
+              if (isTypingIndicator(typingData)) {
+                setState(prev => ({
+                  ...prev,
+                  typing: typingData.isTyping,
+                }));
+              }
               break;
+            }
 
-            case 'read':
+            case 'read': {
               // Message was read
-              setState(prev => ({
-                ...prev,
-                messages: prev.messages.map(msg =>
-                  msg.id === message.data.messageId
-                    ? { ...msg, isRead: true }
-                    : msg
-                ),
-              }));
+              const readData = message.data;
+              if (isReadConfirmation(readData)) {
+                const messageId = readData.messageId;
+                setState(prev => ({
+                  ...prev,
+                  messages: prev.messages.map(msg =>
+                    msg.id === messageId
+                      ? { ...msg, isRead: true }
+                      : msg
+                  ),
+                }));
+              }
               break;
+            }
 
             case 'ping':
             case 'pong':
               // Heartbeat - no action needed
               break;
 
-            case 'error':
-              setState(prev => ({
-                ...prev,
-                error: message.data.error,
-              }));
+            case 'error': {
+              const errData = message.data;
+              if (isErrorMessage(errData)) {
+                setState(prev => ({
+                  ...prev,
+                  error: errData.error,
+                }));
+              }
               break;
+            }
 
             default:
               // Ignore unknown message types

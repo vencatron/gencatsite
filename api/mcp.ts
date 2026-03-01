@@ -1,6 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createMcpHandler } from '@vercel/mcp-adapter';
 
+// SECURITY NOTE: This endpoint exposes deployment diagnostics.
+// It only reveals environment variable *presence* (not values) and
+// is intended for development/debugging via MCP-compatible clients.
+// In a high-security environment, consider restricting access.
+
 // Create the MCP handler with tools for debugging the deployment
 const handler = createMcpHandler({
   tools: [

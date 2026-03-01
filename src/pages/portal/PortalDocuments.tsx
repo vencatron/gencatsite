@@ -18,8 +18,8 @@ const PortalDocuments = () => {
       setError(null)
       const documents = await apiService.getDocuments()
       setDocs(documents)
-    } catch (err) {
-      if (err.message?.includes('401')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
         setError('Failed to load documents. Please try again.')
