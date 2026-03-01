@@ -43,7 +43,7 @@ Gencat/
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 22.x and npm
 
 ### Installation
 
@@ -57,12 +57,16 @@ Gencat/
    npm install
    ```
 
-3. Start the development server:
+3. Copy `.env.example` to `.env` and configure your environment variables
+
+4. Start the development server:
    ```bash
    npm run dev
    ```
+   
+   This runs `vercel dev` which starts both the frontend and API functions.
 
-4. Open your browser and visit `http://localhost:3000`
+5. Open your browser and visit `http://localhost:5000`
 
 ## 📜 Available Scripts
 
@@ -117,8 +121,15 @@ The project is ready for deployment to any modern hosting platform:
 
 This project is proprietary and confidential.
 
+## 🔐 API & Backend
+
+The project includes a serverless API powered by Vercel Functions:
+
+- **Authentication**: JWT-based auth with 2FA support
+- **Documents**: S3-backed document storage
+- **Payments**: Stripe integration
+- **Database**: PostgreSQL (Neon) with raw SQL queries
+
 ---
 
 Built with ❤️ for Generation Catalyst
-
-<!-- S3 environment variables configured -->
