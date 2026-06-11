@@ -14,11 +14,11 @@ const PortalDashboard = () => {
   const [error, setError] = useState<string | null>(null)
   const [steps, setSteps] = useState<Step[]>(
     () => JSON.parse(localStorage.getItem('portal_plan_steps') || 'null') || [
-      { id: 's1', label: 'Initial consultation', done: true },
-      { id: 's2', label: 'Questionnaire received', done: true },
-      { id: 's3', label: 'Draft documents prepared', done: false },
-      { id: 's4', label: 'Review meeting scheduled', done: false },
-      { id: 's5', label: 'Signing ceremony', done: false },
+      { id: 's1', label: 'Family Planning Conversation', done: true },
+      { id: 's2', label: 'Intake questionnaire received', done: true },
+      { id: 's3', label: 'Roadmap & summary delivered', done: false },
+      { id: 's4', label: 'Professional team engaged', done: false },
+      { id: 's5', label: 'Funding & follow-through complete', done: false },
     ]
   )
   const navigate = useNavigate()

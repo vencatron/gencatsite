@@ -1,143 +1,150 @@
-import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import Seo from '@/components/common/Seo'
+import CtaSection from '@/components/common/CtaSection'
+
+const CREDENTIALS = [
+  'Licensed CPA — State of California (active)',
+  'Big Four accounting firm alumni — audit practice',
+  'Corporate accounting and interim controller experience',
+  'Fractional CFO to business owners through Generation Catalyst LLC',
+  'Member, CalCPA and AICPA',
+]
+
+const PHILOSOPHY = [
+  {
+    title: 'Education before engagement',
+    text: 'Families should understand the process before they pay anyone — including us. That’s why the Learn hub is free, general, and honest about complexity.',
+  },
+  {
+    title: 'Stay in our lane, deeply',
+    text: 'Tax, analysis, funding, and coordination are our lane, and we go deep in it. Legal advice and document drafting are an attorney’s lane — we never blur that line.',
+  },
+  {
+    title: 'Follow-through is the product',
+    text: 'Advice without implementation is decoration. Every engagement ends with completed work, documented proof, and a family that knows where everything stands.',
+  },
+  {
+    title: 'A team, coordinated',
+    text: 'Attorneys, advisors, insurance professionals, and CPAs each see a slice. Someone has to be accountable for the whole. That’s the seat we take.',
+  },
+]
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <motion.section
-        className="relative h-[46vh] min-h-[360px] w-full overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/70 via-neutral-900/60 to-primary-900/40" />
+    <div>
+      <Seo
+        title="About | Generation Catalyst — Estate Planning Coordination by a California CPA"
+        description="Generation Catalyst was founded by a California CPA — Big Four trained, fractional CFO to business owners — to coordinate the tax, funding, and administration side of estate planning alongside licensed attorneys."
+        path="/about"
+      />
 
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                Your Family. Your Legacy. Our Trust.
-              </h1>
-              <p className="text-neutral-100/90 text-lg max-w-2xl">
-                We help families preserve what matters most with clear, compassionate
-                estate planning and trust administration.
-              </p>
-            </motion.div>
+      {/* Hero / intro */}
+      <section className="bg-gradient-to-b from-primary-50 to-neutral-50 border-b border-neutral-200">
+        <div className="container-width section-padding">
+          <div className="max-w-3xl">
+            <p className="eyebrow mb-4">About Generation Catalyst</p>
+            <h1 className="heading-lg mb-5">The coordinator’s seat at the estate planning table</h1>
+            <p className="text-lg text-neutral-700 leading-relaxed">
+              Generation Catalyst LLC is an education and coordination practice founded by a
+              California-licensed CPA, based in Pomona and serving LA County, the San Gabriel
+              Valley, and remote clients nationwide.
+            </p>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Main content */}
-      <motion.section
-        className="py-16 px-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-12">
-          {/* About copy */}
-          <div className="lg:col-span-2">
-            <h2 className="text-3xl font-bold text-gradient mb-6">About Generation Catalyst</h2>
-            <div className="prose prose-lg max-w-none">
-              <p className="text-neutral-700">
-                Generation Catalyst (GenCat) is dedicated to guiding families through the complexities of
-                estate planning with confidence and care. We believe effective planning is built on trust,
-                clarity, and a deep understanding of your goals.
+      {/* Background story */}
+      <section className="section-padding">
+        <div className="container-width">
+          <div className="grid lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-2 article-body">
+              <h2 className="!mt-0">The path here</h2>
+              <p>
+                The founder’s career started in a Big Four accounting firm’s audit practice —
+                learning, engagement after engagement, how organizations actually fail: rarely
+                from bad intentions or bad documents, almost always from broken processes and
+                missing follow-through. From there came corporate accounting, then interim
+                controller and fractional CFO work for business owners through Generation
+                Catalyst LLC.
               </p>
-              <p className="text-neutral-700">
-                Our advisors partner closely with you to design personalized strategies—from foundational
-                wills and living trusts to advanced planning—ensuring your legacy is protected and your
-                wishes are carried out.
+              <p>
+                Fractional CFO work means sitting beside business owners for years at a time — and
+                eventually, every one of those conversations arrives at the same place: what
+                happens to all of this when something happens to me? Watching families navigate
+                that question exposed a consistent gap. The attorney drafts excellent documents
+                and the engagement ends. The financial advisor manages the portfolio. The CPA
+                files the returns. And the work that connects them — funding the trust, aligning
+                beneficiary designations, projecting the taxes, preparing the heirs — belongs to
+                nobody.
+              </p>
+              <h2>Why this practice exists</h2>
+              <p>
+                Generation Catalyst exists to own that gap. We educate families on how the process
+                works, analyze the tax side with CPA rigor, coordinate the professional team, and
+                project-manage implementation until it is verifiably done. The result is not a
+                binder on a shelf — it’s a plan that is funded, current, taxed sensibly, and
+                understood by the people it protects.
               </p>
             </div>
 
-            {/* Values */}
-            <div className="mt-10 grid sm:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-neutral-900 mb-2">Family-First Guidance</h3>
-                <p className="text-neutral-600 text-sm">
-                  We start with your family's needs and build plans that support long-term
-                  stability and harmony across generations.
+            <div className="space-y-6">
+              <div className="card">
+                <h2 className="heading-sm !mt-0 mb-4">Credentials</h2>
+                <ul className="space-y-3">
+                  {CREDENTIALS.map((c) => (
+                    <li key={c} className="flex gap-3 text-sm text-neutral-700 leading-relaxed">
+                      <svg
+                        className="h-5 w-5 text-accent-600 shrink-0 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="card bg-primary-950 border-primary-900">
+                <h2 className="font-serif text-lg font-semibold text-white mb-3">Our scope, plainly</h2>
+                <p className="text-sm text-neutral-200 leading-relaxed">
+                  “As a CPA, I provide tax, financial, and coordination services. I do not draft
+                  legal documents or provide legal advice — for that, you need a licensed estate
+                  planning attorney. I work alongside attorneys to make sure your full estate
+                  plan, including the tax and implementation side, actually works.”
                 </p>
               </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-neutral-900 mb-2">Trusted Expertise</h3>
-                <p className="text-neutral-600 text-sm">
-                  Our seasoned team brings practical, plain‑spoken guidance so you can make
-                  informed decisions with confidence.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-neutral-900 mb-2">Clarity & Transparency</h3>
-                <p className="text-neutral-600 text-sm">
-                  From process to pricing, we communicate clearly and keep you informed at
-                  every step.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-neutral-900 mb-2">Long-Term Stewardship</h3>
-                <p className="text-neutral-600 text-sm">
-                  We're here beyond the paperwork—supporting trustees and families through
-                  administration and life's transitions.
-                </p>
-              </div>
-            </div>
-
-            {/* Approach */}
-            <div className="mt-12">
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-4">Our Approach</h3>
-              <ul className="grid sm:grid-cols-2 gap-4">
-                <li className="rounded-xl bg-neutral-50 p-4 border border-neutral-200">
-                  Discovery and goal‑setting to understand your priorities.
-                </li>
-                <li className="rounded-xl bg-neutral-50 p-4 border border-neutral-200">
-                  Tailored plan design with clear, practical recommendations.
-                </li>
-                <li className="rounded-xl bg-neutral-50 p-4 border border-neutral-200">
-                  Document preparation and coordinated implementation.
-                </li>
-                <li className="rounded-xl bg-neutral-50 p-4 border border-neutral-200">
-                  Ongoing guidance for trustees and beneficiaries.
-                </li>
-              </ul>
             </div>
           </div>
-
-          {/* Contact / Details */}
-          <aside className="lg:col-span-1">
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sticky top-6">
-              <h3 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h3>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <div className="text-neutral-500">Address</div>
-                  <div className="font-medium text-neutral-900">
-                    Claremont, CA 91711
-                  </div>
-                </div>
-                <div>
-                  <div className="text-neutral-500">Email</div>
-                  <a
-                    href="mailto:info@iamatrust.com"
-                    className="font-medium text-primary-600 hover:underline"
-                  >
-                    info@iamatrust.com
-                  </a>
-                </div>
-                <div className="pt-2">
-                  <a href="/schedule" className="btn-primary w-full inline-flex justify-center">
-                    Schedule a Consultation
-                  </a>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Philosophy */}
+      <section className="bg-neutral-100 border-y border-neutral-200">
+        <div className="container-width section-padding">
+          <h2 className="heading-md mb-10">How we work</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {PHILOSOPHY.map((item) => (
+              <div key={item.title} className="card bg-white">
+                <h3 className="font-serif text-xl font-semibold text-primary-900 mb-3">{item.title}</h3>
+                <p className="text-neutral-700 leading-relaxed text-sm">{item.text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10">
+            <Link to="/services" className="btn-outline">
+              See how the services are structured
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <CtaSection
+        heading="Start with a conversation"
+        text="The Family Planning Conversation is how every relationship here begins: 90 minutes, a clear roadmap, and no obligation beyond it."
+      />
     </div>
   )
 }
