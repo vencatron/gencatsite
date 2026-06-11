@@ -1,44 +1,55 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html { font-family: 'Freight Serif Pro', 'Playfair Display', Georgia, serif; }
-  
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply text-neutral-800 bg-neutral-50 font-serif;
+    @apply text-neutral-800 bg-neutral-50 font-sans antialiased;
+    line-height: 1.65;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-primary-900;
+  }
+
+  ::selection {
+    @apply bg-accent-200 text-primary-900;
   }
 }
 
 @layer components {
   /* Button Styles */
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center bg-primary-700 hover:bg-primary-800 text-white font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
-  
+
   .btn-secondary {
-    @apply bg-secondary-100 hover:bg-secondary-200 text-secondary-800 font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center bg-accent-100 hover:bg-accent-200 text-accent-900 font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
   }
-  
+
   .btn-outline {
-    @apply border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center border-2 border-primary-700 text-primary-700 hover:bg-primary-700 hover:text-white font-sans font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
-  
+
   .btn-ghost {
-    @apply text-neutral-600 hover:text-primary-600 hover:bg-primary-50 font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center text-neutral-600 hover:text-primary-700 hover:bg-primary-50 font-sans font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
 
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
   }
-  
+
   /* Card Styles */
   .card {
     @apply bg-white rounded-xl shadow-sm border border-neutral-200 p-6;
   }
-  
+
   .card-hover {
     @apply hover:shadow-md hover:border-neutral-300 transition-all duration-200;
   }
@@ -48,19 +59,24 @@
   }
 
   .card-premium {
-    @apply card border-2 border-primary-200 shadow-lg;
+    @apply card border-2 border-accent-300 shadow-lg;
   }
-  
+
   /* Text Styles */
-  .text-gradient { @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent; }
+  .text-gradient { @apply bg-gradient-to-r from-primary-700 to-primary-900 bg-clip-text text-transparent; }
 
-  .text-gradient-accent { @apply bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent; }
+  .text-gradient-accent { @apply bg-gradient-to-r from-accent-500 to-accent-700 bg-clip-text text-transparent; }
 
-  .text-gradient-secondary { @apply bg-gradient-to-r from-secondary-600 to-secondary-700 bg-clip-text text-transparent; }
+  .text-gradient-secondary { @apply bg-gradient-to-r from-secondary-500 to-secondary-700 bg-clip-text text-transparent; }
+
+  /* Eyebrow label above headings */
+  .eyebrow {
+    @apply font-sans text-xs font-semibold uppercase tracking-[0.18em] text-accent-700;
+  }
 
   /* Form Styles */
   .input-field {
-    @apply w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-neutral-400;
+    @apply w-full px-4 py-3 font-sans border border-neutral-300 rounded-lg bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-neutral-400;
   }
 
   .input-error {
@@ -68,7 +84,7 @@
   }
 
   .label-field {
-    @apply block text-sm font-medium text-neutral-700 mb-2;
+    @apply block font-sans text-sm font-medium text-neutral-700 mb-2;
   }
 
   .form-error {
@@ -77,7 +93,7 @@
 
   /* Badge Styles */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full font-sans text-xs font-medium;
   }
 
   .badge-primary {
@@ -106,7 +122,7 @@
 
   /* Layout Helpers */
   .section-padding {
-    @apply py-16 lg:py-20;
+    @apply py-16 lg:py-24;
   }
 
   .container-width {
@@ -115,6 +131,36 @@
 
   .content-center {
     @apply flex flex-col items-center justify-center text-center;
+  }
+
+  /* Long-form article body (Learn hub) */
+  .article-body {
+    @apply text-neutral-800;
+    line-height: 1.75;
+  }
+
+  .article-body p {
+    @apply mb-5 text-[1.0625rem];
+  }
+
+  .article-body h2 {
+    @apply text-2xl lg:text-3xl font-semibold mt-12 mb-4;
+  }
+
+  .article-body h3 {
+    @apply text-xl font-semibold mt-8 mb-3;
+  }
+
+  .article-body ul {
+    @apply list-disc pl-6 mb-5 space-y-2 text-[1.0625rem];
+  }
+
+  .article-body ol {
+    @apply list-decimal pl-6 mb-5 space-y-2 text-[1.0625rem];
+  }
+
+  .article-body blockquote {
+    @apply border-l-4 border-accent-400 pl-5 italic text-neutral-700 my-6 font-serif;
   }
 
   /* Accessibility */
@@ -141,22 +187,26 @@
 
   /* Responsive Typography */
   .heading-xl {
-    @apply text-4xl lg:text-6xl font-bold leading-tight;
+    @apply font-serif text-4xl lg:text-6xl font-semibold leading-[1.1];
   }
 
   .heading-lg {
-    @apply text-3xl lg:text-5xl font-bold leading-tight;
+    @apply font-serif text-3xl lg:text-5xl font-semibold leading-[1.15];
   }
 
   .heading-md {
-    @apply text-2xl lg:text-4xl font-bold leading-tight;
+    @apply font-serif text-2xl lg:text-4xl font-semibold leading-tight;
   }
 
   .heading-sm {
-    @apply text-xl lg:text-2xl font-semibold leading-tight;
+    @apply font-serif text-xl lg:text-2xl font-semibold leading-tight;
   }
 
-  /* Professional Estate Planning Specific */
+  /* Compliance / disclaimer text */
+  .legal-disclaimer {
+    @apply text-xs text-neutral-500 leading-relaxed;
+  }
+
   .trust-indicator {
     @apply flex items-center space-x-2 text-sm text-neutral-600;
   }
@@ -165,9 +215,5 @@
     @apply flex items-start space-x-3 text-sm text-neutral-700;
   }
 
-  .legal-disclaimer {
-    @apply text-xs text-neutral-500 leading-relaxed;
-  }
-
-  .consultation-cta { @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1; }
+  .consultation-cta { @apply bg-gradient-to-r from-primary-700 to-primary-800 text-white font-sans font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1; }
 }

@@ -258,7 +258,7 @@ const ClientPortal = () => {
         </svg>
       ),
       title: 'Secure Messaging',
-      description: 'Communicate directly with your estate planning attorney'
+      description: 'Message our coordination team securely about your engagement'
     },
     {
       icon: (
@@ -267,7 +267,7 @@ const ClientPortal = () => {
         </svg>
       ),
       title: 'Appointment Scheduling',
-      description: 'Schedule consultations and review meetings online'
+      description: 'Schedule conversations and check-ins online'
     },
     {
       icon: (
@@ -309,8 +309,8 @@ const ClientPortal = () => {
                 <span className="text-gradient">Command Center</span>
               </h2>
               <p className="text-xl text-neutral-600 leading-relaxed">
-                Access your estate planning documents, communicate with your attorney, 
-                and manage your plan updates all in one secure location, available 24/7.
+                Access your document inventory, message our coordination team, and
+                track the progress of your engagement in one secure location, available 24/7.
               </p>
             </div>
 

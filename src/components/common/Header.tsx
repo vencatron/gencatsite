@@ -1,46 +1,41 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { NAVIGATION_ITEMS } from '@/utils/constants'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
-    { name: 'Services', href: '/services' },
-    { name: 'Resources', href: '/resources' },
-    { name: 'Contact', href: '/contact' },
-  ]
-
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (href: string) =>
+    href === '/' ? location.pathname === '/' : location.pathname.startsWith(href)
 
   return (
-    <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className="bg-neutral-50/95 backdrop-blur border-b border-neutral-200 sticky top-0 z-50">
+      <div className="container-width">
+        <div className="flex justify-between items-center h-18">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <motion.img
-              src="/logo-GC.png"
-              alt="Generation Catalyst"
-              className="h-12 w-auto"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            />
+          <Link to="/" className="flex items-center gap-3" aria-label="Generation Catalyst — home">
+            <img src="/logo-GC.png" alt="" className="h-10 w-auto" />
+            <span className="hidden sm:block leading-tight">
+              <span className="block font-serif text-lg font-semibold text-primary-900">
+                Generation Catalyst
+              </span>
+              <span className="block text-[0.65rem] font-sans uppercase tracking-[0.22em] text-accent-700">
+                Estate Planning Coordination
+              </span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navigation.map((item) => (
+          <nav className="hidden lg:flex items-center gap-8" aria-label="Primary">
+            {NAVIGATION_ITEMS.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
+                className={`text-sm font-medium transition-colors duration-200 pb-1 border-b-2 ${
                   isActive(item.href)
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-neutral-600 hover:text-primary-600'
+                    ? 'text-primary-800 border-accent-500'
+                    : 'text-neutral-600 border-transparent hover:text-primary-700'
                 }`}
               >
                 {item.name}
@@ -49,43 +44,30 @@ const Header = () => {
           </nav>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/client-portal" 
-              className="text-sm font-medium text-neutral-600 hover:text-primary-600 transition-colors duration-200"
+          <div className="hidden lg:flex items-center gap-4">
+            <Link
+              to="/client-portal"
+              className="text-sm font-medium text-neutral-600 hover:text-primary-700 transition-colors duration-200"
             >
               Client Portal
             </Link>
-            <Link to="/schedule" className="btn-primary">
-              Schedule Consultation
+            <Link to="/contact" className="btn-primary !py-2.5 text-sm">
+              Book a Conversation
             </Link>
           </div>
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-md text-neutral-600 hover:text-primary-600"
+            className="lg:hidden p-2 rounded-md text-neutral-600 hover:text-primary-700"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>
@@ -93,22 +75,16 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <motion.div
-            className="md:hidden py-4 border-t border-neutral-200"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <nav className="flex flex-col space-y-4">
-              {navigation.map((item) => (
+          <div className="lg:hidden py-4 border-t border-neutral-200 animate-slide-down">
+            <nav className="flex flex-col space-y-1" aria-label="Primary mobile">
+              {NAVIGATION_ITEMS.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 ${
+                  className={`text-sm font-medium px-4 py-2.5 rounded-md transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-neutral-600 hover:text-primary-600 hover:bg-neutral-50'
+                      ? 'text-primary-800 bg-primary-50'
+                      : 'text-neutral-600 hover:text-primary-700 hover:bg-neutral-100'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -116,21 +92,26 @@ const Header = () => {
                 </Link>
               ))}
               <Link
+                to="/contact"
+                className="text-sm font-medium px-4 py-2.5 rounded-md text-neutral-600 hover:text-primary-700 hover:bg-neutral-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
+              </Link>
+              <Link
                 to="/client-portal"
-                className="text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 text-neutral-600 hover:text-primary-600 hover:bg-neutral-50 mx-4"
+                className="text-sm font-medium px-4 py-2.5 rounded-md text-neutral-600 hover:text-primary-700 hover:bg-neutral-100"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Client Portal
               </Link>
-              <Link
-                to="/schedule"
-                className="btn-primary mx-4"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Schedule Consultation
-              </Link>
+              <div className="px-4 pt-3">
+                <Link to="/contact" className="btn-primary w-full" onClick={() => setIsMenuOpen(false)}>
+                  Book a Family Planning Conversation
+                </Link>
+              </div>
             </nav>
-          </motion.div>
+          </div>
         )}
       </div>
     </header>
