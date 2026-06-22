@@ -1,127 +1,126 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
+const SERVICES = [
+  {
+    title: 'Family Planning Conversation',
+    tagline: 'Get oriented before you engage anyone else.',
+    slug: '/services/family-conversation',
+  },
+  {
+    title: 'Trust Funding & Implementation',
+    tagline:
+      'Your attorney designed the plan. We make sure it gets connected to your assets.',
+    slug: '/services/trust-funding',
+  },
+  {
+    title: 'Ongoing Tax & Administration',
+    tagline:
+      'The annual tax discipline that keeps an estate plan working.',
+    slug: '/services/tax-administration',
+  },
+  {
+    title: 'Strategic Engagement',
+    tagline:
+      'Full-spectrum coordination for business owners and complex estates.',
+    slug: '/services/strategic',
+  },
+]
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 },
+  },
+}
+
 const Services = () => {
-  const services = [
-    {
-      title: 'Estate Planning',
-      description: 'Comprehensive estate planning strategies tailored to your specific needs and goals.',
-      icon: (
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-        </svg>
-      ),
-      features: ['Asset Protection', 'Tax Optimization', 'Legacy Planning'],
-    },
-    {
-      title: 'Wills & Trusts',
-      description: 'Professional will and trust preparation to ensure your wishes are properly documented.',
-      icon: (
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-        </svg>
-      ),
-      features: ['Living Wills', 'Revocable Trusts', 'Irrevocable Trusts'],
-    },
-    {
-      title: 'Tax Planning',
-      description: 'Strategic tax planning to minimize estate tax burden and maximize wealth transfer.',
-      icon: (
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-        </svg>
-      ),
-      features: ['Gift Tax Planning', 'Generation-Skipping', 'Charitable Giving'],
-    },
-  ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  }
-
   return (
-    <section className="py-20 bg-white" id="services">
+    <section className="py-20 lg:py-24 bg-white" id="services">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Section header */}
         <motion.div
-          className="text-center mb-16"
+          className="mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl font-bold text-neutral-900 mb-4">
-            Our <span className="text-gradient">Services</span>
+          <p className="eyebrow mb-3">What we do</p>
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold text-primary-900 mb-4">
+            Four ways we help families navigate estate planning
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
-            We offer comprehensive estate planning services to protect your assets 
-            and ensure your legacy is preserved for future generations.
+          <p className="text-lg text-neutral-600 max-w-2xl">
+            We educate, analyze, coordinate, and project-manage. Your attorney handles
+            the legal documents and legal advice — we make sure everything around them
+            actually works.
           </p>
         </motion.div>
 
+        {/* Service cards: 2×2 grid */}
         <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid sm:grid-cols-2 gap-6 lg:gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {services.map((service) => (
+          {SERVICES.map((service) => (
             <motion.div
               key={service.title}
-              className="card card-hover group"
-              variants={itemVariants}
+              className="card card-hover group flex flex-col"
+              variants={cardVariants}
             >
-              <div className="text-primary-600 mb-4 group-hover:scale-110 transition-transform duration-200">
-                {service.icon}
+              {/* Title */}
+              <div className="mb-3">
+                <h3 className="font-serif text-xl font-semibold text-primary-900 leading-snug">
+                  {service.title}
+                </h3>
               </div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                {service.title}
-              </h3>
-              <p className="text-neutral-600 mb-4 text-sm leading-relaxed">
-                {service.description}
+
+              {/* Tagline */}
+              <p className="text-neutral-600 text-sm leading-relaxed flex-1">
+                {service.tagline}
               </p>
-              <ul className="space-y-2">
-                {service.features.map((feature) => (
-                  <li key={feature} className="flex items-center text-sm text-neutral-600">
-                    <svg className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+
+              {/* Learn more link */}
+              <div className="mt-5 pt-4 border-t border-neutral-100">
+                <Link
+                  to={service.slug}
+                  className="text-sm font-medium text-primary-700 hover:text-primary-900 transition-colors duration-150 inline-flex items-center gap-1 group-hover:gap-2"
+                >
+                  Learn more
+                  <span aria-hidden="true" className="transition-all duration-150">&rarr;</span>
+                </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>
 
+        {/* Bottom CTA */}
         <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 20 }}
+          className="mt-12 text-center"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <Link to="/services" className="btn-primary">
-            View All Services
+          <Link to="/services" className="btn-outline inline-block">
+            View all services
           </Link>
         </motion.div>
+
       </div>
     </section>
   )

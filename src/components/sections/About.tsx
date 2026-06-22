@@ -2,117 +2,78 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 const About = () => {
-  
-
   return (
-    <section className="py-20 bg-gradient-to-br from-neutral-50 to-primary-50">
+    <section className="section-neutral py-20 lg:py-24" id="about">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Content */}
+        <div className="grid lg:grid-cols-3 gap-12 lg:gap-16 items-start">
+
+          {/* ── Left 2/3: bio copy ── */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: -32 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-neutral-900 mb-6">
-              Why Choose <span className="text-gradient">Generation Catalyst</span>
+            <p className="eyebrow mb-3">About the founder</p>
+
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-primary-900 mb-6">
+              A CPA&rsquo;s view of estate planning
             </h2>
-            <p className="text-lg text-neutral-600 mb-6">
-              At Generation Catalyst, we understand that estate planning is about more than 
-              just documents—it's about protecting your family's future and preserving your legacy.
-            </p>
-            <p className="text-neutral-600 mb-8">
-              Our experienced team combines estate planning expertise with personalized service to create 
-              comprehensive estate plans that reflect your unique circumstances and goals. We guide 
-              you through every step of the process with clarity and compassion.
+
+            <p className="text-neutral-700 text-lg leading-relaxed mb-5">
+              Generation Catalyst was founded by a California-licensed CPA whose career
+              runs from Big Four auditing through corporate accounting to fractional CFO
+              work for business owners. That path leads to one observation, over and
+              over: estate plans rarely fail because of the documents — they fail because
+              nobody owns the tax strategy, the funding, and the follow-through.
             </p>
 
+            <p className="text-neutral-600 leading-relaxed mb-8">
+              We don&rsquo;t draft documents and we don&rsquo;t give legal advice —
+              licensed attorneys do that, and we work alongside them. We bring the
+              coordinator&rsquo;s seat to the table.
+            </p>
 
-            <Link to="/about" className="btn-primary">
-              Learn More About Us
+            <Link to="/about" className="btn-outline inline-block">
+              Our story
             </Link>
           </motion.div>
 
-          {/* Visual */}
+          {/* ── Right 1/3: pull-quote card ── */}
           <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 32 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
             viewport={{ once: true }}
           >
-            <div className="relative z-10">
-              <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-1 16H9V7h9v14z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-neutral-900">Personalized Planning</h3>
-                    <p className="text-sm text-neutral-600">Tailored to your unique needs</p>
-                  </div>
-                </div>
-                <p className="text-neutral-700 text-sm">
-                  Our experienced team combines legal expertise with personalized service
-                  to create comprehensive estate plans that protect your family's future.
-                </p>
+            <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-7">
+              {/* Opening quote mark */}
+              <div className="font-serif text-5xl text-primary-200 leading-none mb-2" aria-hidden="true">
+                &ldquo;
               </div>
-
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-neutral-900">Trust Administration</h4>
-                  <div className="text-green-500">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600">Document Review</span>
-                    <span className="text-green-600 font-medium">Complete</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600">Asset Transfer</span>
-                    <span className="text-green-600 font-medium">Complete</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600">Final Distribution</span>
-                    <span className="text-primary-600 font-medium">In Progress</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Human imagery collage */}
-              <div className="mt-8 grid grid-cols-2 gap-4">
-                <img
-                  src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
-                  alt="Family at the beach"
-                  loading="lazy"
-                  className="w-full h-36 object-cover rounded-xl"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=900&q=80"
-                  alt="Parents with child"
-                  loading="lazy"
-                  className="w-full h-36 object-cover rounded-xl"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80"
-                  alt="Grandparents together"
-                  loading="lazy"
-                  className="w-full h-36 object-cover rounded-xl col-span-2"
-                />
-              </div>
+              <blockquote className="font-serif text-lg italic text-primary-900 leading-relaxed mb-5">
+                The attorney builds the vehicle. We keep it fueled, registered, and
+                maintained — and the family decides where it&rsquo;s going.
+              </blockquote>
+              <footer className="text-sm text-neutral-500 not-italic">
+                — CPA, Founder of Generation Catalyst
+              </footer>
             </div>
 
-            {/* Background decoration */}
-            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-accent-200 to-primary-200 rounded-full opacity-30 -z-10"></div>
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-primary-200 to-accent-200 rounded-full opacity-20 -z-10"></div>
+            {/* Subtle stat badge below the card */}
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex items-center gap-3 bg-white rounded-xl border border-neutral-200 px-5 py-4">
+                <span className="font-serif text-2xl font-bold text-primary-800">CA</span>
+                <span className="text-sm text-neutral-600">Licensed CPA, California</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white rounded-xl border border-neutral-200 px-5 py-4">
+                <span className="font-serif text-2xl font-bold text-accent-600">Big 4</span>
+                <span className="text-sm text-neutral-600">Auditing background</span>
+              </div>
+            </div>
           </motion.div>
+
         </div>
       </div>
     </section>

@@ -28,9 +28,13 @@ import RequirePortalAuth from '@/routes/RequirePortalAuth'
 import EstatePlanningPage from '@/pages/EstatePlanningPage'
 import WillsTrustsPage from '@/pages/WillsTrustsPage'
 import TaxPlanningPage from '@/pages/TaxPlanningPage'
+import FamilyConversationPage from '@/pages/FamilyConversationPage'
 import ProbatePage from '@/pages/ProbatePage'
 import BusinessSuccessionPage from '@/pages/BusinessSuccessionPage'
 import AssetProtectionPage from '@/pages/AssetProtectionPage'
+import TrustFundingPage from '@/pages/TrustFundingPage'
+import TaxAdministrationPage from '@/pages/TaxAdministrationPage'
+import StrategicPage from '@/pages/StrategicPage'
 import TeamPage from '@/pages/TeamPage'
 import SchedulePage from '@/pages/SchedulePage'
 import VerifyEmail from '@/pages/VerifyEmail'
@@ -39,12 +43,19 @@ import PrivacyPage from '@/pages/PrivacyPage'
 import TermsPage from '@/pages/TermsPage'
 import ServiceInfoPage from '@/pages/ServiceInfoPage'
 import DisclosuresPage from '@/pages/DisclosuresPage'
+import ResourcesChecklistPage from '@/pages/ResourcesChecklistPage'
+import ResourcesPartnersPage from '@/pages/ResourcesPartnersPage'
+import ResourcesRecommendedToolsPage from '@/pages/ResourcesRecommendedToolsPage'
+import LearnPage from '@/pages/LearnPage'
+import LearnSlugPage from '@/pages/LearnSlugPage'
+import DisclaimerPage from '@/pages/DisclaimerPage'
+import AffiliateDisclosurePage from '@/pages/AffiliateDisclosurePage'
 
 function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <motion.main 
+      <motion.main
         className="flex-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -58,9 +69,13 @@ function App() {
           <Route path="/services/estate-planning" element={<EstatePlanningPage />} />
           <Route path="/services/wills-trusts" element={<WillsTrustsPage />} />
           <Route path="/services/tax-planning" element={<TaxPlanningPage />} />
+          <Route path="/services/family-conversation" element={<FamilyConversationPage />} />
           <Route path="/services/probate" element={<ProbatePage />} />
           <Route path="/services/business-succession" element={<BusinessSuccessionPage />} />
           <Route path="/services/asset-protection" element={<AssetProtectionPage />} />
+          <Route path="/services/trust-funding" element={<TrustFundingPage />} />
+          <Route path="/services/tax-administration" element={<TaxAdministrationPage />} />
+          <Route path="/services/strategic" element={<StrategicPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
@@ -68,6 +83,9 @@ function App() {
           <Route path="/resources/faq" element={<FAQPage />} />
           <Route path="/resources/guides" element={<GuidesPage />} />
           <Route path="/resources/tools" element={<ToolsPage />} />
+          <Route path="/resources/checklist" element={<ResourcesChecklistPage />} />
+          <Route path="/resources/partners" element={<ResourcesPartnersPage />} />
+          <Route path="/resources/recommended-tools" element={<ResourcesRecommendedToolsPage />} />
           <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -75,6 +93,10 @@ function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/service-info" element={<ServiceInfoPage />} />
           <Route path="/disclosures" element={<DisclosuresPage />} />
+          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn/:slug" element={<LearnSlugPage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
+          <Route path="/affiliate-disclosure" element={<AffiliateDisclosurePage />} />
           <Route element={<RequirePortalAuth />}>
             <Route path="/client-portal" element={<PortalLayout />}>
               <Route path="dashboard" element={<PortalDashboard />} />

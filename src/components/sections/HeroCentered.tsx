@@ -1,89 +1,107 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { useCallback } from 'react'
 
 const HeroCentered = () => {
-  const handleImgError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    const target = e.currentTarget
-    target.onerror = null
-    target.src = 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1600&q=80'
-  }, [])
-
   return (
-    <section className="relative bg-gradient-to-br from-primary-50 to-secondary-50 py-16 lg:py-24 overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-primary-200/40 to-accent-200/30 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-gradient-to-tr from-secondary-200/40 to-primary-100/30 rounded-full blur-3xl" />
-      </div>
+    <section className="relative bg-neutral-50 py-20 lg:py-28 overflow-hidden">
+      {/* Subtle decorative blob top-right */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 right-0 w-[480px] h-[480px] bg-primary-100/60 rounded-full blur-3xl pointer-events-none -translate-y-1/4 translate-x-1/4"
+      />
+      {/* Very faint bottom-left accent */}
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 w-64 h-64 bg-accent-100/40 rounded-full blur-3xl pointer-events-none translate-y-1/3 -translate-x-1/3"
+      />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Centered content */}
-        <motion.div
-          className="text-center max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="inline-block bg-accent-100 text-accent-800 text-xs sm:text-sm font-medium px-3 py-1 rounded-full mb-4">
-            Trusted Estate Planning for Modern Families
-          </span>
-          <h1 className="text-4xl lg:text-6xl font-bold text-neutral-900 leading-tight mb-4">
-            Protect What Matters Most
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-600 mb-8">
-            Comprehensive, compassionate planning to preserve your legacy and secure your family’s future.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/schedule" className="btn-primary shadow-lg hover:shadow-xl transition-shadow">
-              Schedule a Consultation
-            </Link>
-            <Link to="/services" className="btn-outline">
-              Explore Our Services
-            </Link>
-          </div>
-        </motion.div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-        {/* Hero photo */}
-        <motion.div
-          className="relative mt-12 sm:mt-16"
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          {/* floating accents */}
+          {/* ── Left column: copy ── */}
           <motion.div
-            className="absolute -top-6 -left-6 w-24 h-24 bg-gradient-to-br from-primary-200/60 to-accent-200/50 rounded-full blur-xl"
-            animate={{ y: [0, -6, 0], opacity: [0.6, 0.9, 0.6] }}
-            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute -bottom-8 -right-8 w-28 h-28 bg-gradient-to-br from-secondary-200/60 to-primary-200/50 rounded-full blur-xl"
-            animate={{ y: [0, 8, 0], opacity: [0.6, 0.85, 0.6] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
-          <motion.figure
-            className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden shadow-2xl border border-neutral-200/60"
-            whileHover={{ scale: 1.01 }}
-            transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease: 'easeOut' }}
           >
-            <motion.img
-              src="/family-hero.jpg"
-              alt="Smiling family outdoors"
-              className="w-full h-[280px] sm:h-[420px] object-cover"
-              loading="eager"
-              decoding="async"
-              onError={handleImgError}
-              initial={{ y: 10, opacity: 0.95 }}
-              animate={{ y: [10, 0, 10] }}
-              transition={{ y: { duration: 10, repeat: Infinity, ease: 'easeInOut' } }}
-            />
-            {/* gradient overlay */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-900/20 via-transparent to-transparent" />
-          </motion.figure>
+            {/* Eyebrow */}
+            <p className="eyebrow-accent mb-5 tracking-widest">
+              Education · Tax · Coordination
+            </p>
 
-        </motion.div>
+            {/* Headline */}
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold text-primary-900 leading-tight mb-6">
+              Your family&rsquo;s legacy is held in trust by every decision you make.
+            </h1>
+
+            {/* Sub-headline */}
+            <p className="text-lg lg:text-xl text-neutral-600 leading-relaxed mb-10 max-w-xl">
+              Generation Catalyst helps California families coordinate their estate
+              planning — connecting you with the right professionals and handling the
+              tax, funding, and administration most plans get wrong.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/learn" className="btn-primary text-center">
+                Start Learning
+              </Link>
+              <Link to="/schedule" className="btn-outline text-center">
+                Book a Family Planning Conversation
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* ── Right column: decorative illustration placeholder ── */}
+          <motion.div
+            className="hidden lg:flex items-center justify-center"
+            initial={{ opacity: 0, x: 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+            aria-hidden="true"
+          >
+            {/* Abstract geometric shape composition */}
+            <div className="relative w-[400px] h-[400px]">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-primary-200/60" />
+              {/* Inner filled circle */}
+              <div className="absolute inset-10 rounded-full bg-primary-100/70" />
+              {/* Floating accent orb top-right */}
+              <motion.div
+                className="absolute top-6 right-6 w-20 h-20 rounded-full bg-accent-200/80"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Floating primary orb bottom-left */}
+              <motion.div
+                className="absolute bottom-10 left-4 w-14 h-14 rounded-full bg-primary-200/80"
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              />
+              {/* Center card */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-white rounded-2xl shadow-lg border border-primary-100 p-7 w-52 text-center">
+                  <p className="font-serif text-5xl font-bold text-primary-800 mb-1">3</p>
+                  <p className="text-xs uppercase tracking-widest text-neutral-500 mb-3">pillars</p>
+                  <div className="space-y-1.5 text-sm text-neutral-600">
+                    <p>Education</p>
+                    <div className="w-full h-px bg-neutral-200" />
+                    <p>Tax Strategy</p>
+                    <div className="w-full h-px bg-neutral-200" />
+                    <p>Coordination</p>
+                  </div>
+                </div>
+              </div>
+              {/* Small decorative dot cluster */}
+              <div className="absolute bottom-6 right-10 grid grid-cols-3 gap-1.5">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary-300/60" />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
     </section>
   )

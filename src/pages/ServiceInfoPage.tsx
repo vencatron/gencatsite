@@ -13,40 +13,34 @@ const ServiceInfoPage = () => {
 
   const feeStructure = [
     {
-      service: 'Initial Consultation',
-      description: 'Comprehensive review of your estate planning needs and goals',
+      service: 'Initial Conversation',
+      description: 'We learn about your family situation, goals, and where you are in the process',
       fee: 'Complimentary',
-      duration: '60 minutes'
+      duration: '30 minutes'
     },
     {
-      service: 'Basic Estate Plan',
-      description: 'Will, healthcare directive, and financial power of attorney',
-      fee: 'Starting at $1,500',
-      duration: '2-3 weeks'
+      service: 'Family Planning Conversation',
+      description: 'Structured consultation that orients your family and produces a personalized roadmap',
+      fee: 'Fixed quote provided after initial conversation',
+      duration: '90 minutes'
     },
     {
-      service: 'Revocable Living Trust Package',
-      description: 'Complete trust-based estate plan with funding guidance',
-      fee: 'Starting at $3,000',
-      duration: '3-4 weeks'
+      service: 'Trust Funding & Implementation',
+      description: 'Project management of trust funding — retitling, beneficiaries, business interests',
+      fee: 'Fixed quote provided after initial conversation',
+      duration: '3–6 months'
     },
     {
-      service: 'Advanced Estate Planning',
-      description: 'Complex trusts, tax planning, and asset protection strategies',
-      fee: 'Custom quote',
-      duration: 'Varies'
+      service: 'Ongoing Tax & Administration',
+      description: 'Annual fiduciary tax compliance, basis tracking, and estate plan maintenance',
+      fee: 'Fixed quote provided at engagement start',
+      duration: 'Annual retainer'
     },
     {
-      service: 'Trust Administration',
-      description: 'Guidance for trustees on administration duties and procedures',
-      fee: 'Hourly or flat fee',
-      duration: 'As needed'
-    },
-    {
-      service: 'Plan Review and Updates',
-      description: 'Review of existing documents with recommended amendments',
-      fee: 'Starting at $500',
-      duration: '1-2 weeks'
+      service: 'Strategic Engagement',
+      description: 'Full-spectrum coordination for business owners and complex estates',
+      fee: 'Fixed quote provided after initial conversation',
+      duration: 'Multi-year'
     }
   ]
 
@@ -173,7 +167,7 @@ const ServiceInfoPage = () => {
               ))}
             </div>
             <p className="text-neutral-500 text-sm mt-4">
-              * Fees are subject to change. Actual fees may vary based on complexity. A detailed written quote will be provided before any work begins.
+              * All engagements are fixed-fee. A written quote will be provided after your initial conversation, before any work begins.
             </p>
           </motion.div>
 
