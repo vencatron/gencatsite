@@ -1,42 +1,37 @@
-// Application constants for Generation Catalyst
+// Application constants for Generation Catalyst / iamatrust.com
 
 export const COMPANY_INFO = {
-  name: 'Generation Catalyst',
-  tagline: 'Professional Estate Planning Services',
-  phone: '(555) 123-4567',
+  name: 'Generation Catalyst LLC',
+  brand: 'Generation Catalyst',
+  tagline: 'Estate Planning Education & Coordination',
   email: 'info@iamatrust.com',
   address: {
-    street: '123 Estate Planning Blvd',
-    city: 'Claremont',
+    city: 'Pomona',
     state: 'CA',
-    zip: '91711',
   },
+  serviceArea:
+    'Based in Pomona, California — serving LA County, the San Gabriel Valley, and remote clients nationwide',
   hours: {
     weekdays: 'Mon - Fri: 9:00 AM - 5:00 PM',
     weekends: 'Sat: By appointment only',
     sunday: 'Closed',
   },
-  social: {
-    linkedin: 'https://linkedin.com/company/generation-catalyst',
-    facebook: 'https://facebook.com/generation-catalyst',
-    twitter: 'https://twitter.com/gen_catalyst',
-  },
 } as const
 
 export const NAVIGATION_ITEMS = [
   { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
+  { name: 'Learn', href: '/learn' },
   { name: 'Services', href: '/services' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Resources', href: '/resources' },
+  { name: 'About', href: '/about' },
 ] as const
 
-export const SERVICE_CATEGORIES = [
-  'Estate Planning',
-  'Wills & Trusts',
-  'Tax Planning',
-  'Asset Protection',
-  'Business Succession',
-] as const
+// Required on every page of the site (see /disclaimer for the full version).
+export const FOOTER_DISCLAIMER =
+  'Generation Catalyst LLC is not a law firm and does not provide legal advice, draft legal documents, or represent clients in legal matters. We provide tax, coordination, and educational services. Information on this site is for general educational purposes only and is not a substitute for advice from a licensed attorney, financial advisor, or tax professional in your jurisdiction. Visiting this site or contacting us does not create an attorney-client, fiduciary, or other professional relationship. Consult a qualified estate planning attorney licensed in your state for legal advice specific to your situation.'
+
+export const CONTACT_FORM_DISCLAIMER =
+  'Submitting this form does not create a professional relationship. We will reach out to schedule a no-obligation initial conversation.'
 
 export const CONSULTATION_TIME_SLOTS = [
   '9:00 AM',
@@ -63,7 +58,7 @@ export const FORM_VALIDATION = {
   },
   phone: {
     pattern: {
-      value: /^[\+]?[1-9][\d]{0,15}$/,
+      value: /^[+]?[1-9]\d{0,15}$/,
       message: 'Invalid phone number',
     },
   },

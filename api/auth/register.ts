@@ -59,7 +59,6 @@ async function parseRequestBody(req: VercelRequest): Promise<Record<string, unkn
 }
 
 const BCRYPT_ROUNDS = 10;
-// Fixed: Removed non-existent dateOfBirth field from storage interface
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
@@ -72,10 +71,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return; // Response already sent by applyRateLimit
   }
 
-  const debugStages: string[] = [];
-  const requestUrl = req.url ? new URL(req.url, `https://${req.headers.host ?? 'localhost'}`) : null;
-  const debugMode = requestUrl?.searchParams.get('debug') === '1';
-
   try {
     let body: Record<string, unknown>;
     try {
@@ -83,7 +78,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (error) {
       return res.status(400).json({ error: 'Invalid JSON payload' });
     }
-    debugStages.push('parsed-body');
 
     const rawUsername = typeof body.username === 'string' ? body.username : '';
     const rawEmail = typeof body.email === 'string' ? body.email : '';
@@ -96,17 +90,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!rawUsername || !rawEmail || !rawPassword) {
       return res.status(400).json({ error: 'Username, email, and password are required' });
     }
-    debugStages.push('validated-required');
 
-    const [{ storage }, { generateAccessToken, generateRefreshToken }, validationModule, emailServiceModule] = await Promise.all([
+    const [{ storage }, validationModule, emailServiceModule] = await Promise.all([
       import('../storage.js'),
-      import('../jwt.js'),
       import('../validation.js'),
       import('../../server/services/email.js'),
     ]);
     const { sanitizeInput, validateEmail, validatePassword, validateUsername } = validationModule;
     const { emailService } = emailServiceModule;
-    debugStages.push('loaded-dependencies');
 
     // Sanitize inputs
     const sanitizedUsername = sanitizeInput(rawUsername);
@@ -140,22 +131,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (existingUserByUsername) {
       return res.status(409).json({ error: 'Username already exists' });
     }
-    debugStages.push('checked-username');
 
     const existingUserByEmail = await storage.getUserByEmail(sanitizedEmail);
     if (existingUserByEmail) {
       return res.status(409).json({ error: 'Email already registered' });
     }
-    debugStages.push('checked-email');
 
     // Hash password
     const passwordHash = await bcrypt.hash(rawPassword, BCRYPT_ROUNDS);
-    debugStages.push('hashed-password');
 
     // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    debugStages.push('generated-verification-token');
 
     // Create user
     const newUser: InsertUser = {
@@ -175,7 +162,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const user = await storage.createUser(newUser);
-    debugStages.push('created-user');
 
     // Send verification email (don't wait for it to complete)
     emailService.sendVerificationEmail(
@@ -185,25 +171,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ).catch(error => {
       console.error('Failed to send verification email:', error);
     });
-    debugStages.push('sent-verification-email');
 
     // Return user without password and tokens
     // Note: We don't generate tokens or login the user until email is verified
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return res.status(201).json({
       message: 'Registration successful! Please check your email to verify your account.',
       user: userWithoutPassword,
       emailVerificationRequired: true,
-      ...(debugMode ? { debugStages } : {}),
     });
   } catch (error) {
     console.error('Registration error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('Error message:', error instanceof Error ? error.message : String(error));
     return res.status(500).json({
       error: 'Internal server error during registration',
-      details: error instanceof Error ? error.message : String(error),
-      ...(debugMode ? { debugStages } : {}),
     });
   }
 }

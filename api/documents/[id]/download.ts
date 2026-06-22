@@ -63,8 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: 'File storage location not found' });
     }
 
-    console.log('Generating signed URL for:', document.storageUrl);
-
     // Generate temporary signed URL (valid for 1 hour)
     const command = new GetObjectCommand({
       Bucket: getS3BucketName(),
@@ -83,10 +81,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: unknown) {
     console.error('Error generating download URL:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Failed to generate download URL',
-      details: errorMessage
     });
   }
 }

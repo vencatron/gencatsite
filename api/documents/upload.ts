@@ -82,8 +82,6 @@ async function uploadToS3(
   // Format: documents/identifier_userId/YYYY-MM-DD_timestamp_originalname.ext
   const key = `documents/${ownerLabel}_${userId}/${date}_${timestamp}_${sanitizedBaseName}${extension}`;
 
-  console.log('Starting S3 upload:', { key, size: fileBuffer.length, type: mimeType });
-
   const upload = new Upload({
     client: getS3Client(),
     params: {
@@ -96,7 +94,6 @@ async function uploadToS3(
   });
 
   await upload.done();
-  console.log('S3 upload completed:', key);
 
   return key;
 }
@@ -195,10 +192,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: unknown) {
     console.error('Upload error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Failed to upload file',
-      details: errorMessage,
     });
   }
 }

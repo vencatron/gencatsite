@@ -1,7 +1,15 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { usePortalAuth } from '@/context/PortalAuthContext'
+import ErrorMessage from '@/components/common/ErrorMessage'
 
 const linkBase = 'px-4 py-2 rounded-md text-sm font-medium transition-colors'
+
+const navItems = [
+  { to: '/client-portal/admin/dashboard', label: 'Dashboard' },
+  { to: '/client-portal/admin/clients', label: 'Clients' },
+  { to: '/client-portal/admin/users', label: 'All Users' },
+  { to: '/client-portal/admin/invoices', label: 'Invoices' },
+]
 
 const AdminLayout = () => {
   const { user } = usePortalAuth()
@@ -10,10 +18,7 @@ const AdminLayout = () => {
   if (!isAdmin) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-red-800 mb-2">Access Denied</h2>
-          <p className="text-red-600">Admin privileges required to access this area.</p>
-        </div>
+        <ErrorMessage message="Admin privileges required to access this area." />
       </div>
     )
   }
@@ -32,54 +37,21 @@ const AdminLayout = () => {
           </div>
         </div>
         <nav className="flex gap-2 flex-wrap">
-          <NavLink
-            to="/client-portal/admin/dashboard"
-            className={({ isActive }) =>
-              `${linkBase} ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'text-neutral-700 hover:bg-neutral-100'
-              }`
-            }
-          >
-            Dashboard
-          </NavLink>
-          <NavLink
-            to="/client-portal/admin/clients"
-            className={({ isActive }) =>
-              `${linkBase} ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'text-neutral-700 hover:bg-neutral-100'
-              }`
-            }
-          >
-            Clients
-          </NavLink>
-          <NavLink
-            to="/client-portal/admin/users"
-            className={({ isActive }) =>
-              `${linkBase} ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'text-neutral-700 hover:bg-neutral-100'
-              }`
-            }
-          >
-            All Users
-          </NavLink>
-          <NavLink
-            to="/client-portal/admin/invoices"
-            className={({ isActive }) =>
-              `${linkBase} ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'text-neutral-700 hover:bg-neutral-100'
-              }`
-            }
-          >
-            Invoices
-          </NavLink>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `${linkBase} ${
+                  isActive
+                    ? 'bg-primary-600 text-white'
+                    : 'text-neutral-700 hover:bg-neutral-100'
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
       </div>
 

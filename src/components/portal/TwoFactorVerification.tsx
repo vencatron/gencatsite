@@ -28,8 +28,8 @@ const TwoFactorVerification = ({
 
     try {
       await onVerify(token.trim(), useBackupCode);
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
     }
   };
 

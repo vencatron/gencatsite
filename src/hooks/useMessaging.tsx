@@ -4,7 +4,24 @@ import { apiService, Message } from '@/services/api';
 
 interface WebSocketMessage {
   type: 'message' | 'typing' | 'read' | 'ping' | 'pong' | 'error';
-  data?: any;
+  data?: unknown;
+}
+
+// Type guards for WebSocket message data
+function isMessage(data: unknown): data is Message {
+  return typeof data === 'object' && data !== null && 'id' in data && 'text' in data;
+}
+
+function isTypingIndicator(data: unknown): data is { isTyping: boolean } {
+  return typeof data === 'object' && data !== null && 'isTyping' in data;
+}
+
+function isReadConfirmation(data: unknown): data is { messageId: number } {
+  return typeof data === 'object' && data !== null && 'messageId' in data;
+}
+
+function isErrorMessage(data: unknown): data is { error: string } {
+  return typeof data === 'object' && data !== null && 'error' in data;
 }
 
 interface MessagingState {
@@ -52,23 +69,19 @@ export const useMessaging = () => {
     // Skip WebSocket connection for production environments that don't support it
     // (Vercel serverless doesn't support WebSockets - use HTTP polling instead)
     if (isProductionWithoutWebSocket()) {
-      console.log('Production environment detected - using HTTP polling instead of WebSocket');
       return;
     }
 
     if (!isAuthenticated) {
-      console.log('User not authenticated, skipping WebSocket connection');
       return;
     }
 
     const accessToken = apiService.getAccessToken();
     if (!accessToken) {
-      console.log('No access token, skipping WebSocket connection');
       return;
     }
 
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log('WebSocket already connected');
       return;
     }
 
@@ -77,7 +90,6 @@ export const useMessaging = () => {
       const ws = new WebSocket(`${wsUrl}?token=${accessToken}`);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
         reconnectAttemptsRef.current = 0;
         setState(prev => ({ ...prev, connected: true, error: null }));
       };
@@ -87,57 +99,73 @@ export const useMessaging = () => {
           const message: WebSocketMessage = JSON.parse(event.data);
 
           switch (message.type) {
-            case 'message':
+            case 'message': {
               // New message received
-              setState(prev => ({
-                ...prev,
-                messages: [...prev.messages, message.data],
-              }));
+              const msgData = message.data;
+              if (isMessage(msgData)) {
+                setState(prev => ({
+                  ...prev,
+                  messages: [...prev.messages, msgData],
+                }));
+              }
               break;
+            }
 
-            case 'typing':
+            case 'typing': {
               // Typing indicator
-              setState(prev => ({
-                ...prev,
-                typing: message.data.isTyping,
-              }));
+              const typingData = message.data;
+              if (isTypingIndicator(typingData)) {
+                setState(prev => ({
+                  ...prev,
+                  typing: typingData.isTyping,
+                }));
+              }
               break;
+            }
 
-            case 'read':
+            case 'read': {
               // Message was read
-              setState(prev => ({
-                ...prev,
-                messages: prev.messages.map(msg =>
-                  msg.id === message.data.messageId
-                    ? { ...msg, isRead: true }
-                    : msg
-                ),
-              }));
+              const readData = message.data;
+              if (isReadConfirmation(readData)) {
+                const messageId = readData.messageId;
+                setState(prev => ({
+                  ...prev,
+                  messages: prev.messages.map(msg =>
+                    msg.id === messageId
+                      ? { ...msg, isRead: true }
+                      : msg
+                  ),
+                }));
+              }
               break;
+            }
 
             case 'ping':
             case 'pong':
               // Heartbeat - no action needed
               break;
 
-            case 'error':
-              console.error('WebSocket error message:', message.data);
-              setState(prev => ({
-                ...prev,
-                error: message.data.error,
-              }));
+            case 'error': {
+              const errData = message.data;
+              if (isErrorMessage(errData)) {
+                setState(prev => ({
+                  ...prev,
+                  error: errData.error,
+                }));
+              }
               break;
+            }
 
             default:
-              console.log('Unknown message type:', message.type);
+              // Ignore unknown message types
+              break;
           }
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
+        } catch (_err) {
+          // Ignore malformed messages
         }
       };
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      ws.onerror = () => {
         setState(prev => ({
           ...prev,
           connected: false,
@@ -146,13 +174,11 @@ export const useMessaging = () => {
       };
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
         setState(prev => ({ ...prev, connected: false }));
 
         // Attempt to reconnect
         if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
@@ -167,8 +193,7 @@ export const useMessaging = () => {
       };
 
       wsRef.current = ws;
-    } catch (err) {
-      console.error('Error creating WebSocket:', err);
+    } catch (_err) {
       setState(prev => ({
         ...prev,
         error: 'Failed to create connection',
@@ -198,8 +223,8 @@ export const useMessaging = () => {
           data: { content },
         }));
         return true;
-      } catch (err) {
-        console.error('Error sending via WebSocket, falling back to HTTP:', err);
+      } catch (_err) {
+        // Fall through to HTTP fallback
       }
     }
 
@@ -212,11 +237,10 @@ export const useMessaging = () => {
         error: null
       }));
       return true;
-    } catch (err: any) {
-      console.error('Error sending message:', err);
+    } catch (err) {
       setState(prev => ({
         ...prev,
-        error: err.message || 'Failed to send message',
+        error: err instanceof Error ? err.message : 'Failed to send message',
       }));
       return false;
     }
@@ -232,14 +256,14 @@ export const useMessaging = () => {
         type: 'typing',
         data: { isTyping },
       }));
-    } catch (err) {
-      console.error('Error sending typing indicator:', err);
+    } catch (_err) {
+      // Silently ignore typing indicator failures
     }
   }, []);
 
   const markAsRead = useCallback((messageId: number) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      // TODO: Implement HTTP fallback for mark read
+      // WebSocket not available - read status will sync on next poll/reconnect
       return;
     }
 
@@ -248,8 +272,8 @@ export const useMessaging = () => {
         type: 'read',
         data: { messageId },
       }));
-    } catch (err) {
-      console.error('Error marking message as read:', err);
+    } catch (_err) {
+      // Silently ignore - read status will sync on next poll
     }
   }, []);
 
@@ -277,8 +301,8 @@ export const useMessaging = () => {
           }
           return prev;
         });
-      } catch (err) {
-        console.error('Polling error:', err);
+      } catch (_err) {
+        // Polling error - will retry on next interval
       }
     }, 5000); // Poll every 5 seconds
 

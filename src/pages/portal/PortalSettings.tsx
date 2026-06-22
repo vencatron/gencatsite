@@ -59,9 +59,9 @@ const PortalSettings = () => {
       await refreshUser()
       setIsEditing(false)
       setSuccess('Profile updated successfully!')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error updating profile:', err)
-      setError(err.message || 'Failed to update profile. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to update profile. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -94,9 +94,9 @@ const PortalSettings = () => {
       setChangingPassword(false)
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
       setSuccess(result.message || 'Password changed successfully!')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error changing password:', err)
-      setError(err.message || 'Failed to change password. Please check your current password.')
+      setError(err instanceof Error ? err.message : 'Failed to change password. Please check your current password.')
     } finally {
       setSaving(false)
     }
@@ -130,7 +130,7 @@ const PortalSettings = () => {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error exporting data:', err)
       setError('Failed to export data. Please try again.')
     }
@@ -148,9 +148,9 @@ const PortalSettings = () => {
       setDisabling2FA(false)
       setDisable2FAData({ password: '', token: '' })
       setSuccess('Two-factor authentication has been disabled.')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error disabling 2FA:', err)
-      setError(err.message || 'Failed to disable 2FA. Please check your password and code.')
+      setError(err instanceof Error ? err.message : 'Failed to disable 2FA. Please check your password and code.')
     } finally {
       setTwoFALoading(false)
     }

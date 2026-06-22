@@ -57,7 +57,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`PaymentIntent ${paymentIntent.id} succeeded`);
         
         // Get invoice ID from metadata
         const invoiceId = paymentIntent.metadata?.invoiceId;
@@ -73,7 +72,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 ? `${invoice.notes}\n[${new Date().toISOString()}] Payment received via Stripe webhook.`
                 : `[${new Date().toISOString()}] Payment received via Stripe webhook.`,
             });
-            console.log(`Invoice ${invoiceId} marked as paid via webhook`);
           }
         }
         break;
@@ -81,7 +79,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       case 'payment_intent.payment_failed': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`PaymentIntent ${paymentIntent.id} failed`);
         
         const invoiceId = paymentIntent.metadata?.invoiceId;
         if (invoiceId) {
@@ -100,7 +97,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       case 'payment_intent.canceled': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`PaymentIntent ${paymentIntent.id} canceled`);
         
         const invoiceId = paymentIntent.metadata?.invoiceId;
         if (invoiceId) {
@@ -115,7 +111,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Unhandled event types are silently ignored
+        break;
     }
 
     return res.json({ received: true });

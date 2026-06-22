@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { usePortalAuth } from '@/context/PortalAuthContext'
-import { apiService } from '@/services/api'
+import { apiService, ApiServiceError } from '@/services/api'
 import TwoFactorVerification from '@/components/portal/TwoFactorVerification'
 
 const ClientPortal = () => {
@@ -35,7 +35,7 @@ const ClientPortal = () => {
   const [resendingVerification, setResendingVerification] = useState(false)
   const { register, refreshUser } = usePortalAuth()
   const navigate = useNavigate()
-  const location = useLocation() as any
+  const location = useLocation()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,9 +45,9 @@ const ClientPortal = () => {
       const response = await apiService.login(loginData.email, loginData.password)
 
       // Check if 2FA is required
-      if ((response as any).requires2FA) {
+      if (response.requires2FA) {
         setRequires2FA(true)
-        setTwoFAUserId((response as any).userId)
+        setTwoFAUserId(response.userId ?? null)
         setIsLoggingIn(false)
         return
       }
@@ -57,13 +57,14 @@ const ClientPortal = () => {
 
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Check if the error is due to unverified email
-      if (err.response?.data?.emailNotVerified) {
-        setUnverifiedEmail(err.response.data.email || loginData.email)
+      if (err instanceof ApiServiceError && err.response?.data?.emailNotVerified) {
+        const email = err.response.data.email as string | undefined
+        setUnverifiedEmail(email || loginData.email)
         setError('Please verify your email address before logging in. Check your inbox for the verification email.')
       } else {
-        setError(err.message || 'Login failed. Please check your credentials.')
+        setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.')
       }
     } finally {
       setIsLoggingIn(false)
@@ -81,8 +82,8 @@ const ClientPortal = () => {
       await refreshUser() // Update auth context
       const redirectTo = location?.state?.from || '/client-portal/dashboard'
       navigate(redirectTo)
-    } catch (err: any) {
-      throw new Error(err.message || '2FA verification failed')
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : '2FA verification failed')
     } finally {
       setIsVerifying2FA(false)
     }
@@ -136,8 +137,8 @@ const ClientPortal = () => {
         const redirectTo = '/client-portal/dashboard'
         navigate(redirectTo)
       }
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.')
     } finally {
       setIsRegistering(false)
     }
@@ -257,7 +258,7 @@ const ClientPortal = () => {
         </svg>
       ),
       title: 'Secure Messaging',
-      description: 'Communicate directly with your estate planning attorney'
+      description: 'Message our coordination team securely about your engagement'
     },
     {
       icon: (
@@ -266,7 +267,7 @@ const ClientPortal = () => {
         </svg>
       ),
       title: 'Appointment Scheduling',
-      description: 'Schedule consultations and review meetings online'
+      description: 'Schedule conversations and check-ins online'
     },
     {
       icon: (
@@ -308,8 +309,8 @@ const ClientPortal = () => {
                 <span className="text-gradient">Command Center</span>
               </h2>
               <p className="text-xl text-neutral-600 leading-relaxed">
-                Access your estate planning documents, communicate with your attorney, 
-                and manage your plan updates all in one secure location, available 24/7.
+                Access your document inventory, message our coordination team, and
+                track the progress of your engagement in one secure location, available 24/7.
               </p>
             </div>
 

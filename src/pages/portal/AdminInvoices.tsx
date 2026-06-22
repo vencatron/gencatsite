@@ -91,11 +91,10 @@ const AdminInvoices = () => {
         apiService.getAllInvoices(),
         apiService.getAllUsers(),
       ])
-      console.log('loadData - users returned:', usersRes.length, usersRes.map(u => ({ id: u.id, name: `${u.firstName} ${u.lastName}`, role: u.role })))
       setInvoices(invoicesRes.invoices)
       setUsers(usersRes)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load data')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
       setLoading(false)
     }
@@ -144,8 +143,8 @@ const AdminInvoices = () => {
       setShowCreateModal(false)
       resetForm()
       loadData()
-    } catch (err: any) {
-      setError(err.message || 'Failed to create invoice')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create invoice')
     } finally {
       setCreating(false)
     }
@@ -159,8 +158,8 @@ const AdminInvoices = () => {
     try {
       await apiService.sendInvoiceEmail(invoiceId)
       setSuccess('Invoice email sent successfully!')
-    } catch (err: any) {
-      setError(err.message || 'Failed to send invoice email')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send invoice email')
     } finally {
       setSendingEmail(null)
     }
@@ -190,7 +189,6 @@ const AdminInvoices = () => {
 
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('handleCreateClient called', clientFormData)
     setCreatingClient(true)
     setError(null)
     setSuccess(null)
@@ -210,9 +208,7 @@ const AdminInvoices = () => {
         clientData.phoneNumber = clientFormData.phoneNumber
       }
 
-      console.log('Calling API to create client...')
       const result = await apiService.createClient(clientData)
-      console.log('API response:', result)
 
       setSuccess(result.message)
       setShowCreateClientModal(false)
@@ -225,9 +221,9 @@ const AdminInvoices = () => {
       if (result.user && result.user.id) {
         setFormData(prev => ({ ...prev, userId: String(result.user.id) }))
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating client:', err)
-      setError(err.message || 'Failed to create client')
+      setError(err instanceof Error ? err.message : 'Failed to create client')
     } finally {
       setCreatingClient(false)
     }

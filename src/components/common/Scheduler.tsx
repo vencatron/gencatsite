@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { COMPANY_INFO } from '@/utils/constants'
-import { sendConfirmationEmail } from '@/utils/email'
+import { sendConfirmationEmail, EmailPayload } from '@/utils/email'
 
 type Slot = {
   iso: string
@@ -194,15 +194,15 @@ export default function Scheduler() {
     }
 
     // Fire-and-forget email via lightweight API endpoint if configured
-    const emailPayload: any = {
+    const emailPayload: EmailPayload = {
       to: appt.email,
       name: appt.name,
       startISO: start.toISOString(),
       endISO: end.toISOString(),
       ics,
+      notes: appt.notes,
+      phone: appt.phone,
     }
-    if (appt.notes) emailPayload.notes = appt.notes
-    if (appt.phone) emailPayload.phone = appt.phone
     sendConfirmationEmail(emailPayload).catch(() => {})
 
     setConfirmed(appt)

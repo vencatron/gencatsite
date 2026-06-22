@@ -39,10 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error: unknown) {
     console.error('Document operation error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Internal server error',
-      details: errorMessage
     });
   }
 }
@@ -177,7 +175,6 @@ async function handleDelete(res: VercelResponse, userId: number, documentId: num
         Key: document.storageUrl,
       });
       await getS3Client().send(deleteCommand);
-      console.log('File deleted from S3:', document.storageUrl);
     } catch (s3Error) {
       console.error('Error deleting from S3:', s3Error);
       // Continue with database deletion even if S3 deletion fails

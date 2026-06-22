@@ -1,208 +1,148 @@
 import { Link } from 'react-router-dom'
-
-// ─── Logo Mark (matches Header) ───────────────────────────────────────────────
-
-const FooterLogoMark = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 36 36"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <circle cx="18" cy="18" r="18" fill="white" fillOpacity="0.15" />
-    <path
-      d="M11 13h7.5M11 18h5M11 23h9"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <path
-      d="M22 11l3 3-3 3"
-      stroke="#e5d47e"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
+import { COMPANY_INFO, FOOTER_DISCLAIMER } from '@/utils/constants'
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear()
-
-  const navigate = [
-    { name: 'Home',           href: '/' },
-    { name: 'Learn',          href: '/learn/basics' },
-    { name: 'Services',       href: '/services' },
-    { name: 'Resources',      href: '/resources' },
-    { name: 'About',          href: '/about' },
-    { name: 'Contact',        href: '/contact' },
+  const navLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'Learn', href: '/learn' },
+    { name: 'Services', href: '/services' },
+    { name: 'Resources', href: '/resources' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ]
 
-  const learn = [
-    { name: 'Estate planning basics',  href: '/learn/basics' },
-    { name: 'Wills vs. trusts',        href: '/learn/wills-vs-trusts' },
-    { name: 'The funding gap',         href: '/learn/why-most-trusts-fail' },
-    { name: 'California concepts',     href: '/learn/california' },
-    { name: 'Glossary',                href: '/resources' },
+  const legalLinks = [
+    { name: 'Disclaimer', href: '/disclaimer' },
+    { name: 'Terms', href: '/terms' },
+    { name: 'Privacy', href: '/privacy' },
+    { name: 'Affiliate Disclosure', href: '/affiliate-disclosure' },
+    { name: 'Do Not Sell My Personal Information', href: '/privacy#do-not-sell' },
   ]
 
-  const services = [
-    { name: 'Family Planning Conversation',   href: '/services/family-conversation' },
+  const learnLinks = [
+    { name: 'Estate planning basics', href: '/learn/basics' },
+    { name: 'Wills vs. trusts', href: '/learn/wills-vs-trusts' },
+    { name: 'The funding gap', href: '/learn/funding' },
+    { name: 'California concepts', href: '/learn/california' },
+    { name: 'Glossary', href: '/learn/glossary' },
+  ]
+
+  const serviceLinks = [
+    { name: 'Family Planning Conversation', href: '/services/family-conversation' },
     { name: 'Trust Funding & Implementation', href: '/services/trust-funding' },
-    { name: 'Ongoing Tax & Administration',   href: '/services/tax-administration' },
-    { name: 'Strategic Engagement',           href: '/services/strategic' },
-  ]
-
-  const legal = [
-    { name: 'Disclaimer',                       href: '/disclosures' },
-    { name: 'Terms',                             href: '/terms' },
-    { name: 'Privacy',                           href: '/privacy' },
-    { name: 'Affiliate Disclosure',              href: '/disclosures' },
-    { name: 'Do Not Sell My Personal Information', href: '/privacy' },
+    { name: 'Ongoing Tax & Administration', href: '/services/tax-administration' },
+    { name: 'Strategic Engagement', href: '/services/strategic' },
   ]
 
   return (
-    <footer className="bg-primary-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
-
-        {/* ── Main Grid ──────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
-
-          {/* Column 1 — Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-3 mb-5 group"
-              aria-label="Generation Catalyst — home"
-            >
-              <FooterLogoMark />
-              <div className="leading-tight">
-                <span className="block font-serif text-base font-semibold text-white group-hover:text-primary-200 transition-colors">
-                  Generation Catalyst
+    <footer className="bg-primary-950 text-neutral-200">
+      <div className="container-width py-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+          {/* Brand */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="inline-flex items-center gap-3 mb-4">
+              <img src="/logo-GC.png" alt="" className="h-10 w-auto" />
+              <span className="leading-tight">
+                <span className="block font-serif text-xl font-semibold text-white">
+                  {COMPANY_INFO.name}
                 </span>
-                <span className="block text-[9px] font-medium tracking-[0.18em] uppercase text-primary-300 group-hover:text-primary-200 transition-colors">
-                  Estate Planning Coordination
+                <span className="block text-[0.65rem] font-sans uppercase tracking-[0.22em] text-accent-400">
+                  {COMPANY_INFO.tagline}
                 </span>
-              </div>
+              </span>
             </Link>
-
-            <p className="text-sm text-primary-200 leading-relaxed mb-6">
-              Helping California families coordinate their estate planning —
-              connecting you with the right professionals and handling the tax,
-              funding, and administration most plans get wrong.
+            <p className="text-neutral-300 text-sm leading-relaxed mb-6 max-w-md">
+              Estate planning education and coordination for families — we handle the tax,
+              funding, and administration side of your plan, and connect you with the licensed
+              professionals who handle the rest.
             </p>
-
-            <div className="space-y-2 text-sm text-primary-300">
-              <p>Pomona, CA</p>
+            <div className="space-y-2 text-sm text-neutral-300">
+              <p>
+                {COMPANY_INFO.address.city}, {COMPANY_INFO.address.state}
+              </p>
+              <p className="text-neutral-400">{COMPANY_INFO.serviceArea}</p>
               <a
-                href="mailto:info@iamatrust.com"
-                className="block hover:text-white transition-colors"
+                href={`mailto:${COMPANY_INFO.email}`}
+                className="inline-block text-accent-300 hover:text-accent-200 transition-colors"
               >
-                info@iamatrust.com
+                {COMPANY_INFO.email}
               </a>
             </div>
           </div>
 
-          {/* Column 2 — Navigate */}
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest uppercase text-primary-400 mb-5">
+          {/* Navigation */}
+          <nav aria-label="Footer">
+            <h4 className="font-sans text-sm font-semibold uppercase tracking-wider text-white mb-5">
               Navigate
             </h4>
-            <ul className="space-y-3">
-              {navigate.map((link) => (
-                <li key={link.href + link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-200 hover:text-white transition-colors"
-                  >
+            <ul className="space-y-2.5">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-neutral-300 hover:text-white transition-colors">
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Column 3 — Learn */}
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest uppercase text-primary-400 mb-5">
+          {/* Learn */}
+          <nav aria-label="Learn hub">
+            <h4 className="font-sans text-sm font-semibold uppercase tracking-wider text-white mb-5">
               Learn
             </h4>
-            <ul className="space-y-3">
-              {learn.map((link) => (
-                <li key={link.href + link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-200 hover:text-white transition-colors"
-                  >
+            <ul className="space-y-2.5">
+              {learnLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-neutral-300 hover:text-white transition-colors">
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Column 4 — Services */}
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest uppercase text-primary-400 mb-5">
+          {/* Services */}
+          <nav aria-label="Services">
+            <h4 className="font-sans text-sm font-semibold uppercase tracking-wider text-white mb-5">
               Services
             </h4>
-            <ul className="space-y-3">
-              {services.map((link) => (
-                <li key={link.href + link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-200 hover:text-white transition-colors"
-                  >
+            <ul className="space-y-2.5">
+              {serviceLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-neutral-300 hover:text-white transition-colors">
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-
-            {/* CTA nudge */}
-            <div className="mt-8">
-              <Link
-                to="/schedule"
-                className="inline-block bg-accent-200 hover:bg-accent-300 text-primary-950 font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors duration-200"
-              >
-                Book a Conversation
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Legal disclaimer ───────────────────────────────────────── */}
-        <div className="border-t border-primary-800 pt-8 mb-6">
-          <p className="text-xs text-primary-400 leading-relaxed max-w-4xl">
-            Generation Catalyst LLC is a California-licensed CPA firm. We provide tax, coordination,
-            and administrative services — we do not provide legal advice and are not a law firm.
-            Estate planning legal documents must be prepared and executed by a licensed attorney.
-            The information on this site is for educational purposes only and does not constitute
-            professional advice. Prior results do not guarantee a similar outcome.
-          </p>
-        </div>
-
-        {/* ── Bottom bar ─────────────────────────────────────────────── */}
-        <div className="border-t border-primary-800 pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <p className="text-xs text-primary-400">
-            © {currentYear} Generation Catalyst LLC. All rights reserved.
-          </p>
-
-          <nav aria-label="Legal links" className="flex flex-wrap gap-x-4 gap-y-1">
-            {legal.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className="text-xs text-primary-400 hover:text-primary-200 transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
           </nav>
+        </div>
+
+        {/* Legal links */}
+        <div className="border-t border-primary-900 pt-8 mb-8">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {legalLinks.map((link) => (
+              <li key={link.name}>
+                <Link to={link.href} className="text-xs text-neutral-400 hover:text-white transition-colors">
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Required disclaimer — must appear on every page */}
+        <div className="border-t border-primary-900 pt-8">
+          <p className="text-xs text-neutral-400 leading-relaxed max-w-4xl mb-6">
+            {FOOTER_DISCLAIMER}{' '}
+            <Link to="/disclaimer" className="underline hover:text-white">
+              Read our full disclaimer.
+            </Link>
+          </p>
+          <p className="text-xs text-neutral-500">
+            © {new Date().getFullYear()} {COMPANY_INFO.name}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

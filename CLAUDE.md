@@ -55,8 +55,11 @@ The Vite dev server proxies `/api` requests to the backend server (configured in
 ### Frontend Architecture
 
 #### Routing Structure (`src/App.tsx`)
-- **Public Routes**: Home, About, Services, Contact, Resources, Schedule
-- **Service Sub-routes**: Estate Planning, Wills & Trusts, Tax Planning
+- **Public Routes** (5 pillars): Home, Learn, Services, Resources, About (+ Contact)
+- **Learn hub**: `/learn` index, category pages (`/learn/basics`, `/learn/wills-vs-trusts`, `/learn/funding`, `/learn/california`), `/learn/glossary`, and article pages at `/learn/:slug` (content in `src/data/articles.ts`)
+- **Service tiers**: `/services/:slug` for family-conversation, trust-funding, tax-administration, strategic (content in `src/data/services.ts`)
+- **Resources**: `/resources/checklist` (gated downloads), `/resources/partners`, `/resources/recommended-tools` (affiliate)
+- **Legal pages**: `/disclaimer`, `/terms`, `/privacy`, `/affiliate-disclosure`
 - **Client Portal Routes** (protected by JWT auth):
   - `/client-portal`: Login/registration page
   - `/client-portal/dashboard`: Overview of documents, messages, invoices
@@ -137,16 +140,19 @@ The server build compiles TypeScript to CommonJS (`.cjs`):
 ### Design System
 
 #### Color Palette (Tailwind CSS)
-**No blue colors** - warm, neutral, professional tones:
-- **Primary**: Warm nude/sand (#b19373 base with 50-900 scale)
-- **Secondary**: Neutral taupe/beige (#a89f94 base)
-- **Accent**: Soft blush/terracotta (#e68c73 base)
-- **Neutral**: Warm grays (#988c84 base)
+**No blue, nothing that mimics law-firm branding** — trustworthy, warm, editorial:
+- **Primary**: Deep forest green (#2d513c range, 50-950 scale)
+- **Secondary**: Warm terracotta (#da6e50 base)
+- **Accent**: Warm gold (#cb952b base)
+- **Neutral**: Warm grays / off-white (#968c79 base)
 
 #### Typography
-- **Serif**: Freight Serif Pro, Playfair Display, Georgia (primary)
-- **Sans**: Inter for UI elements
+- **Serif**: Lora (headings — editorial feel)
+- **Sans**: Inter (body and UI; body line-height 1.6+)
 - **Mono**: JetBrains Mono for code
+
+#### Compliance (CRITICAL)
+This site is an **education and coordination** brand operated by a CPA — **not a law firm**. All user-facing copy must avoid UPL exposure: never "we create/draft/write/review your trust/documents", never "legal advice"/"our attorneys"; use coordinate/prepare/educate/analyze/project-manage instead. All public content must be GENERAL information for any reader, never advice for one person's situation. The required disclaimer (`FOOTER_DISCLAIMER` in `src/utils/constants.ts`) must remain in the global footer on every page.
 
 #### Animation System
 - Framer Motion for page transitions

@@ -69,7 +69,7 @@ export function sanitizeInput(input: string): string {
 
 export function validatePhoneNumber(phone: string): boolean {
   // Basic phone number validation (can be customized per region)
-  const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+  const phoneRegex = /^[\d\s\-+()]+$/;
   return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
 }
 

@@ -10,21 +10,10 @@ const getApiUrl = () => {
     return '';
   }
   
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  
-  // For Vercel deployment (uses serverless functions at /api)
-  if (hostname.includes('vercel.app') || hostname.includes('iamatrust.com')) {
-    return ''; // Use relative URLs for Vercel serverless functions
-  }
-  
-  // For Replit environment
-  if (hostname.includes('replit')) {
-    return `${protocol}//${hostname}:3001`;
-  }
-  
-  // For local development
-  return 'http://localhost:3001';
+  // Use relative URL for both production and local development
+  // In production: Vercel handles routing
+  // In local dev: 'vercel dev' handles routing to /api and frontend
+  return '';
 };
 
 const API_URL = getApiUrl();
@@ -54,6 +43,9 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   emailVerificationRequired?: boolean;
+  requires2FA?: boolean;
+  userId?: number;
+  tempToken?: string;
 }
 
 export interface Document {
@@ -63,7 +55,7 @@ export interface Document {
   type: string;
   size: number;
   uploadedAt: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Message {
@@ -98,7 +90,32 @@ export interface Invoice {
 
 export interface ApiError {
   error: string;
-  details?: any;
+  details?: string | string[];
+}
+
+// Custom error class for API responses with typed response data
+export class ApiServiceError extends Error {
+  public response: {
+    status: number;
+    data: Record<string, unknown>;
+  };
+
+  constructor(message: string, status: number, data: Record<string, unknown>) {
+    super(message);
+    this.name = 'ApiServiceError';
+    this.response = { status, data };
+  }
+}
+
+export interface RecentUser {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
+  documentCount?: number;
+  hasInvoice?: boolean;
 }
 
 export interface AdminStats {
@@ -111,16 +128,7 @@ export interface AdminStats {
   totalInvoices: number;
   pendingInvoices: number;
   totalRevenue: number;
-  recentUsers: Array<{
-    id: number;
-    username: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    createdAt: string;
-    documentCount?: number;
-    hasInvoice?: boolean;
-  }>;
+  recentUsers: RecentUser[];
 }
 
 // Helper function for API calls with proper error handling
@@ -199,15 +207,14 @@ class ApiService {
   // Parse response and handle errors
   private async handleResponse<T>(response: Response): Promise<T> {
     const text = await response.text();
-    let data: any;
+    let data: Record<string, unknown> = {};
 
     try {
       data = text ? JSON.parse(text) : {};
-    } catch (e) {
+    } catch {
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`);
       }
-      data = {};
     }
 
     if (!response.ok) {
@@ -224,16 +231,14 @@ class ApiService {
           ? errorMessageParts.join(': ')
           : `HTTP error! status: ${response.status}`;
 
-      // Create an error that preserves the response data
-      const error: any = new Error(message);
-      error.response = {
-        status: response.status,
-        data: data
-      };
-      throw error;
+      // Create a typed error that preserves the response data
+      throw new ApiServiceError(message, response.status, data as Record<string, unknown>);
     }
 
-    return data;
+    // Cast the parsed JSON to the expected type
+    // Note: This is a runtime trust boundary - the caller is responsible for
+    // ensuring the response matches the expected type T
+    return data as T;
   }
 
   // Authentication APIs

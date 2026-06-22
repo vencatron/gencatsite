@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Return user without password
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return res.json({ user: userWithoutPassword });
   } catch (error) {
     console.error('Get current user error:', error);

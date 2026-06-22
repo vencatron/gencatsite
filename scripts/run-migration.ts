@@ -44,15 +44,20 @@ async function runMigration() {
     console.log('✓ Added index on stripe_payment_intent_id');
 
     // Verify columns
+    interface ColumnInfo {
+      column_name: string;
+      data_type: string;
+    }
+
     const result = await sql`
       SELECT column_name, data_type 
       FROM information_schema.columns 
       WHERE table_name = 'invoices' 
       AND column_name LIKE 'stripe%'
-    `;
+    ` as ColumnInfo[];
 
     console.log('\nVerification - Stripe columns in invoices table:');
-    result.forEach((row: any) => {
+    result.forEach((row) => {
       console.log(`  - ${row.column_name}: ${row.data_type}`);
     });
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { apiService, Document, Invoice, Message } from '@/services/api'
 import { usePortalAuth } from '@/context/PortalAuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -14,16 +14,16 @@ const PortalDashboard = () => {
   const [error, setError] = useState<string | null>(null)
   const [steps, setSteps] = useState<Step[]>(
     () => JSON.parse(localStorage.getItem('portal_plan_steps') || 'null') || [
-      { id: 's1', label: 'Initial consultation', done: true },
-      { id: 's2', label: 'Questionnaire received', done: true },
-      { id: 's3', label: 'Draft documents prepared', done: false },
-      { id: 's4', label: 'Review meeting scheduled', done: false },
-      { id: 's5', label: 'Signing ceremony', done: false },
+      { id: 's1', label: 'Family Planning Conversation', done: true },
+      { id: 's2', label: 'Intake questionnaire received', done: true },
+      { id: 's3', label: 'Roadmap & summary delivered', done: false },
+      { id: 's4', label: 'Professional team engaged', done: false },
+      { id: 's5', label: 'Funding & follow-through complete', done: false },
     ]
   )
   const navigate = useNavigate()
 
-  async function fetchDashboardData() {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -31,9 +31,8 @@ const PortalDashboard = () => {
       setDocs(data.documents)
       setMessages(data.messages)
       setInvoices(data.invoices)
-    } catch (err: any) {
-      console.error('Error fetching dashboard data:', err)
-      if (err.message?.includes('401')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
         setError('Failed to load dashboard data. Please refresh the page.')
@@ -41,11 +40,11 @@ const PortalDashboard = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [navigate])
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [fetchDashboardData])
 
   useEffect(() => {
     localStorage.setItem('portal_plan_steps', JSON.stringify(steps))

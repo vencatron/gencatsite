@@ -59,8 +59,8 @@ const AdminClients = () => {
       // Filter to only show clients (non-admins)
       const clientsOnly = allUsers.filter(u => u.role !== 'admin')
       setClients(clientsOnly)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load clients')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load clients')
     } finally {
       setLoading(false)
     }
@@ -101,8 +101,8 @@ const AdminClients = () => {
       setShowCreateModal(false)
       resetForm()
       await loadClients()
-    } catch (err: any) {
-      setError(err.message || 'Failed to create client')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create client')
     } finally {
       setCreating(false)
     }

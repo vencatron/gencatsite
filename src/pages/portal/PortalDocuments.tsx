@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { apiService, Document } from '@/services/api'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,15 +12,14 @@ const PortalDocuments = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     try {
       setFetchingDocs(true)
       setError(null)
       const documents = await apiService.getDocuments()
       setDocs(documents)
-    } catch (err: any) {
-      console.error('Error fetching documents:', err)
-      if (err.message?.includes('401')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes('401')) {
         navigate('/client-portal')
       } else {
         setError('Failed to load documents. Please try again.')
@@ -28,11 +27,11 @@ const PortalDocuments = () => {
     } finally {
       setFetchingDocs(false)
     }
-  }
+  }, [navigate])
 
   useEffect(() => {
     refresh()
-  }, [])
+  }, [refresh])
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
@@ -43,9 +42,8 @@ const PortalDocuments = () => {
         await apiService.uploadDocument(f)
       }
       await refresh()
-    } catch (err: any) {
-      console.error('Error uploading files:', err)
-      setError('Failed to upload files. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload files. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -64,7 +62,7 @@ const PortalDocuments = () => {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error downloading document:', err)
       setError('Failed to download document. Please try again.')
     }
@@ -75,7 +73,7 @@ const PortalDocuments = () => {
       setError(null)
       await apiService.deleteDocument(id)
       await refresh()
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error deleting document:', err)
       setError('Failed to delete document. Please try again.')
     }
@@ -89,7 +87,7 @@ const PortalDocuments = () => {
         setRenamingId(null)
         setNewName('')
         await refresh()
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error renaming document:', err)
         setError('Failed to rename document. Please try again.')
       }

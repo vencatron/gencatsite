@@ -1,14 +1,22 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import HomePage from '@/pages/HomePage'
 import AboutPage from '@/pages/AboutPage'
 import ServicesPage from '@/pages/ServicesPage'
+import ServiceDetailPage from '@/pages/ServiceDetailPage'
 import ContactPage from '@/pages/ContactPage'
 import ResourcesPage from '@/pages/ResourcesPage'
-import BlogPage from '@/pages/BlogPage'
-import FAQPage from '@/pages/FAQPage'
-import GuidesPage from '@/pages/GuidesPage'
-import ToolsPage from '@/pages/ToolsPage'
+import ChecklistPage from '@/pages/resources/ChecklistPage'
+import PartnersPage from '@/pages/resources/PartnersPage'
+import RecommendedToolsPage from '@/pages/resources/RecommendedToolsPage'
+import LearnPage from '@/pages/learn/LearnPage'
+import LearnCategoryPage from '@/pages/learn/LearnCategoryPage'
+import LearnArticlePage from '@/pages/learn/LearnArticlePage'
+import GlossaryPage from '@/pages/learn/GlossaryPage'
+import DisclaimerPage from '@/pages/legal/DisclaimerPage'
+import TermsPage from '@/pages/legal/TermsPage'
+import PrivacyPage from '@/pages/legal/PrivacyPage'
+import AffiliateDisclosurePage from '@/pages/legal/AffiliateDisclosurePage'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import ClientPortal from '@/components/sections/ClientPortal'
@@ -25,31 +33,8 @@ import AdminUsers from '@/pages/portal/AdminUsers'
 import AdminClients from '@/pages/portal/AdminClients'
 import AdminInvoices from '@/pages/portal/AdminInvoices'
 import RequirePortalAuth from '@/routes/RequirePortalAuth'
-import EstatePlanningPage from '@/pages/EstatePlanningPage'
-import WillsTrustsPage from '@/pages/WillsTrustsPage'
-import TaxPlanningPage from '@/pages/TaxPlanningPage'
-import FamilyConversationPage from '@/pages/FamilyConversationPage'
-import ProbatePage from '@/pages/ProbatePage'
-import BusinessSuccessionPage from '@/pages/BusinessSuccessionPage'
-import AssetProtectionPage from '@/pages/AssetProtectionPage'
-import TrustFundingPage from '@/pages/TrustFundingPage'
-import TaxAdministrationPage from '@/pages/TaxAdministrationPage'
-import StrategicPage from '@/pages/StrategicPage'
-import TeamPage from '@/pages/TeamPage'
-import SchedulePage from '@/pages/SchedulePage'
 import VerifyEmail from '@/pages/VerifyEmail'
 import ResetPassword from '@/pages/ResetPassword'
-import PrivacyPage from '@/pages/PrivacyPage'
-import TermsPage from '@/pages/TermsPage'
-import ServiceInfoPage from '@/pages/ServiceInfoPage'
-import DisclosuresPage from '@/pages/DisclosuresPage'
-import ResourcesChecklistPage from '@/pages/ResourcesChecklistPage'
-import ResourcesPartnersPage from '@/pages/ResourcesPartnersPage'
-import ResourcesRecommendedToolsPage from '@/pages/ResourcesRecommendedToolsPage'
-import LearnPage from '@/pages/LearnPage'
-import LearnSlugPage from '@/pages/LearnSlugPage'
-import DisclaimerPage from '@/pages/DisclaimerPage'
-import AffiliateDisclosurePage from '@/pages/AffiliateDisclosurePage'
 
 function App() {
   return (
@@ -63,40 +48,56 @@ function App() {
       >
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/about/team" element={<TeamPage />} />
+
+          {/* Learn hub */}
+          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn/basics" element={<LearnCategoryPage categoryId="basics" />} />
+          <Route
+            path="/learn/wills-vs-trusts"
+            element={<LearnCategoryPage categoryId="wills-vs-trusts" />}
+          />
+          <Route path="/learn/funding" element={<LearnCategoryPage categoryId="funding" />} />
+          <Route path="/learn/california" element={<LearnCategoryPage categoryId="california" />} />
+          <Route path="/learn/glossary" element={<GlossaryPage />} />
+          <Route path="/learn/:slug" element={<LearnArticlePage />} />
+
+          {/* Services */}
           <Route path="/services" element={<ServicesPage />} />
-          <Route path="/services/estate-planning" element={<EstatePlanningPage />} />
-          <Route path="/services/wills-trusts" element={<WillsTrustsPage />} />
-          <Route path="/services/tax-planning" element={<TaxPlanningPage />} />
-          <Route path="/services/family-conversation" element={<FamilyConversationPage />} />
-          <Route path="/services/probate" element={<ProbatePage />} />
-          <Route path="/services/business-succession" element={<BusinessSuccessionPage />} />
-          <Route path="/services/asset-protection" element={<AssetProtectionPage />} />
-          <Route path="/services/trust-funding" element={<TrustFundingPage />} />
-          <Route path="/services/tax-administration" element={<TaxAdministrationPage />} />
-          <Route path="/services/strategic" element={<StrategicPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/schedule" element={<SchedulePage />} />
+          {/* Legacy service URLs */}
+          <Route path="/services/wills-trusts" element={<Navigate to="/learn/wills-vs-trusts" replace />} />
+          <Route path="/services/tax-planning" element={<Navigate to="/services/tax-administration" replace />} />
+          <Route path="/services/estate-planning" element={<Navigate to="/services" replace />} />
+          <Route path="/services/:slug" element={<ServiceDetailPage />} />
+
+          {/* Resources */}
           <Route path="/resources" element={<ResourcesPage />} />
-          <Route path="/resources/blog" element={<BlogPage />} />
-          <Route path="/resources/faq" element={<FAQPage />} />
-          <Route path="/resources/guides" element={<GuidesPage />} />
-          <Route path="/resources/tools" element={<ToolsPage />} />
-          <Route path="/resources/checklist" element={<ResourcesChecklistPage />} />
-          <Route path="/resources/partners" element={<ResourcesPartnersPage />} />
-          <Route path="/resources/recommended-tools" element={<ResourcesRecommendedToolsPage />} />
+          <Route path="/resources/checklist" element={<ChecklistPage />} />
+          <Route path="/resources/partners" element={<PartnersPage />} />
+          <Route path="/resources/recommended-tools" element={<RecommendedToolsPage />} />
+          {/* Legacy resource URLs */}
+          <Route path="/resources/blog" element={<Navigate to="/learn" replace />} />
+          <Route path="/resources/faq" element={<Navigate to="/learn" replace />} />
+          <Route path="/resources/guides" element={<Navigate to="/resources/checklist" replace />} />
+          <Route path="/resources/tools" element={<Navigate to="/resources/recommended-tools" replace />} />
+
+          {/* Company */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about/team" element={<Navigate to="/about" replace />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/schedule" element={<Navigate to="/contact" replace />} />
+
+          {/* Legal */}
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/affiliate-disclosure" element={<AffiliateDisclosurePage />} />
+          <Route path="/disclosures" element={<Navigate to="/disclaimer" replace />} />
+          <Route path="/service-info" element={<Navigate to="/disclaimer" replace />} />
+
+          {/* Client portal */}
           <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/service-info" element={<ServiceInfoPage />} />
-          <Route path="/disclosures" element={<DisclosuresPage />} />
-          <Route path="/learn" element={<LearnPage />} />
-          <Route path="/learn/:slug" element={<LearnSlugPage />} />
-          <Route path="/disclaimer" element={<DisclaimerPage />} />
-          <Route path="/affiliate-disclosure" element={<AffiliateDisclosurePage />} />
           <Route element={<RequirePortalAuth />}>
             <Route path="/client-portal" element={<PortalLayout />}>
               <Route path="dashboard" element={<PortalDashboard />} />
@@ -113,6 +114,9 @@ function App() {
               </Route>
             </Route>
           </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </motion.main>
       <Footer />

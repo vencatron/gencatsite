@@ -138,7 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await storage.createUser(newUser);
 
     // Remove sensitive data from response
-    const { passwordHash: _, twoFactorSecret, twoFactorBackupCodes, ...userResponse } = user;
+    const { passwordHash: _passwordHash, twoFactorSecret: _twoFactorSecret, twoFactorBackupCodes: _twoFactorBackupCodes, ...userResponse } = user;
 
     return res.status(201).json({
       message: `Client ${firstName} ${lastName} created successfully`,

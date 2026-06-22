@@ -64,7 +64,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Forgot password error:', error);
     return res.status(500).json({
       error: 'Internal server error during password reset request',
-      details: error instanceof Error ? error.message : String(error),
     });
   }
 }
