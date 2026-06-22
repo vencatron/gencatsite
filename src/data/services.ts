@@ -11,7 +11,6 @@ export interface ServiceTier {
   slug: string
   name: string
   shortName: string
-  priceRange: string
   tagline: string
   description: string
   bestFor: string
@@ -26,7 +25,6 @@ export const SERVICE_TIERS: ServiceTier[] = [
     slug: 'family-conversation',
     name: 'Family Planning Conversation',
     shortName: 'Family Conversation',
-    priceRange: '$500 – $1,500',
     tagline: 'Get oriented before you engage anyone else.',
     description:
       'A 90-minute structured consultation that orients your family on the estate planning process, identifies the gaps in your current situation, and produces a personalized roadmap of the professionals you’ll need — so you walk into your attorney’s office prepared, organized, and ready to use their time well.',
@@ -90,7 +88,6 @@ export const SERVICE_TIERS: ServiceTier[] = [
     slug: 'trust-funding',
     name: 'Trust Funding & Implementation',
     shortName: 'Funding & Implementation',
-    priceRange: '$2,000 – $5,000',
     tagline: 'Your attorney designed the plan. We make sure it gets connected to your assets.',
     description:
       'After your attorney delivers your documents, we project-manage the step most plans never finish: funding. We coordinate the retitling of accounts and real estate, the assignment of business interests, and the beneficiary updates across every institution — tracked to completion, with proof.',
@@ -155,7 +152,6 @@ export const SERVICE_TIERS: ServiceTier[] = [
     slug: 'tax-administration',
     name: 'Ongoing Tax & Administration',
     shortName: 'Tax & Administration',
-    priceRange: '$1,500 – $8,000 / year',
     tagline: 'The annual tax discipline that keeps an estate plan working.',
     description:
       'Standard CPA services built around estate plans: fiduciary and gift tax compliance, basis tracking, beneficiary K-1s, and an annual check-in that keeps the tax side of your plan current as laws, assets, and family circumstances change.',
@@ -208,7 +204,6 @@ export const SERVICE_TIERS: ServiceTier[] = [
     slug: 'strategic',
     name: 'Strategic Engagement',
     shortName: 'Strategic',
-    priceRange: '$10,000 – $50,000+',
     tagline: 'Full-spectrum coordination for business owners and complex estates.',
     description:
       'A comprehensive engagement for business owners and high-net-worth families: multi-year tax projections, gifting strategy, business succession coordination, and facilitation across your full professional team — attorney, financial advisor, and insurance professionals — with one party accountable for the whole.',
