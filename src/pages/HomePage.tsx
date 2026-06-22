@@ -114,11 +114,8 @@ const HomePage = () => {
           <div className="grid md:grid-cols-2 gap-6">
             {SERVICE_TIERS.map((tier) => (
               <div key={tier.slug} className="card card-hover flex flex-col">
-                <div className="flex items-baseline justify-between gap-4 mb-3">
+                <div className="mb-3">
                   <h3 className="font-serif text-xl font-semibold text-primary-900">{tier.name}</h3>
-                  <span className="text-sm font-medium text-accent-700 whitespace-nowrap">
-                    {tier.priceRange}
-                  </span>
                 </div>
                 <p className="text-sm text-neutral-600 leading-relaxed mb-5 flex-1">{tier.tagline}</p>
                 <Link

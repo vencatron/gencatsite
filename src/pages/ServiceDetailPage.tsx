@@ -67,7 +67,6 @@ const ServiceDetailPage = () => {
               ← All services
             </Link>
             <h1 className="heading-lg mt-4 mb-3">{tier.name}</h1>
-            <p className="text-lg font-medium text-accent-700 mb-5">{tier.priceRange}</p>
             <p className="text-lg text-neutral-700 leading-relaxed mb-8">{tier.description}</p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/contact" className="btn-primary">
@@ -141,11 +140,10 @@ const ServiceDetailPage = () => {
       <section className="container-width section-padding">
         <div className="grid lg:grid-cols-3 gap-10">
           <div>
-            <h2 className="heading-sm mb-4">Investment</h2>
-            <p className="font-serif text-3xl font-semibold text-primary-900 mb-3">{tier.priceRange}</p>
+            <h2 className="heading-sm mb-4">Pricing</h2>
             <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-              Final pricing depends on scope and complexity; you’ll receive a fixed quote after an
-              initial conversation, before any engagement begins.
+              We provide a fixed quote upfront — after a brief initial conversation — before any engagement begins.
+              No hourly billing, no surprises.
             </p>
             <Link to="/contact" className="btn-primary w-full sm:w-auto">
               Start the conversation

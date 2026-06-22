@@ -1,51 +1,120 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  /* Primary — forest green scale */
+  --color-primary-50:  #f2f7f3;
+  --color-primary-100: #e0ece2;
+  --color-primary-200: #c2d9c8;
+  --color-primary-300: #9bbfaa;
+  --color-primary-400: #6da085;
+  --color-primary-500: #4a8264;
+  --color-primary-600: #3a6b50;
+  --color-primary-700: #2d513c;
+  --color-primary-800: #1f3629;
+  --color-primary-900: #162a1f;
+  --color-primary-950: #0e1c14;
+
+  /* Accent — gold/cream scale */
+  --color-accent-50:  #fdfbf0;
+  --color-accent-100: #faf5d8;
+  --color-accent-200: #f6efcb;
+  --color-accent-300: #efe4a8;
+  --color-accent-400: #e5d47e;
+  --color-accent-500: #d4bc55;
+  --color-accent-600: #b89c38;
+  --color-accent-700: #937c2b;
+  --color-accent-800: #6e5c20;
+  --color-accent-900: #4a3d15;
+
+  /* Neutral — warm gray scale */
+  --color-neutral-50:  #faf9f7;
+  --color-neutral-100: #f4f1ed;
+  --color-neutral-200: #e6e1db;
+  --color-neutral-300: #d6cfc7;
+  --color-neutral-400: #b7a9a0;
+  --color-neutral-500: #988c84;
+  --color-neutral-600: #7c716a;
+  --color-neutral-700: #665d57;
+  --color-neutral-800: #524b46;
+  --color-neutral-900: #443f3b;
+
+  /* Semantic aliases */
+  --color-background: var(--color-neutral-50);
+  --color-surface:    #ffffff;
+  --color-text:       var(--color-primary-800);
+  --color-text-muted: var(--color-neutral-600);
+  --color-border:     var(--color-neutral-200);
+}
+
+/* ─── Base Layer ─────────────────────────────────────────────────── */
 @layer base {
   html {
-    scroll-behavior: smooth;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply text-neutral-800 bg-neutral-50 font-sans antialiased;
-    line-height: 1.65;
+    @apply bg-neutral-50 text-primary-800 font-sans;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif text-primary-900;
+    font-family: 'Lora', 'Playfair Display', Georgia, ui-serif, serif;
+    @apply text-primary-900;
   }
 
-  ::selection {
-    @apply bg-accent-200 text-primary-900;
+  code, pre {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
 }
 
+/* ─── Component Layer ────────────────────────────────────────────── */
 @layer components {
-  /* Button Styles */
+
+  /* ── Buttons ─────────────────── */
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-primary-700 hover:bg-primary-800 text-white font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-primary-800 hover:bg-primary-900 text-white font-medium px-6 py-3 rounded-lg
+           transition-colors duration-200 focus:outline-none focus:ring-2
+           focus:ring-primary-600 focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-accent-100 hover:bg-accent-200 text-accent-900 font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
+    @apply border border-white/40 text-white hover:bg-white/10 font-medium px-6 py-3 rounded-lg
+           transition-all duration-200 focus:outline-none focus:ring-2
+           focus:ring-white/40 focus:ring-offset-2;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center border-2 border-primary-700 text-primary-700 hover:bg-primary-700 hover:text-white font-sans font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply border-2 border-primary-800 text-primary-800 hover:bg-primary-800 hover:text-white
+           font-medium px-6 py-3 rounded-lg transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center text-neutral-600 hover:text-primary-700 hover:bg-primary-50 font-sans font-medium px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply text-neutral-600 hover:text-primary-800 hover:bg-primary-50 font-medium
+           px-6 py-3 rounded-lg transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  /* Accent-filled CTA (e.g. "Book a Family Planning Conversation" on dark banners) */
+  .btn-accent {
+    @apply bg-accent-200 hover:bg-accent-300 text-primary-950 font-semibold
+           px-6 py-3 rounded-lg transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-sans font-medium px-6 py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg
+           transition-colors duration-200 focus:outline-none focus:ring-2
+           focus:ring-red-500 focus:ring-offset-2;
   }
 
-  /* Card Styles */
+  /* ── Cards ───────────────────── */
   .card {
     @apply bg-white rounded-xl shadow-sm border border-neutral-200 p-6;
   }
@@ -59,53 +128,81 @@
   }
 
   .card-premium {
-    @apply card border-2 border-accent-300 shadow-lg;
+    @apply card border-2 border-primary-200 shadow-lg;
   }
 
-  /* Text Styles */
-  .text-gradient { @apply bg-gradient-to-r from-primary-700 to-primary-900 bg-clip-text text-transparent; }
+  /* Dark card variant (e.g. "Our scope, plainly" sidebar card) */
+  .card-dark {
+    @apply bg-primary-950 border border-primary-900 text-white rounded-xl p-6;
+  }
 
-  .text-gradient-accent { @apply bg-gradient-to-r from-accent-500 to-accent-700 bg-clip-text text-transparent; }
+  /* Callout card with amber border (e.g. "Who this is for") */
+  .card-callout {
+    @apply bg-accent-50 border border-accent-200 rounded-xl p-6;
+  }
 
-  .text-gradient-secondary { @apply bg-gradient-to-r from-secondary-500 to-secondary-700 bg-clip-text text-transparent; }
+  /* Article "Next steps" aside box */
+  .card-aside {
+    @apply bg-accent-50 border-2 border-accent-300 rounded-xl p-7;
+  }
 
-  /* Eyebrow label above headings */
+  /* ── Typography utilities ────── */
+  .heading-xl {
+    @apply font-serif text-4xl lg:text-6xl font-bold leading-tight;
+  }
+
+  .heading-lg {
+    @apply font-serif text-3xl lg:text-5xl font-bold leading-tight;
+  }
+
+  .heading-md {
+    @apply font-serif text-2xl lg:text-4xl font-bold leading-tight;
+  }
+
+  .heading-sm {
+    @apply font-serif text-xl lg:text-2xl font-semibold leading-tight;
+  }
+
+  /* Eyebrow / label above a heading */
   .eyebrow {
-    @apply font-sans text-xs font-semibold uppercase tracking-[0.18em] text-accent-700;
+    @apply text-xs sm:text-sm font-medium tracking-widest uppercase text-neutral-500;
   }
 
-  /* Form Styles */
-  .input-field {
-    @apply w-full px-4 py-3 font-sans border border-neutral-300 rounded-lg bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-neutral-400;
+  /* Accent-colored eyebrow (e.g. "Education · Tax · Coordination") */
+  .eyebrow-accent {
+    @apply text-xs sm:text-sm font-medium tracking-widest uppercase text-accent-700;
   }
 
-  .input-error {
-    @apply border-red-300 focus:ring-red-500 focus:border-red-500;
+  /* Price display (amber, large serif) */
+  .price-display {
+    @apply font-serif text-xl font-semibold text-accent-700;
   }
 
-  .label-field {
-    @apply block font-sans text-sm font-medium text-neutral-700 mb-2;
+  /* Gradient text (forest-green) */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
   }
 
-  .form-error {
-    @apply text-red-600 text-sm mt-1;
+  .text-gradient-accent {
+    @apply bg-gradient-to-r from-accent-500 to-accent-700 bg-clip-text text-transparent;
   }
 
-  /* Badge Styles */
+  /* ── Badges / pills ──────────── */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full font-sans text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
   .badge-primary {
     @apply badge bg-primary-100 text-primary-800;
   }
 
-  .badge-secondary {
-    @apply badge bg-secondary-100 text-secondary-800;
-  }
-
   .badge-accent {
     @apply badge bg-accent-100 text-accent-800;
+  }
+
+  /* Article category tag (sage green pill) */
+  .badge-category {
+    @apply badge bg-primary-100 text-primary-700;
   }
 
   .badge-success {
@@ -120,9 +217,29 @@
     @apply badge bg-red-100 text-red-800;
   }
 
-  /* Layout Helpers */
+  /* ── Forms ───────────────────── */
+  .input-field {
+    @apply w-full px-4 py-3 border border-neutral-300 rounded-lg bg-white
+           focus:ring-2 focus:ring-primary-500 focus:border-transparent
+           transition-all duration-200 placeholder-neutral-400
+           text-neutral-800 text-sm;
+  }
+
+  .input-error {
+    @apply border-red-300 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .label-field {
+    @apply block text-sm font-medium text-neutral-700 mb-1.5;
+  }
+
+  .form-error {
+    @apply text-red-600 text-sm mt-1;
+  }
+
+  /* ── Layout helpers ──────────── */
   .section-padding {
-    @apply py-16 lg:py-24;
+    @apply py-16 lg:py-20;
   }
 
   .container-width {
@@ -133,46 +250,123 @@
     @apply flex flex-col items-center justify-center text-center;
   }
 
-  /* Long-form article body (Learn hub) */
-  .article-body {
-    @apply text-neutral-800;
-    line-height: 1.75;
+  /* Prose-wide column used for article bodies */
+  .max-w-prose-wide {
+    max-width: 72ch;
   }
 
-  .article-body p {
-    @apply mb-5 text-[1.0625rem];
+  /* ── Article body styles ─────── */
+  .article-body {
+    @apply text-neutral-700 leading-relaxed;
   }
 
   .article-body h2 {
-    @apply text-2xl lg:text-3xl font-semibold mt-12 mb-4;
+    @apply font-serif text-2xl font-semibold text-primary-900 mt-10 mb-4;
   }
 
   .article-body h3 {
-    @apply text-xl font-semibold mt-8 mb-3;
+    @apply font-serif text-xl font-semibold text-primary-900 mt-8 mb-3;
+  }
+
+  .article-body p {
+    @apply mb-5 text-base leading-relaxed;
   }
 
   .article-body ul {
-    @apply list-disc pl-6 mb-5 space-y-2 text-[1.0625rem];
+    @apply list-disc pl-6 mb-5 space-y-2;
   }
 
   .article-body ol {
-    @apply list-decimal pl-6 mb-5 space-y-2 text-[1.0625rem];
+    @apply list-decimal pl-6 mb-5 space-y-2;
   }
 
-  .article-body blockquote {
-    @apply border-l-4 border-accent-400 pl-5 italic text-neutral-700 my-6 font-serif;
+  .article-body li {
+    @apply text-neutral-700;
   }
 
-  /* Accessibility */
+  /* ── Specific section variants ─ */
+
+  /* Dark "problem" band (primary-950 bg, white text) */
+  .section-dark {
+    @apply bg-primary-950 text-white;
+  }
+
+  /* CTA banner (primary-900 bg) */
+  .section-cta {
+    @apply bg-primary-900 text-white;
+  }
+
+  /* Light neutral section (founder/how-we-work band) */
+  .section-neutral {
+    @apply bg-neutral-100 border-t border-b border-neutral-200;
+  }
+
+  /* ── Stat cards (inside dark section) ── */
+  .stat-card {
+    @apply bg-primary-900 border border-primary-800 rounded-xl p-8;
+  }
+
+  .stat-number {
+    @apply font-serif text-5xl font-bold text-accent-400;
+  }
+
+  /* ── Nav active underline ────── */
+  .nav-active {
+    @apply text-primary-800 border-b-2 border-accent-500;
+  }
+
+  /* ── Professional Estate Planning Specific ── */
+  .trust-indicator {
+    @apply flex items-center space-x-2 text-sm text-neutral-600;
+  }
+
+  .service-feature {
+    @apply flex items-start space-x-3 text-sm text-neutral-700;
+  }
+
+  .legal-disclaimer {
+    @apply text-xs text-neutral-500 leading-relaxed;
+  }
+
+  /* ── Comparison table ────────── */
+  .compare-table {
+    @apply w-full text-sm border-collapse;
+  }
+
+  .compare-table th {
+    @apply font-serif font-semibold text-primary-900 text-left py-3 px-4
+           border-b-2 border-primary-200;
+  }
+
+  .compare-table td {
+    @apply py-3 px-4 border-b border-neutral-200 text-neutral-700;
+  }
+
+  .compare-table tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* ── Process step number ─────── */
+  .step-number {
+    @apply font-serif text-5xl font-bold text-accent-500;
+  }
+
+  /* ── Accessibility ───────────── */
   .sr-only {
     @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
   }
 
   .focus-visible {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2
+           focus-visible:ring-primary-500 focus-visible:ring-offset-2;
   }
 
-  /* Animation Helpers */
+  .focus-visible-ring {
+    @apply focus:outline-none focus-visible:ring-2
+           focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+  }
+
+  /* ── Animation Helpers ───────── */
   .animate-fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
@@ -185,35 +379,10 @@
     animation: scaleIn 0.3s ease-out;
   }
 
-  /* Responsive Typography */
-  .heading-xl {
-    @apply font-serif text-4xl lg:text-6xl font-semibold leading-[1.1];
+  /* ── Legacy consultation CTA ─── */
+  .consultation-cta {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold
+           px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200
+           transform hover:-translate-y-1;
   }
-
-  .heading-lg {
-    @apply font-serif text-3xl lg:text-5xl font-semibold leading-[1.15];
-  }
-
-  .heading-md {
-    @apply font-serif text-2xl lg:text-4xl font-semibold leading-tight;
-  }
-
-  .heading-sm {
-    @apply font-serif text-xl lg:text-2xl font-semibold leading-tight;
-  }
-
-  /* Compliance / disclaimer text */
-  .legal-disclaimer {
-    @apply text-xs text-neutral-500 leading-relaxed;
-  }
-
-  .trust-indicator {
-    @apply flex items-center space-x-2 text-sm text-neutral-600;
-  }
-
-  .service-feature {
-    @apply flex items-start space-x-3 text-sm text-neutral-700;
-  }
-
-  .consultation-cta { @apply bg-gradient-to-r from-primary-700 to-primary-800 text-white font-sans font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1; }
 }
