@@ -6,113 +6,229 @@ import EmailCapture from '@/components/common/EmailCapture'
 import { getFeaturedArticles } from '@/data/articles'
 import { SERVICE_TIERS } from '@/data/services'
 
-// ─── Coordination Diagram ──────────────────────────────────────────────────────
+// ─── Flywheel Diagram ─────────────────────────────────────────────────────────
+// 4-piece donut ring: each segment = one service tier.
+// Segments draw in with pathLength 0→1, then a gold pulse orbits the ring.
 
-interface DiagramNode {
-  id: string
-  label: string
-  sublabel: string
-  cx: number
-  cy: number
-  delay: number
-  floatDuration: number
-  floatDelay: number
+const CX = 280
+const CY = 280
+const ARC_R = 128       // arc center-line radius
+const STROKE = 52       // stroke width  →  inner edge ≈ 102, outer edge ≈ 154
+const CIRC = 2 * Math.PI * ARC_R
+
+// pre-compute pulse dash values
+const PULSE_ARC = CIRC * 15 / 360     // 15° arc length ≈ 33.5 px
+const PULSE_GAP = CIRC - PULSE_ARC    // remaining circumference ≈ 770.7 px
+const PULSE_OFF = -(CIRC * 270 / 360) // dashoffset → places pulse at top (-90°)
+
+/** Return the SVG arc path for one flywheel segment at ARC_R. */
+function arcPath(startDeg: number, endDeg: number): string {
+  const r = (d: number) => d * (Math.PI / 180)
+  const sx = CX + ARC_R * Math.cos(r(startDeg))
+  const sy = CY + ARC_R * Math.sin(r(startDeg))
+  const ex = CX + ARC_R * Math.cos(r(endDeg))
+  const ey = CY + ARC_R * Math.sin(r(endDeg))
+  const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0
+  return `M ${sx.toFixed(1)} ${sy.toFixed(1)} A ${ARC_R} ${ARC_R} 0 ${large} 1 ${ex.toFixed(1)} ${ey.toFixed(1)}`
 }
 
-const DIAGRAM_NODES: DiagramNode[] = [
-  { id: 'family',   label: 'Your Family',   sublabel: 'Goals & beneficiaries', cx: 240, cy: 62,  delay: 0.40, floatDuration: 3.6, floatDelay: 0.0 },
-  { id: 'attorney', label: 'Attorney',       sublabel: 'Legal documents',       cx: 418, cy: 148, delay: 0.55, floatDuration: 4.2, floatDelay: 0.8 },
-  { id: 'funding',  label: 'Trust Funding', sublabel: 'Asset retitling',        cx: 380, cy: 348, delay: 0.70, floatDuration: 3.2, floatDelay: 1.6 },
-  { id: 'admin',    label: 'Tax & Admin',   sublabel: 'Compliance & filing',    cx: 72,  cy: 302, delay: 0.85, floatDuration: 4.8, floatDelay: 2.4 },
+/** Return [x, y] of a point at (radius r, angle deg) from (CX, CY). */
+function ptAt(r: number, deg: number): [number, number] {
+  const rad = deg * (Math.PI / 180)
+  return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)]
+}
+
+// 4 × 80° segments with 10° gaps — start at top (−90°, 12 o'clock)
+const SEGS = [
+  { start: -90, end:  -10, mid:  -50, label: 'Family Planning', sub: 'Conversation',       color: '#2d513c' },
+  { start:   0, end:   80, mid:   40, label: 'Trust Funding',   sub: '& Implementation',   color: '#4a8264' },
+  { start:  90, end:  170, mid:  130, label: 'Tax & Admin',     sub: 'Ongoing compliance',  color: '#3a6b50' },
+  { start: 180, end:  260, mid:  220, label: 'Strategic',       sub: 'Engagement',          color: '#162a1f' },
 ]
 
-const GC_CX = 240
-const GC_CY = 205
+// Gap midpoints between segments (in degrees)
+const GAP_DEGS = [-5, 85, 175, 265]
 
-const CoordinationDiagram = () => (
-  <svg viewBox="0 0 480 420" className="w-full h-auto max-w-md" aria-hidden="true">
+const FlywheelDiagram = () => (
+  <svg
+    viewBox="0 0 560 560"
+    className="w-full h-auto max-w-[480px]"
+    aria-label="Generation Catalyst flywheel: four estate planning service tiers cycling continuously"
+  >
     <defs>
-      <filter id="gc-shadow" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx={0} dy={4} stdDeviation={8} floodColor="#162a1f" floodOpacity={0.15} />
-      </filter>
-      <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx={0} dy={3} stdDeviation={5} floodColor="#162a1f" floodOpacity={0.10} />
-      </filter>
-      <radialGradient id="hero-bg" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#c2d9c8" stopOpacity={0.3} />
-        <stop offset="100%" stopColor="#f2f7f3" stopOpacity={0} />
+      <radialGradient id="fw-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stopColor="#c2d9c8" stopOpacity={0.22} />
+        <stop offset="100%" stopColor="#f2f7f3" stopOpacity={0}    />
       </radialGradient>
+      <filter id="fw-shadow" x="-25%" y="-25%" width="150%" height="150%">
+        <feDropShadow dx={0} dy={5} stdDeviation={12} floodColor="#162a1f" floodOpacity={0.18} />
+      </filter>
     </defs>
 
-    {/* Background glow */}
-    <circle cx={GC_CX} cy={GC_CY} r={220} fill="url(#hero-bg)" />
+    {/* Soft background glow centred on the ring */}
+    <circle cx={CX} cy={CY} r={220} fill="url(#fw-glow)" />
 
-    {/* Connection lines */}
-    {DIAGRAM_NODES.map((n) => (
+    {/* Track ring — thin guide so gaps read cleanly before segments load */}
+    <circle
+      cx={CX} cy={CY} r={ARC_R}
+      fill="none"
+      stroke="#e0ece2"
+      strokeWidth={STROKE + 6}
+    />
+
+    {/* ── 4 flywheel segments — staggered pathLength draw-in ── */}
+    {SEGS.map((seg, i) => (
       <motion.path
-        key={`line-${n.id}`}
-        d={`M ${GC_CX} ${GC_CY} L ${n.cx} ${n.cy}`}
-        stroke="#9bbfaa"
-        strokeWidth={1.5}
-        strokeDasharray="6 5"
+        key={seg.start}
+        d={arcPath(seg.start, seg.end)}
         fill="none"
+        stroke={seg.color}
+        strokeWidth={STROKE}
+        strokeLinecap="round"
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
-        transition={{ duration: 1.0, delay: n.delay - 0.15, ease: 'easeOut' }}
+        transition={{
+          pathLength: { duration: 1.0, delay: 0.3 + i * 0.22, ease: [0.25, 0.46, 0.45, 0.94] },
+          opacity:    { duration: 0.3, delay: 0.3 + i * 0.22 },
+        }}
       />
     ))}
 
-    {/* Center GC node */}
-    <g transform={`translate(${GC_CX}, ${GC_CY})`}>
-      <motion.g
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
-      >
-        <motion.circle
-          cx={0} cy={0} r={68}
-          fill="none" stroke="#d4bc55" strokeWidth={1.5} strokeDasharray="4 8"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-        />
-        <circle cx={0} cy={0} r={56} fill="#1f3629" filter="url(#gc-shadow)" />
-        <circle cx={0} cy={0} r={49} fill="none" stroke="#3a6b50" strokeWidth={0.75} />
-        <text x={0} y={-6} textAnchor="middle" fill="white" fontSize={22} fontFamily="Lora, Georgia, serif" fontWeight={600}>GC</text>
-        <text x={0} y={14} textAnchor="middle" fill="#6da085" fontSize={7} fontFamily="Inter, sans-serif" letterSpacing={2}>COORDINATOR</text>
-      </motion.g>
-    </g>
+    {/* ── Orbiting gold pulse — short arc that rotates continuously ── */}
+    <motion.g
+      animate={{ rotate: 360 }}
+      transition={{ duration: 7, repeat: Infinity, ease: 'linear', delay: 2.0 }}
+      style={{ transformOrigin: `${CX}px ${CY}px` }}
+    >
+      <circle
+        cx={CX} cy={CY} r={ARC_R}
+        fill="none"
+        stroke="#d4bc55"
+        strokeWidth={STROKE + 8}
+        strokeDasharray={`${PULSE_ARC.toFixed(1)} ${PULSE_GAP.toFixed(1)}`}
+        strokeDashoffset={PULSE_OFF}
+        strokeLinecap="round"
+        opacity={0.52}
+      />
+    </motion.g>
 
-    {/* Peripheral nodes */}
-    {DIAGRAM_NODES.map((n) => {
-      const dx = GC_CX - n.cx
-      const dy = GC_CY - n.cy
-      const len = Math.sqrt(dx * dx + dy * dy)
-      const dotLX = (dx / len) * 44
-      const dotLY = (dy / len) * 44
+    {/* ── Directional chevrons at each gap — show clockwise flow ── */}
+    {GAP_DEGS.map((gapDeg) => {
+      const [gx, gy] = ptAt(ARC_R + 28, gapDeg)
+      // clockwise tangent at angle α is (α + 90°)
+      const tangent = gapDeg + 90
       return (
-        <g key={n.id} transform={`translate(${n.cx}, ${n.cy})`}>
-          <motion.g
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: n.delay, ease: [0.175, 0.885, 0.32, 1.275] }}
-          >
-            <motion.g
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: n.floatDuration, repeat: Infinity, ease: 'easeInOut', delay: n.floatDelay }}
-            >
-              <circle cx={0} cy={0} r={42} fill="white" stroke="#c2d9c8" strokeWidth={1.5} filter="url(#node-shadow)" />
-              <circle cx={0} cy={0} r={37} fill="none" stroke="#e0ece2" strokeWidth={0.75} />
-              <text x={0} y={-5} textAnchor="middle" fill="#162a1f" fontSize={10} fontFamily="Inter, sans-serif" fontWeight={600}>{n.label}</text>
-              <text x={0} y={10} textAnchor="middle" fill="#7c716a" fontSize={8} fontFamily="Inter, sans-serif">{n.sublabel}</text>
-            </motion.g>
-          </motion.g>
-          <motion.circle
-            cx={dotLX} cy={dotLY} r={3.5} fill="#4a8264"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: n.delay + 0.3 }}
+        // Outer <g> positions; inner motion.path animates
+        <g key={gapDeg} transform={`translate(${gx.toFixed(1)},${gy.toFixed(1)}) rotate(${tangent})`}>
+          <motion.path
+            d="M -5 -4.5 L 1 0 L -5 4.5"
+            fill="none"
+            stroke="#6da085"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.7 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
           />
         </g>
+      )
+    })}
+
+    {/* ── Centre GC node — spring-scales in first ── */}
+    <motion.g
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.7, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
+      style={{ transformOrigin: `${CX}px ${CY}px` }}
+    >
+      <circle cx={CX} cy={CY} r={84} fill="#1f3629" filter="url(#fw-shadow)" />
+      <circle cx={CX} cy={CY} r={75} fill="none" stroke="#3a6b50" strokeWidth={0.8} />
+      {/* Slow-spinning dashed accent ring */}
+      <motion.circle
+        cx={CX} cy={CY} r={80}
+        fill="none" stroke="#d4bc55" strokeWidth={1.2} strokeDasharray="4 9"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+        style={{ transformOrigin: `${CX}px ${CY}px` }}
+      />
+      <text
+        x={CX} y={CY - 7}
+        textAnchor="middle"
+        fill="white"
+        fontSize={25}
+        fontFamily="Lora, Georgia, serif"
+        fontWeight={600}
+      >
+        GC
+      </text>
+      <text
+        x={CX} y={CY + 15}
+        textAnchor="middle"
+        fill="#6da085"
+        fontSize={7.5}
+        fontFamily="Inter, sans-serif"
+        letterSpacing="2"
+      >
+        COORDINATOR
+      </text>
+    </motion.g>
+
+    {/* ── Outer labels with connector lines ── */}
+    {SEGS.map((seg, i) => {
+      // Connector: from just outside arc outer edge → toward label
+      const LINE_A_R = ARC_R + STROKE / 2 + 10   // connector start (beyond outer edge)
+      const LINE_B_R = ARC_R + STROKE / 2 + 54   // connector end (near label)
+      const LABEL_R  = ARC_R + STROKE / 2 + 67   // label anchor
+
+      const [ax, ay] = ptAt(LINE_A_R, seg.mid)
+      const [bx, by] = ptAt(LINE_B_R, seg.mid)
+      const [lx, ly] = ptAt(LABEL_R,  seg.mid)
+
+      // i=0 (top-right) and i=1 (bottom-right) → anchor start
+      // i=2 (bottom-left) and i=3 (top-left)   → anchor end
+      const anchor = i < 2 ? 'start' : 'end'
+
+      return (
+        <motion.g
+          key={`lbl-${i}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 + i * 0.22, duration: 0.5 }}
+        >
+          {/* Connector line */}
+          <line
+            x1={ax.toFixed(1)} y1={ay.toFixed(1)}
+            x2={bx.toFixed(1)} y2={by.toFixed(1)}
+            stroke="#9bbfaa"
+            strokeWidth={1}
+            opacity={0.65}
+          />
+          {/* Dot at connector end */}
+          <circle cx={bx} cy={by} r={2.5} fill={seg.color} opacity={0.85} />
+          {/* Label */}
+          <text
+            x={lx.toFixed(1)}
+            y={(ly - 5).toFixed(1)}
+            textAnchor={anchor}
+            fill="#1f3629"
+            fontSize={11.5}
+            fontFamily="Inter, sans-serif"
+            fontWeight={600}
+          >
+            {seg.label}
+          </text>
+          <text
+            x={lx.toFixed(1)}
+            y={(ly + 9).toFixed(1)}
+            textAnchor={anchor}
+            fill="#665d57"
+            fontSize={9}
+            fontFamily="Inter, sans-serif"
+          >
+            {seg.sub}
+          </text>
+        </motion.g>
       )
     })}
   </svg>
@@ -144,7 +260,7 @@ const HomePage = () => {
             >
               <p className="eyebrow mb-5">Education · Tax · Coordination</p>
               <h1 className="heading-xl mb-6">
-                Your family’s legacy is held in trust by every decision you make.
+                Your family's legacy is held in trust by every decision you make.
               </h1>
               <p className="text-lg lg:text-xl text-neutral-700 leading-relaxed mb-9">
                 Generation Catalyst helps California families coordinate their estate planning —
@@ -161,14 +277,14 @@ const HomePage = () => {
               </div>
             </motion.div>
 
-            {/* Right — coordination diagram */}
+            {/* Right — flywheel diagram */}
             <motion.div
               className="hidden lg:flex items-center justify-center"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.15 }}
             >
-              <CoordinationDiagram />
+              <FlywheelDiagram />
             </motion.div>
 
           </div>
@@ -185,12 +301,12 @@ const HomePage = () => {
           <div className="max-w-3xl mb-12">
             <p className="eyebrow !text-accent-400 mb-4">The problem nobody coordinates</p>
             <h2 className="heading-lg text-white mb-5">
-              Most estate plans don’t fail on paper. They fail in practice.
+              Most estate plans don't fail on paper. They fail in practice.
             </h2>
             <p className="text-neutral-200 text-lg leading-relaxed">
-              Most families don’t lose generational wealth because they didn’t have an estate
+              Most families don't lose generational wealth because they didn't have an estate
               plan — they lose it because nobody coordinated the tax strategy, funding, and
-              administration that makes the plan actually work. We’re the coordinators.
+              administration that makes the plan actually work. We're the coordinators.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -205,7 +321,7 @@ const HomePage = () => {
               <p className="font-serif text-5xl font-semibold text-accent-400 mb-3">&lt;3%</p>
               <p className="text-neutral-200 leading-relaxed text-sm">
                 of those failures were traced to professional error or bad documents. The real
-                culprits: unfunded trusts, unprepared heirs, and follow-through that was nobody’s job.
+                culprits: unfunded trusts, unprepared heirs, and follow-through that was nobody's job.
               </p>
             </div>
             <div className="rounded-xl bg-primary-900 border border-primary-800 p-8">
@@ -264,7 +380,7 @@ const HomePage = () => {
           <div className="grid lg:grid-cols-3 gap-10 items-center">
             <div className="lg:col-span-2">
               <p className="eyebrow mb-4">About the founder</p>
-              <h2 className="heading-md mb-5">A CPA’s view of estate planning</h2>
+              <h2 className="heading-md mb-5">A CPA's view of estate planning</h2>
               <p className="text-neutral-700 leading-relaxed mb-4">
                 Generation Catalyst was founded by a California-licensed CPA whose career runs from
                 Big Four auditing through corporate accounting to fractional CFO work for business
@@ -273,8 +389,8 @@ const HomePage = () => {
                 funding, and the follow-through.
               </p>
               <p className="text-neutral-700 leading-relaxed mb-6">
-                We don’t draft documents and we don’t give legal advice — licensed attorneys do
-                that, and we work alongside them. We bring the coordinator’s seat to the table.
+                We don't draft documents and we don't give legal advice — licensed attorneys do
+                that, and we work alongside them. We bring the coordinator's seat to the table.
               </p>
               <Link to="/about" className="btn-outline">
                 Our story
@@ -282,8 +398,8 @@ const HomePage = () => {
             </div>
             <div className="card bg-white">
               <p className="font-serif text-lg text-primary-900 italic leading-relaxed mb-4">
-                “The attorney builds the vehicle. We keep it fueled, registered, and maintained —
-                and the family decides where it’s going.”
+                "The attorney builds the vehicle. We keep it fueled, registered, and maintained —
+                and the family decides where it's going."
               </p>
               <p className="text-sm text-neutral-600">CPA, Founder of Generation Catalyst</p>
             </div>
