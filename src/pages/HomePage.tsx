@@ -6,6 +6,120 @@ import EmailCapture from '@/components/common/EmailCapture'
 import { getFeaturedArticles } from '@/data/articles'
 import { SERVICE_TIERS } from '@/data/services'
 
+// ─── Coordination Diagram ──────────────────────────────────────────────────────
+
+interface DiagramNode {
+  id: string
+  label: string
+  sublabel: string
+  cx: number
+  cy: number
+  delay: number
+  floatDuration: number
+  floatDelay: number
+}
+
+const DIAGRAM_NODES: DiagramNode[] = [
+  { id: 'family',   label: 'Your Family',   sublabel: 'Goals & beneficiaries', cx: 240, cy: 62,  delay: 0.40, floatDuration: 3.6, floatDelay: 0.0 },
+  { id: 'attorney', label: 'Attorney',       sublabel: 'Legal documents',       cx: 418, cy: 148, delay: 0.55, floatDuration: 4.2, floatDelay: 0.8 },
+  { id: 'funding',  label: 'Trust Funding', sublabel: 'Asset retitling',        cx: 380, cy: 348, delay: 0.70, floatDuration: 3.2, floatDelay: 1.6 },
+  { id: 'admin',    label: 'Tax & Admin',   sublabel: 'Compliance & filing',    cx: 72,  cy: 302, delay: 0.85, floatDuration: 4.8, floatDelay: 2.4 },
+]
+
+const GC_CX = 240
+const GC_CY = 205
+
+const CoordinationDiagram = () => (
+  <svg viewBox="0 0 480 420" className="w-full h-auto max-w-md" aria-hidden="true">
+    <defs>
+      <filter id="gc-shadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx={0} dy={4} stdDeviation={8} floodColor="#162a1f" floodOpacity={0.15} />
+      </filter>
+      <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx={0} dy={3} stdDeviation={5} floodColor="#162a1f" floodOpacity={0.10} />
+      </filter>
+      <radialGradient id="hero-bg" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#c2d9c8" stopOpacity={0.3} />
+        <stop offset="100%" stopColor="#f2f7f3" stopOpacity={0} />
+      </radialGradient>
+    </defs>
+
+    {/* Background glow */}
+    <circle cx={GC_CX} cy={GC_CY} r={220} fill="url(#hero-bg)" />
+
+    {/* Connection lines */}
+    {DIAGRAM_NODES.map((n) => (
+      <motion.path
+        key={`line-${n.id}`}
+        d={`M ${GC_CX} ${GC_CY} L ${n.cx} ${n.cy}`}
+        stroke="#9bbfaa"
+        strokeWidth={1.5}
+        strokeDasharray="6 5"
+        fill="none"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 1.0, delay: n.delay - 0.15, ease: 'easeOut' }}
+      />
+    ))}
+
+    {/* Center GC node */}
+    <g transform={`translate(${GC_CX}, ${GC_CY})`}>
+      <motion.g
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
+      >
+        <motion.circle
+          cx={0} cy={0} r={68}
+          fill="none" stroke="#d4bc55" strokeWidth={1.5} strokeDasharray="4 8"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+        />
+        <circle cx={0} cy={0} r={56} fill="#1f3629" filter="url(#gc-shadow)" />
+        <circle cx={0} cy={0} r={49} fill="none" stroke="#3a6b50" strokeWidth={0.75} />
+        <text x={0} y={-6} textAnchor="middle" fill="white" fontSize={22} fontFamily="Lora, Georgia, serif" fontWeight={600}>GC</text>
+        <text x={0} y={14} textAnchor="middle" fill="#6da085" fontSize={7} fontFamily="Inter, sans-serif" letterSpacing={2}>COORDINATOR</text>
+      </motion.g>
+    </g>
+
+    {/* Peripheral nodes */}
+    {DIAGRAM_NODES.map((n) => {
+      const dx = GC_CX - n.cx
+      const dy = GC_CY - n.cy
+      const len = Math.sqrt(dx * dx + dy * dy)
+      const dotLX = (dx / len) * 44
+      const dotLY = (dy / len) * 44
+      return (
+        <g key={n.id} transform={`translate(${n.cx}, ${n.cy})`}>
+          <motion.g
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: n.delay, ease: [0.175, 0.885, 0.32, 1.275] }}
+          >
+            <motion.g
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: n.floatDuration, repeat: Infinity, ease: 'easeInOut', delay: n.floatDelay }}
+            >
+              <circle cx={0} cy={0} r={42} fill="white" stroke="#c2d9c8" strokeWidth={1.5} filter="url(#node-shadow)" />
+              <circle cx={0} cy={0} r={37} fill="none" stroke="#e0ece2" strokeWidth={0.75} />
+              <text x={0} y={-5} textAnchor="middle" fill="#162a1f" fontSize={10} fontFamily="Inter, sans-serif" fontWeight={600}>{n.label}</text>
+              <text x={0} y={10} textAnchor="middle" fill="#7c716a" fontSize={8} fontFamily="Inter, sans-serif">{n.sublabel}</text>
+            </motion.g>
+          </motion.g>
+          <motion.circle
+            cx={dotLX} cy={dotLY} r={3.5} fill="#4a8264"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: n.delay + 0.3 }}
+          />
+        </g>
+      )
+    })}
+  </svg>
+)
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 const HomePage = () => {
   const featured = getFeaturedArticles(3)
 
@@ -18,32 +132,46 @@ const HomePage = () => {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50 via-neutral-50 to-neutral-50">
-        <div className="container-width section-padding lg:py-28">
-          <motion.div
-            className="max-w-3xl"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="eyebrow mb-5">Education · Tax · Coordination</p>
-            <h1 className="heading-xl mb-6">
-              Your family’s legacy is held in trust by every decision you make.
-            </h1>
-            <p className="text-lg lg:text-xl text-neutral-700 leading-relaxed mb-9 max-w-2xl">
-              Generation Catalyst helps California families coordinate their estate planning —
-              connecting you with the right professionals and handling the tax, funding, and
-              administration most plans get wrong.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/learn" className="btn-primary text-base px-8">
-                Start Learning
-              </Link>
-              <Link to="/contact" className="btn-outline text-base px-8">
-                Book a Family Planning Conversation
-              </Link>
-            </div>
-          </motion.div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-neutral-50 to-neutral-50">
+        <div className="container-width section-padding lg:py-24">
+          <div className="grid lg:grid-cols-2 lg:gap-16 items-center">
+
+            {/* Left — copy */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <p className="eyebrow mb-5">Education · Tax · Coordination</p>
+              <h1 className="heading-xl mb-6">
+                Your family’s legacy is held in trust by every decision you make.
+              </h1>
+              <p className="text-lg lg:text-xl text-neutral-700 leading-relaxed mb-9">
+                Generation Catalyst helps California families coordinate their estate planning —
+                connecting you with the right professionals and handling the tax, funding, and
+                administration most plans get wrong.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/learn" className="btn-primary text-base px-8">
+                  Start Learning
+                </Link>
+                <Link to="/contact" className="btn-outline text-base px-8">
+                  Book a Family Planning Conversation
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Right — coordination diagram */}
+            <motion.div
+              className="hidden lg:flex items-center justify-center"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+            >
+              <CoordinationDiagram />
+            </motion.div>
+
+          </div>
         </div>
         <div
           className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-accent-100/60 blur-3xl"
